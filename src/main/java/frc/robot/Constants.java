@@ -23,13 +23,27 @@ public final class Constants {
 
   public static class CAN {
     //CAN IDs
-    public static final int Pigeon = 20;
+    public static final int climberElevator = -1;
 
-    public static final int PCM = 21;
+    public static final int intake = -1;
+
+    public static final int hopper = -1;
+
+    public static final int feeder = -1;
+
+    public static final int shooterLeft = -1;
+    public static final int shooterRight = -1;
+    
+    public static final int shooterHood = -1;
+
+    public static final int Pigeon = 20;
+    public static final int PCM = 35;
     public static final int PDP = -1;
   }
 
   public static class IDs {
+    public static final int bottomHooks = -1;
+    public static final int topHooks = -1;
     //DIO ports
   }
 
