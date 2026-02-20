@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -63,7 +64,7 @@ public class ShooterHood extends SubsystemBase {
   }
 
   public void goToAngle(double setpoint) {
-    hood.setControl(voltRequest.withPosition(setpoint));  //degrees?
+    hood.setControl(voltRequest.withPosition(setpoint));  
   }
 
   public void hoodUp(double speed) {

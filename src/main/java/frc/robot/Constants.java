@@ -26,6 +26,7 @@ public final class Constants {
     public static final int climberElevator = -1;
 
     public static final int intake = -1;
+    public static final int intakePivot = -1;
 
     public static final int hopper = -1;
 
@@ -44,6 +45,10 @@ public final class Constants {
   public static class IDs {
     public static final int bottomHooks = -1;
     public static final int topHooks = -1;
+
+    public static final int climberLimit = -1;
+    
+    public static final int intakeLimit = -1;
     //DIO ports
   }
 
