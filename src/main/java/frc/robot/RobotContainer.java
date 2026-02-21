@@ -57,9 +57,23 @@ public class RobotContainer {
   private final CommandPS5Controller driverController = new CommandPS5Controller(0);
 
   private final SendableChooser<Command> autoChooser;
+
+  private final Climber climber;
+  private final Feeder feeder;
+  private final Hopper hopper;
+  private final Intake intake;
+  private final Shooter shooter;
+  private final ShooterHood shooterHood;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    climber = new Climber();
+    feeder = new Feeder();
+    hopper = new Hopper();
+    intake = new Intake();
+    shooter = new Shooter();
+    shooterHood = new ShooterHood();
+    
     // Configure the trigger bindings
     configureBindings();
     exportSmartDashboardData();
@@ -101,6 +115,13 @@ public class RobotContainer {
     SmartDashboard.putNumber("Auton Delay", 0);
 
     SmartDashboard.putData(logger.getField());
+
+    SmartDashboard.putData(climber);
+    SmartDashboard.putData(feeder);
+    SmartDashboard.putData(hopper);
+    SmartDashboard.putData(intake);
+    SmartDashboard.putData(shooter);
+    SmartDashboard.putData(shooterHood);
   }
 
   public Command pick() {
