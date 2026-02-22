@@ -2,27 +2,24 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.ShooterHood.Basic;
+package frc.robot.commands.Intake.Basic;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.ShooterHood;
+import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ShooterHoodDown extends Command {
-  private final ShooterHood shooterHood;
-  /** Creates a new RunShooter. */
-  public ShooterHoodDown(ShooterHood shooterHood) {
-    this.shooterHood = shooterHood;
+public class BasicPivotOut extends Command {
+  private final Intake intake;
+  /** Creates a new PivotIn. */
+  public BasicPivotOut(Intake intake) {
+    this.intake = intake;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooterHood);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
-    shooterHood.hoodDown(0.3);
+    intake.basicPivotDown();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -32,12 +29,12 @@ public class ShooterHoodDown extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooterHood.stopHood();
+    intake.stopPivot();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return shooterHood.limitReached();
+    return false;
   }
 }

@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
   private final DigitalInput limitSwitch;
   private boolean isZeroed = false;
   
-  private double intakeSpeed = 1;
+  private double intakeSpeed = 0.5;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
@@ -41,13 +41,13 @@ public class Intake extends SubsystemBase {
   private double kI = 0;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 1;
+  private double sensorToMechGearRatio = 87;
   private double offset = 0;
 
-  private double targetAcceleration = 2;
-  private double targetVelocity = 2;
+  private double targetAcceleration = 1;
+  private double targetVelocity = 1;
 
-  private double outPos = 0;
+  private double outPos = 0.05;
   private double inPos = 0.25;
   public Intake() {
     limitSwitch = new DigitalInput(Constants.IDs.intakeLimit);
@@ -73,7 +73,7 @@ public class Intake extends SubsystemBase {
     motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake)
-        .withInverted(InvertedValue.Clockwise_Positive);
+        .withInverted(InvertedValue.CounterClockwise_Positive);
     motorConfig.MotionMagic = new MotionMagicConfigs()
         .withMotionMagicAcceleration(targetAcceleration)
         .withMotionMagicCruiseVelocity(targetVelocity);
@@ -93,6 +93,16 @@ public class Intake extends SubsystemBase {
   }
   public void intakeIn() {
     pivot.setControl(voltRequest.withPosition(inPos));
+  }
+
+  public void basicPivotUp() {
+    pivot.set(0.2);
+  }
+  public void basicPivotDown() {
+    pivot.set(-0.2);
+  }
+  public void stopPivot() {
+    pivot.set(0);
   }
 
   public void runIntake() {
@@ -129,6 +139,7 @@ public class Intake extends SubsystemBase {
     pivot.getConfigurator().apply(motorConfig);
   }
 
+  public double getPosition() {return pivot.getPosition().getValueAsDouble();}
   public double getVelocity() {return pivot.getVelocity().getValueAsDouble();}
   public double getAcceleration() {return pivot.getAcceleration().getValueAsDouble();}
 
@@ -138,10 +149,10 @@ public class Intake extends SubsystemBase {
   public double getTargetVelocity() {return targetVelocity;}
   public void setTargetVelocity(double value) {targetVelocity = value;}
 
-  public double getProfileVelocity() {
+  public double getProfilePosition() {
     return pivot.getClosedLoopReference().getValueAsDouble();
   }
-  public double getProfileAcceleration() {
+  public double getProfileVelocity() {
     return pivot.getClosedLoopReferenceSlope().getValueAsDouble();
   }
 
@@ -173,7 +184,7 @@ public class Intake extends SubsystemBase {
     builder.addDoubleProperty("Target Velocity (rot/s)", this::getTargetVelocity, this::setTargetVelocity);
 
     builder.addDoubleProperty("Profile Velocity (rot/s)", this::getProfileVelocity, null);
-    builder.addDoubleProperty("Profile Acceleration (rot/s)", this::getProfileAcceleration, null);
+    builder.addDoubleProperty("Profile Acceleration (rot)", this::getProfilePosition, null);
 
     builder.addDoubleProperty("Stator Current (A)", this::getStatorCurrent, null);
 
@@ -190,7 +201,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(atLimit() && !isZeroed()) {
+    if(atLimit()) {
       pivot.setPosition(0);
       setZeroed(true);
     }

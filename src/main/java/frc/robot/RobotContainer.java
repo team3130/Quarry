@@ -21,8 +21,24 @@ import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Chassis.TeleopDrive;
+import frc.robot.commands.Climber.Basic.BasicClimberDown;
+import frc.robot.commands.Climber.Basic.BasicClimberUp;
+import frc.robot.commands.Feeder.Basic.ReverseFeederBasic;
+import frc.robot.commands.Feeder.Basic.RunFeederBasic;
+import frc.robot.commands.Hopper.ReverseHopperHorizontal;
+import frc.robot.commands.Hopper.RunHopperHorizontal;
+import frc.robot.commands.Intake.Basic.BasicPivotIn;
+import frc.robot.commands.Intake.Basic.BasicPivotOut;
+import frc.robot.commands.Intake.Basic.ReverseIntake;
+import frc.robot.commands.Intake.Basic.RunIntake;
+import frc.robot.commands.Shooter.Basic.ReverseShooter;
+import frc.robot.commands.Shooter.Basic.RunShooter;
+import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
+import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
+import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import org.json.simple.parser.ParseException;
@@ -105,6 +121,30 @@ public class RobotContainer {
     operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
+    driverController.R2().whileTrue(new SequentialCommandGroup(
+      new RunShooter(shooter), 
+      new RunFeederBasic(feeder)));
+    //driverController.L2().whileTrue(new ReverseShooter(shooter));
+
+    //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));
+    //driverController.triangle().whileTrue(new ShooterHoodUp(shooterHood));
+    //driverController.cross().whileTrue(new ShooterHoodDown(shooterHood));
+
+    //driverController.R1().whileTrue(new RunFeederBasic(feeder));
+    //driverController.L1().whileTrue(new ReverseFeederBasic(feeder));
+
+    //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
+    //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
+
+    //driverController.povRight().whileTrue(new BasicPivotIn(intake));
+    //driverController.povLeft().whileTrue(new BasicPivotOut(intake));
+
+    driverController.L2().whileTrue(new RunIntake(intake));
+    driverController.L1().whileTrue(new ReverseIntake(intake));
+
+    //driverController.options().whileTrue(new BasicClimberUp(climber));
+    //driverController.create().whileTrue(new BasicClimberDown(climber));
+
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
 
@@ -122,6 +162,14 @@ public class RobotContainer {
     SmartDashboard.putData(intake);
     SmartDashboard.putData(shooter);
     SmartDashboard.putData(shooterHood);
+  }
+
+  public void intakeReset() {intake.setZeroed(false);}
+  
+  public void hoodtoSetpoint() {
+    CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
+      new ShooterHoodDown(shooterHood),
+      new HoodToSetpoint(shooterHood)));
   }
 
   public Command pick() {

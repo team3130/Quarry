@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
   private double targetVelocityMetersPerSec = 15;
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(2));
 
-  private double speed = 1;
+  private double speed = 0.6;
   /** Creates a new Shooter. */
   public Shooter() {
     rightShooter = new TalonFX(Constants.CAN.shooterRight);

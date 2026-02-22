@@ -50,6 +50,8 @@ public class Climber extends SubsystemBase {
 
   private boolean bottomExtended = false;
   private boolean topExtended = false;
+
+  private final double speed = 0.1;
   /** Creates a new Climber. */
   public Climber() {
     elevator = new TalonFX(Constants.CAN.climberElevator);
@@ -80,6 +82,16 @@ public class Climber extends SubsystemBase {
 
     voltRequest = new MotionMagicVoltage(0);
   }
+
+  public void climberUp() {
+    elevator.set(speed);
+  }
+  public void climberDown() {
+    elevator.set(-speed);
+  }
+  public void stopClimber() {
+    elevator.set(0);
+  }
   
   public void goToSetpoint(double setpoint) {
     elevator.setControl(voltRequest.withPosition(setpoint));
@@ -90,6 +102,12 @@ public class Climber extends SubsystemBase {
   public void goToBottom() {
     elevator.setControl(voltRequest.withPosition(bottomPos));
   }
+
+  public void extendBottomHooks() {bottomHooks.set(true);}
+  public void retractBottomHooks() {bottomHooks.set(false);}
+
+  public void extendTopHooks() {topHooks.set(true);}
+  public void retractTopHooks() {topHooks.set(false);}
 
     public double getkV() {return kV;}
   public double getkA() {return kA;}
@@ -132,13 +150,6 @@ public class Climber extends SubsystemBase {
 
   public double getGearRatio() {return sensorToMechGearRatio;}
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
-
-
-  public void extendBottomHooks() {bottomHooks.set(true);}
-  public void retractBottomHooks() {bottomHooks.set(false);}
-
-  public void extendTopHooks() {topHooks.set(true);}
-  public void retractTopHooks() {topHooks.set(false);}
 
   public boolean isBottomExtended() {return bottomExtended;}
   public boolean isTopExtended() {return topExtended;}

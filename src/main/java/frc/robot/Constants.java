@@ -23,33 +23,35 @@ public final class Constants {
 
   public static class CAN {
     //CAN IDs
-    public static final int climberElevator = -1;
+    public static final int climberElevator = 17;
 
-    public static final int intake = -1;
-    public static final int intakePivot = -1;
+    public static final int intake = 20;
+    public static final int intakePivot = 19;
 
-    public static final int hopper = -1;
+    public static final int hopper = 15;
 
-    public static final int feeder = -1;
+    public static final int feeder = 16;
 
-    public static final int shooterLeft = -1;
-    public static final int shooterRight = -1;
+    public static final int shooterLeft = 14;
+    public static final int shooterRight = 13;
     
-    public static final int shooterHood = -1;
+    public static final int shooterHood = 18;
 
-    public static final int Pigeon = 20;
+    public static final int Pigeon = 0;
     public static final int PCM = 35;
     public static final int PDP = -1;
   }
 
   public static class IDs {
-    public static final int bottomHooks = -1;
-    public static final int topHooks = -1;
+    public static final int bottomHooks = 0;
+    public static final int topHooks = 2;
 
-    public static final int climberLimit = -1;
+    public static final int climberLimit = 3;
     
-    public static final int intakeLimit = -1;
-    //DIO ports
+    public static final int intakeLimit = 4;
+
+    public static final int shooterHoodLimit = 1;
+    //DIO ports and pwm ports
   }
 
   public static class Swerve {
