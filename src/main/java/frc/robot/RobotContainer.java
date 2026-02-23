@@ -40,6 +40,8 @@ import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 
 import org.json.simple.parser.ParseException;
 
@@ -89,6 +91,9 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     shooterHood = new ShooterHood();
+
+    NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
+    NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
     
     // Configure the trigger bindings
     configureBindings();
@@ -121,9 +126,11 @@ public class RobotContainer {
     operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-    driverController.R2().whileTrue(new SequentialCommandGroup(
-      new RunShooter(shooter), 
-      new RunFeederBasic(feeder)));
+    driverController.R2().whileTrue(new ParallelDeadlineGroup(
+      new SequentialCommandGroup(
+        new WaitCommand(2), 
+        new RunFeederBasic(feeder)), 
+      new RunShooter(shooter)));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
     //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));
