@@ -36,9 +36,13 @@ public class UpdateOdoFromVision extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    LimelightHelpers.PoseEstimate pose = limelights.getRobotPose();
-    if(pose != null && pose.tagCount > 0) {
-      driveTrain.addVisionMeasurement(pose.pose, pose.timestampSeconds);
+    LimelightHelpers.PoseEstimate leftPose = limelights.getRobotPose("left");
+    LimelightHelpers.PoseEstimate rightPose = limelights.getRobotPose("right");
+    if(leftPose != null && leftPose.tagCount > 0) {
+      driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
+    }
+    if(rightPose != null && rightPose.tagCount > 0) {
+      driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
     }
   }
 

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
+import frc.robot.commands.UpdateOdoFromVision;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
@@ -82,6 +83,7 @@ public class RobotContainer {
   private final Intake intake;
   private final Shooter shooter;
   private final ShooterHood shooterHood;
+  private final Limelight limelight;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -91,6 +93,8 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     shooterHood = new ShooterHood();
+
+    limelight = new Limelight(driveTrain);
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
@@ -116,15 +120,22 @@ public class RobotContainer {
   private void configureBindings() {
     // Note that X is defined as forward according to WPILib convention,
     // and Y is defined as to the left according to WPILib convention.
+    
+    limelight.setDefaultCommand(new UpdateOdoFromVision(driveTrain, limelight, logger));
     driveTrain.setDefaultCommand(new TeleopDrive(
       driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
-    operatorController.back().and(operatorController.y()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    operatorController.back().and(operatorController.x()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    operatorController.back().and(operatorController.x()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    operatorController.start().and(operatorController.y()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    operatorController.start().and(operatorController.x()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    //operatorController.back().and(operatorController.y()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    //operatorController.back().and(operatorController.x()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    //operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     driverController.R2().whileTrue(new ParallelDeadlineGroup(
       new SequentialCommandGroup(
