@@ -41,6 +41,7 @@ public class Feeder extends SubsystemBase {
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(0.5));
 
   private final double speed = 0.7;
+  private final double cycleSpeed = 0.2;
   /** Creates a new Feeder. */
   public Feeder() {
     feeder = new TalonFX(Constants.CAN.feeder);
@@ -74,6 +75,8 @@ public class Feeder extends SubsystemBase {
   public void runFeeder() {
     feeder.setControl(voltRequest.withVelocity(targetVelocityRotations));
   }
+
+  public void runFeederCycle() {feeder.set(cycleSpeed);}
 
   public void runFeederBasic() {feeder.set(speed);}
   public void reverseFeederBasic() {feeder.set(-speed);}
