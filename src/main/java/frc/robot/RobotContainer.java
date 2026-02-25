@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.brains.ShooterMath;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
@@ -33,6 +34,8 @@ import frc.robot.commands.Intake.Basic.ReverseIntake;
 import frc.robot.commands.Intake.Basic.RunIntake;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
+import frc.robot.commands.Shooter.PID.RevToInterpolVel;
+import frc.robot.commands.Shooter.PID.StopRev;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
@@ -46,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.util.InterpolatingDoubleTreeMap.InterpolationDoubleTree;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -82,9 +86,13 @@ public class RobotContainer {
   private final Intake intake;
   private final Shooter shooter;
   private final ShooterHood shooterHood;
+  private final ShooterMath shooterMath;
+  private final InterpolationDoubleTree interpolationDoubleTree;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    interpolationDoubleTree = new InterpolationDoubleTree();
+    shooterMath = new ShooterMath(interpolationDoubleTree, driveTrain);
     climber = new Climber();
     feeder = new Feeder();
     hopper = new Hopper();
@@ -130,7 +138,15 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new WaitCommand(2), 
         new RunFeederBasic(feeder)), 
-      new RunShooter(shooter)));
+      new RunShooter(shooter)
+    ));
+
+    //This is for Auto Shoot
+    //driverController.square().whileTrue(new RunFeederBasic(feeder));
+    //driverController.R1().whileTrue(new RevToInterpolVel(shooter, shooterMath));
+    //driverController.circle().whileTrue(new StopRev(shooter));
+
+
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
     //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));

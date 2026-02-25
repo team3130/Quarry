@@ -7,6 +7,7 @@ package frc.robot.brains;
 import java.util.InterpolatingDoubleTreeMap.InterpolationDoubleTree;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /** Add your docs here. */
@@ -99,5 +100,11 @@ public class ShooterMath {
 
     public double AngleInterpol() {
         return interpolationDoubleTree.getInterPolAngle(getDistanceFromHub(), RevInterpol());
+    }
+
+    public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("Shooter Math");
+    builder.addDoubleProperty("Distance from Hub", this::getDistanceFromHub, null);
+    builder.addDoubleProperty("Rev Interpol Speed", this::RevInterpol, null);
     }
 }
