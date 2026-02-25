@@ -134,12 +134,14 @@ public class RobotContainer {
     operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-    driverController.R2().whileTrue(new ParallelDeadlineGroup(
+    driverController.R1().whileTrue(new ParallelDeadlineGroup(
       new SequentialCommandGroup(
         new WaitCommand(2), 
         new RunFeederBasic(feeder)), 
       new RunShooter(shooter)
     ));
+
+    driverController.R2().whileTrue(new RunShooter(shooter));
 
     //This is for Auto Shoot
     //driverController.square().whileTrue(new RunFeederBasic(feeder));
