@@ -4,10 +4,9 @@
 
 package frc.robot.brains;
 
-import java.util.InterpolatingDoubleTreeMap.InterpolationDoubleTree;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import frc.robot.InterpolationDoubleTree;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /** Add your docs here. */

@@ -49,7 +49,6 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.util.InterpolatingDoubleTreeMap.InterpolationDoubleTree;
 import java.util.function.BooleanSupplier;
 
 /**
