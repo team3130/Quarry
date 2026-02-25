@@ -6,12 +6,17 @@ package frc.robot.brains;
 
 import java.util.InterpolatingDoubleTreeMap.InterpolationDoubleTree;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+
 /** Add your docs here. */
 public class ShooterMath {
     private final InterpolationDoubleTree interpolationDoubleTree;
+    private final CommandSwerveDrivetrain commandSwerveDrivetrain;
 
-    public ShooterMath(InterpolationDoubleTree interpolationDoubleTree) {
+    public ShooterMath(InterpolationDoubleTree interpolationDoubleTree, CommandSwerveDrivetrain commandSwerveDrivetrain) {
         this.interpolationDoubleTree = interpolationDoubleTree;
+        this.commandSwerveDrivetrain = commandSwerveDrivetrain;
     }
 
     private static final double[][] measurments = {
@@ -21,10 +26,14 @@ public class ShooterMath {
         {2,2,2,2,2}  //Time for Arcs
     };
     
+    
 
+    public double getDistanceFromHub() {
+        Translation2d originToHub = new Translation2d(181.56,158.32);
+        double distance = commandSwerveDrivetrain.getStatePose().getTranslation().getDistance(originToHub);
+        return distance;
+    }
 
-    public double getDistance() {return 4;}
-    public double getVelocityFromHub() {return 0.5;}
 
     //This is just using distance: 1 input to 1 output
     public double Rev0Interpol(double distance) {
@@ -85,10 +94,10 @@ public class ShooterMath {
     }
 
     public double RevInterpol() {
-        return interpolationDoubleTree.getInterPolVel(getDistance());
+        return interpolationDoubleTree.getInterPolVel(getDistanceFromHub());
     }
 
     public double AngleInterpol() {
-        return interpolationDoubleTree.getInterPolAngle(getDistance(), RevInterpol());
+        return interpolationDoubleTree.getInterPolAngle(getDistanceFromHub(), RevInterpol());
     }
 }
