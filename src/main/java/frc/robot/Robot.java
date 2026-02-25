@@ -43,11 +43,14 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    m_robotContainer.updateOdoFromVision();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    m_robotContainer.setDisabledDeviations();
+    m_robotContainer.hoodReset();
     m_robotContainer.intakeReset();
   }
 
@@ -57,6 +60,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.setEnabledDeviations();
     m_autonomousCommand = m_robotContainer.pick();
 
     // schedule the autonomous command (example)

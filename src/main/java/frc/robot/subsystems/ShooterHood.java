@@ -18,6 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -150,7 +151,7 @@ public class ShooterHood extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(limitReached()) {
+    if(limitReached() && !isZeroed && DriverStation.isEnabled()) {
       hood.setPosition(0);
       setZeroed(true);
     }

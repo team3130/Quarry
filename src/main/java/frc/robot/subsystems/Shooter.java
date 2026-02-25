@@ -50,7 +50,7 @@ public class Shooter extends SubsystemBase {
   private double targetVelocityMetersPerSec = 15;
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(2));
 
-  private double speed = 0.6;
+  private double speed = 0.7;
 
   //SysID
   private final VoltageOut m_voltReq = new VoltageOut(0.0);

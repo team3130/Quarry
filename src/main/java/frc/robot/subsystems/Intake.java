@@ -201,9 +201,9 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(atLimit()) {
-      pivot.setPosition(0);
-      setZeroed(true);
-    }
+    //if(atLimit()) {
+      //pivot.setPosition(0);
+      //setZeroed(true);
+    //}
   }
 }

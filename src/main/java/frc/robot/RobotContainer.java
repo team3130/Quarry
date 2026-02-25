@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
-import frc.robot.commands.UpdateOdoFromVision;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
@@ -121,7 +120,7 @@ public class RobotContainer {
     // Note that X is defined as forward according to WPILib convention,
     // and Y is defined as to the left according to WPILib convention.
     
-    limelight.setDefaultCommand(new UpdateOdoFromVision(driveTrain, limelight, logger));
+    //limelight.setDefaultCommand(new UpdateOdoFromVision(driveTrain, limelight, logger));
     driveTrain.setDefaultCommand(new TeleopDrive(
       driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
 
@@ -142,6 +141,8 @@ public class RobotContainer {
         new WaitCommand(2), 
         new RunFeederBasic(feeder)), 
       new RunShooter(shooter)));
+
+    driverController.R1().whileTrue(new ShooterHoodDown(shooterHood));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
     //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));
@@ -183,11 +184,23 @@ public class RobotContainer {
   }
 
   public void intakeReset() {intake.setZeroed(false);}
+  public void hoodReset() {shooterHood.setZeroed(false);}
   
   public void hoodtoSetpoint() {
     CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
       new ShooterHoodDown(shooterHood),
       new HoodToSetpoint(shooterHood)));
+  }
+
+  public void updateOdoFromVision() {
+    limelight.updateOdo();
+  }
+
+  public void setDisabledDeviations() {
+    limelight.disabledDeviations();
+  }
+  public void setEnabledDeviations() {
+    limelight.enabledDeviations();
   }
 
   public Command pick() {
