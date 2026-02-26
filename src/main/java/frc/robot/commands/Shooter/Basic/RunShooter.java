@@ -25,7 +25,9 @@ public class RunShooter extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    shooter.updatePID();
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -37,5 +39,5 @@ public class RunShooter extends Command {
   @Override
   public boolean isFinished() {
     return false;
-  }
+  } 
 }
