@@ -7,13 +7,18 @@ package frc.robot.commands.Shooter.Basic;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RunShooter extends Command {
+  private final CommandSwerveDrivetrain driveTrain;
   private final Shooter shooter;
+
   /** Creates a new RunShooter. */
-  public RunShooter(Shooter shooter) {
+  public RunShooter(Shooter shooter, CommandSwerveDrivetrain driveTrain) {
     this.shooter = shooter;
+    this.driveTrain = driveTrain;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -27,6 +32,8 @@ public class RunShooter extends Command {
   @Override
   public void execute() {
     shooter.updatePID();
+    driveTrain.getStatePose().getX();
+    driveTrain.getStatePose().getY();
   }
 
   // Called once the command ends or is interrupted.

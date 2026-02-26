@@ -93,7 +93,7 @@ public class RobotContainer {
     shooterHood = new ShooterHood();
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
-    NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
+    NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter, driveTrain));
     
     // Configure the trigger bindings
     configureBindings();
@@ -131,7 +131,7 @@ public class RobotContainer {
       //  new WaitCommand(2), 
       //  new RunFeederBasic(feeder)), 
       //new RunShooter(shooter)));
-    driverController.R2().whileTrue(new RunShooter(shooter));
+    driverController.R2().whileTrue(new RunShooter(shooter, driveTrain));
     driverController.cross().whileTrue(new RunFeederBasic(feeder));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
