@@ -14,6 +14,8 @@ import frc.robot.LimelightHelpers;
 public class Limelight extends SubsystemBase {
   private final CommandSwerveDrivetrain driveTrain;
 
+  private boolean robotHeadingReset = false;
+
   private final String limelightLeftName = "limelight-left";
   private final String limelightRightName = "limelight-right";
 
@@ -40,19 +42,45 @@ public class Limelight extends SubsystemBase {
     return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
   }
 
+  public LimelightHelpers.PoseEstimate getMT1RobotPose(String name) {
+    return LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+  }
+
   public void updateOdo() {
-    LimelightHelpers.PoseEstimate leftPose = getRobotPose(limelightLeftName);
-    LimelightHelpers.PoseEstimate rightPose = getRobotPose(limelightRightName);
-    if(leftPose != null && leftPose.tagCount > 0) {
-      driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
-    }
-    if(rightPose != null && rightPose.tagCount > 0) {
-      driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
+    if(robotHeadingReset) {
+      LimelightHelpers.PoseEstimate leftPose = getRobotPose(limelightLeftName);
+      LimelightHelpers.PoseEstimate rightPose = getRobotPose(limelightRightName);
+      if(leftPose != null && leftPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
+      }
+      if(rightPose != null && rightPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
+      }
     }
   }
 
+  public void updateDisabledOdo() {
+    if(!robotHeadingReset) {
+      LimelightHelpers.PoseEstimate leftPose = getMT1RobotPose(limelightLeftName);
+      LimelightHelpers.PoseEstimate rightPose = getMT1RobotPose(limelightRightName);
+      if(leftPose != null && leftPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
+        driveTrain.resetRotation(leftPose.pose.getRotation());
+        robotHeadingReset = true;
+      }
+      if(rightPose != null && rightPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
+        driveTrain.resetRotation(rightPose.pose.getRotation());
+        robotHeadingReset = true;
+      }
+    }
+  }
+
+  public boolean IsRobotHeadingReset() {return IsRobotHeadingReset();}
+  public void setRobotHeadingReset(boolean value) {robotHeadingReset = value;}
+
   public void disabledDeviations() {
-    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 0.1));
+    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(2, 2, 0.3));
   }
 
   public void enabledDeviations() {

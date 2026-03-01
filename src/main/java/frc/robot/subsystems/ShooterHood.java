@@ -36,7 +36,7 @@ public class ShooterHood extends SubsystemBase {
   private double kI = 0;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 208.842;
+  private double sensorToMechGearRatio = 117.63;
 
   private double targetAcceleration = 100;
   private double targetVelocity = 20;

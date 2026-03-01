@@ -31,6 +31,7 @@ import frc.robot.commands.Intake.Basic.BasicPivotIn;
 import frc.robot.commands.Intake.Basic.BasicPivotOut;
 import frc.robot.commands.Intake.Basic.ReverseIntake;
 import frc.robot.commands.Intake.Basic.RunIntake;
+import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
@@ -161,6 +162,9 @@ public class RobotContainer {
     driverController.L2().whileTrue(new RunIntake(intake));
     driverController.L1().whileTrue(new ReverseIntake(intake));
 
+    driverController.triangle().whileTrue(new BasicPivotIn(intake));
+    driverController.cross().whileTrue(new BasicPivotOut(intake));
+
     //driverController.options().whileTrue(new BasicClimberUp(climber));
     //driverController.create().whileTrue(new BasicClimberDown(climber));
 
@@ -185,6 +189,7 @@ public class RobotContainer {
 
   public void intakeReset() {intake.setZeroed(false);}
   public void hoodReset() {shooterHood.setZeroed(false);}
+  public void limelightReset() {limelight.setRobotHeadingReset(false);}
   
   public void hoodtoSetpoint() {
     CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
@@ -194,6 +199,9 @@ public class RobotContainer {
 
   public void updateOdoFromVision() {
     limelight.updateOdo();
+  }
+  public void updateDisabledOdoFromVision() {
+    limelight.updateDisabledOdo();
   }
 
   public void setDisabledDeviations() {

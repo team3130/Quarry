@@ -35,6 +35,7 @@ public class BasicPivotIn extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return intake.atLimit();
+    //return intake.atLimit();
+    return false;
   }
 }

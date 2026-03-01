@@ -43,6 +43,7 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    m_robotContainer.updateDisabledOdoFromVision();
     m_robotContainer.updateOdoFromVision();
   }
 
@@ -52,6 +53,7 @@ public class Robot extends TimedRobot {
     m_robotContainer.setDisabledDeviations();
     m_robotContainer.hoodReset();
     m_robotContainer.intakeReset();
+    m_robotContainer.limelightReset();
   }
 
   @Override
