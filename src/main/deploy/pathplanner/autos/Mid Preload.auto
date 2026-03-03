@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "MidPreload"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -36,10 +30,16 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Run Shooter"
+                  "name": "Rev Velocity"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MidPreload"
           }
         }
       ]

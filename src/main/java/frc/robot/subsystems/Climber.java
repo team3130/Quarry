@@ -84,7 +84,7 @@ public class Climber extends SubsystemBase {
     motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake)
-        .withInverted(InvertedValue.Clockwise_Positive);
+        .withInverted(InvertedValue.CounterClockwise_Positive);
     motorConfig.MotionMagic = new MotionMagicConfigs()
         .withMotionMagicAcceleration(targetAcceleration)
         .withMotionMagicCruiseVelocity(targetVelocity);

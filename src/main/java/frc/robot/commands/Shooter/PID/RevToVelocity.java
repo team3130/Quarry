@@ -10,7 +10,7 @@ import frc.robot.subsystems.Shooter;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RevToVelocity extends Command {
   private final Shooter shooter;
-  private final double velocity = 22;
+  private final double velocity = 14;
   /** Creates a new ShootAtVelocity. */
   public RevToVelocity(Shooter shooter) {
     this.shooter = shooter;
