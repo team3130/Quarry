@@ -18,6 +18,15 @@ public class InterpolationDoubleTree {
         {2,2,2,2,2}  //Time for Arcs
     };
 
+    private final double[][] Intermeasurements = {
+    {angleLinearizer(measurments[1][0], measurments[2][0]),angleLinearizer(measurments[1][1], measurments[2][1])
+        ,angleLinearizer(measurments[1][2], measurments[2][2]),angleLinearizer(measurments[1][3], measurments[2][3])
+        ,angleLinearizer(measurments[1][4], measurments[2][4])},//hoodMeasurements
+    {velocityLinearizer(measurments[2][0]),velocityLinearizer(measurments[2][1])
+        ,velocityLinearizer(measurments[2][2]),velocityLinearizer(measurments[2][3])
+        ,velocityLinearizer(measurments[2][4])} //shooterMeasurements
+    };
+
     public double angleLinearizer(double angle, double speed) {
         double term1 = (2*9.8*hubHeight)/(speed*speed);
         double term2 = (Math.sin(angle)+Math.sqrt(Math.sin(angle)*Math.sin(angle)-term1));
@@ -27,15 +36,6 @@ public class InterpolationDoubleTree {
     public double velocityLinearizer(double speed) {
         return speed*speed;
     }
-
-    private final double[][] Intermeasurements = {
-        {angleLinearizer(measurments[1][0], measurments[2][0]),angleLinearizer(measurments[1][1], measurments[2][1])
-            ,angleLinearizer(measurments[1][2], measurments[2][2]),angleLinearizer(measurments[1][3], measurments[2][3])
-            ,angleLinearizer(measurments[1][4], measurments[2][4])},//hoodMeasurements
-        {velocityLinearizer(measurments[2][0]),velocityLinearizer(measurments[2][1])
-            ,velocityLinearizer(measurments[2][2]),velocityLinearizer(measurments[2][3])
-            ,velocityLinearizer(measurments[2][4])} //shooterMeasurements
-    };
 
     public InterpolationDoubleTree() {
         //Key = Distance
