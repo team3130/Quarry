@@ -31,16 +31,16 @@ public class ShooterMath {
         //Interpolation Double tree for Velocities
         tableVel.put(distances[0], velocities[0]);
         tableVel.put(distances[1], velocities[1]);
-        tableVel.put(distances[2], velocities[2]);
-        tableVel.put(distances[3], velocities[3]);
-        tableVel.put(distances[4], velocities[4]);
+        //tableVel.put(distances[2], velocities[2]);
+        //tableVel.put(distances[3], velocities[3]);
+        //tableVel.put(distances[4], velocities[4]);
 
         //Interpolation Double tree for Angles
         tableAngle.put(distances[0], angles[0]);
         tableAngle.put(distances[1], angles[1]);
-        tableAngle.put(distances[2], angles[2]);
-        tableAngle.put(distances[3], angles[3]);
-        tableAngle.put(distances[4], angles[4]);
+        //tableAngle.put(distances[2], angles[2]);
+        //tableAngle.put(distances[3], angles[3]);
+        //tableAngle.put(distances[4], angles[4]);
     }
     
     public ShooterMath(InterpolationDoubleTree interpolationDoubleTree, CommandSwerveDrivetrain commandSwerveDrivetrain) {
@@ -49,7 +49,7 @@ public class ShooterMath {
     }
 
     public double getDistanceFromHub() {
-        Translation2d originToHub = new Translation2d(181.56,158.32);
+        Translation2d originToHub = new Translation2d(Units.inchesToMeters(181.56),Units.inchesToMeters(158.32));
         double distance = commandSwerveDrivetrain.getStatePose().getTranslation().getDistance(originToHub);
         return distance;
     }
