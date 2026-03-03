@@ -44,13 +44,13 @@ public final class Constants {
 
   public static class IDs {
     public static final int bottomHooks = 0;
-    public static final int topHooks = 2;
+    public static final int topHooks = 1;
 
     public static final int climberLimit = 3;
     
     public static final int intakeLimit = 4;
 
-    public static final int shooterHoodLimit = 1;
+    public static final int shooterHoodLimit = 2;
     //DIO ports and pwm ports
   }
 

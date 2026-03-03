@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,20 +23,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Climber extends SubsystemBase {
-  private final Solenoid bottomHooks;
-  private final Solenoid topHooks;
-
   private final TalonFX elevator;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
 
-  private final Slot0Configs config;
-  private double kV = 0.12;
-  private double kA = 0;
-  private double kP = 0;
-  private double kI = 0;
-  private double kD = 0;
+  private final Slot0Configs emptyConfig;
+  private double slot0_kG = 0;
+  private double slot0_kV = 0.12;
+  private double slot0_kA = 0;
+  private double slot0_kP = 0;
+  private double slot0_kI = 0;
+  private double slot0_kD = 0;
+
+  private final Slot1Configs fullConfig;
+  private double slot1_kG = 0;
+  private double slot1_kV = 0.12;
+  private double slot1_kA = 0;
+  private double slot1_kP = 0;
+  private double slot1_kI = 0;
+  private double slot1_kD = 0;
 
   private double reachPos = 0;
   private double bottomPos = 0;
@@ -51,32 +58,39 @@ public class Climber extends SubsystemBase {
   private boolean bottomExtended = false;
   private boolean topExtended = false;
 
-  private final double speed = 0.1;
+  private final double speed = 0.75;
   /** Creates a new Climber. */
   public Climber() {
     elevator = new TalonFX(Constants.CAN.climberElevator);
 
     limitSwitch = new DigitalInput(Constants.IDs.climberLimit);
 
-    bottomHooks = new Solenoid(35, PneumaticsModuleType.CTREPCM, Constants.IDs.bottomHooks);
-    topHooks = new Solenoid(Constants.CAN.PCM, PneumaticsModuleType.CTREPCM, Constants.IDs.topHooks);
+    emptyConfig = new Slot0Configs();
+    emptyConfig.kG = slot0_kG;
+    emptyConfig.kV = slot0_kV;
+    emptyConfig.kA = slot0_kA;
+    emptyConfig.kP = slot0_kP;
+    emptyConfig.kI = slot0_kI;
+    emptyConfig.kD = slot0_kI;
 
-    config = new Slot0Configs();
-    config.kV = kV;
-    config.kA = kA;
-    config.kP = kP;
-    config.kI = kI;
-    config.kD = kD;
+    fullConfig = new Slot1Configs();
+    fullConfig.kG = slot1_kG;
+    fullConfig.kV = slot1_kV;
+    fullConfig.kA = slot1_kA;
+    fullConfig.kP = slot1_kP;
+    fullConfig.kI = slot1_kI;
+    fullConfig.kD = slot1_kI;
 
     motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake)
-        .withInverted(InvertedValue.Clockwise_Positive);
+        .withInverted(InvertedValue.CounterClockwise_Positive);
     motorConfig.MotionMagic = new MotionMagicConfigs()
         .withMotionMagicAcceleration(targetAcceleration)
         .withMotionMagicCruiseVelocity(targetVelocity);
     motorConfig.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(sensorToMechGearRatio);
-    motorConfig.Slot0 = config;
+    motorConfig.Slot0 = emptyConfig;
+    motorConfig.Slot1 = fullConfig;
 
     elevator.getConfigurator().apply(motorConfig);
 
@@ -103,30 +117,48 @@ public class Climber extends SubsystemBase {
     elevator.setControl(voltRequest.withPosition(bottomPos));
   }
 
-  public void extendBottomHooks() {bottomHooks.set(true);}
-  public void retractBottomHooks() {bottomHooks.set(false);}
-
-  public void extendTopHooks() {topHooks.set(true);}
-  public void retractTopHooks() {topHooks.set(false);}
-
-    public double getkV() {return kV;}
-  public double getkA() {return kA;}
-  public double getkP() {return kP;}
-  public double getkI() {return kI;}
-  public double getkD() {return kD;}
-  public void setkV(double value) {kV = value;}
-  public void setkA(double value) {kA = value;}
-  public void setkP(double value) {kP = value;}
-  public void setkI(double value) {kI = value;}
-  public void setkD(double value) {kD = value;}
+  public double getSlot0_kG() {return slot0_kG;}
+  public double getSlot0_kV() {return slot0_kV;}
+  public double getSlot0_kA() {return slot0_kA;}
+  public double getSlot0_kP() {return slot0_kP;}
+  public double getSlot0_kI() {return slot0_kI;}
+  public double getSlot0_kD() {return slot0_kD;}
+  public void setSlot0_kG(double value) {slot0_kG = value;}
+  public void setSlot0_kV(double value) {slot0_kV = value;}
+  public void setSlot0_kA(double value) {slot0_kA = value;}
+  public void setSlot0_kP(double value) {slot0_kP = value;}
+  public void setSlot0_kI(double value) {slot0_kI = value;}
+  public void setSlot0_kD(double value) {slot0_kD = value;}
+  public double getSlot1_kG() {return slot1_kG;}
+  public double getSlot1_kV() {return slot1_kV;}
+  public double getSlot1_kA() {return slot1_kA;}
+  public double getSlot1_kP() {return slot1_kP;}
+  public double getSlot1_kI() {return slot1_kI;}
+  public double getSlot1_kD() {return slot1_kD;}
+  public void setSlot1_kG(double value) {slot1_kG = value;}
+  public void setSlot1_kV(double value) {slot1_kV = value;}
+  public void setSlot1_kA(double value) {slot1_kA = value;}
+  public void setSlot1_kP(double value) {slot1_kP = value;}
+  public void setSlot1_kI(double value) {slot1_kI = value;}
+  public void setSlot1_kD(double value) {slot1_kD = value;}
 
   public void updatePID() {
-    config.kV = kV;
-    config.kA = kA;
-    config.kP = kP;
-    config.kI = kI;
-    config.kD = kD;
-    motorConfig.Slot0 = config;
+    emptyConfig.kG = slot0_kG;
+    emptyConfig.kV = slot0_kV;
+    emptyConfig.kA = slot0_kA;
+    emptyConfig.kP = slot0_kP;
+    emptyConfig.kI = slot0_kI;
+    emptyConfig.kD = slot0_kD;
+    motorConfig.Slot0 = emptyConfig;
+
+    fullConfig.kG = slot1_kG;
+    fullConfig.kV = slot1_kV;
+    fullConfig.kA = slot1_kA;
+    fullConfig.kP = slot1_kP;
+    fullConfig.kI = slot1_kI;
+    fullConfig.kD = slot1_kD;
+    motorConfig.Slot1 = fullConfig;
+
     elevator.getConfigurator().apply(motorConfig);
   }
 
@@ -184,18 +216,26 @@ public class Climber extends SubsystemBase {
 
     builder.addDoubleProperty("Sensor to Mech Gear Ratio", this::getGearRatio, this::setGearRatio);
 
-    builder.addDoubleProperty("kV", this::getkV, this::setkV);
-    builder.addDoubleProperty("kA", this::getkA, this::setkA);
-    builder.addDoubleProperty("kP", this::getkP, this::setkP);
-    builder.addDoubleProperty("kI", this::getkI, this::setkI);
-    builder.addDoubleProperty("kD", this::getkD, this::setkD);
+    builder.addDoubleProperty("Empty kG", this::getSlot0_kG, this::setSlot0_kG);
+    builder.addDoubleProperty("Empty kV", this::getSlot0_kV, this::setSlot0_kV);
+    builder.addDoubleProperty("Empty kA", this::getSlot0_kA, this::setSlot0_kA);
+    builder.addDoubleProperty("Empty kP", this::getSlot0_kP, this::setSlot0_kP);
+    builder.addDoubleProperty("Empty kI", this::getSlot0_kI, this::setSlot0_kI);
+    builder.addDoubleProperty("Empty kD", this::getSlot0_kI, this::setSlot0_kI);
+
+    builder.addDoubleProperty("Full kG", this::getSlot1_kG, this::setSlot1_kG);
+    builder.addDoubleProperty("Full kV", this::getSlot1_kV, this::setSlot1_kV);
+    builder.addDoubleProperty("Full kA", this::getSlot1_kA, this::setSlot1_kA);
+    builder.addDoubleProperty("Full kP", this::getSlot1_kP, this::setSlot1_kP);
+    builder.addDoubleProperty("Full kI", this::getSlot1_kI, this::setSlot1_kI);
+    builder.addDoubleProperty("Full kD", this::getSlot1_kD, this::setSlot1_kD);
   }
 
   @Override
   public void periodic() {
-    if(!isZeroed && getLimitSwitch()) {
-      elevator.setPosition(0);
-      setZeroed(true);
-    }
+    //if(!isZeroed && getLimitSwitch()) {
+      //elevator.setPosition(0);
+      //setZeroed(true);
+    //}
   }
 }

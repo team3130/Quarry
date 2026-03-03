@@ -18,6 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -35,7 +36,7 @@ public class ShooterHood extends SubsystemBase {
   private double kI = 0;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 208.842;
+  private double sensorToMechGearRatio = 117.63;
 
   private double targetAcceleration = 100;
   private double targetVelocity = 20;
@@ -150,7 +151,7 @@ public class ShooterHood extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(limitReached()) {
+    if(limitReached() && !isZeroed && DriverStation.isEnabled()) {
       hood.setPosition(0);
       setZeroed(true);
     }

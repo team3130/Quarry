@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -11,18 +14,77 @@ import frc.robot.LimelightHelpers;
 public class Limelight extends SubsystemBase {
   private final CommandSwerveDrivetrain driveTrain;
 
-  private final String limelightName = "Limelight";
+  private boolean robotHeadingReset = false;
+
+  private final String limelightLeftName = "limelight-left";
+  private final String limelightRightName = "limelight-right";
+
   
   /** Creates a new Limelight. */
   public Limelight(CommandSwerveDrivetrain driveTrain) {
     this.driveTrain = driveTrain;
-    LimelightHelpers.setCameraPose_RobotSpace("", 0, 0, 0, 0, 0, 0);
+
+    Rotation3d leftRot = new Rotation3d(Math.PI, 0, 0);
+    leftRot = leftRot.rotateBy(new Rotation3d(0, 0, -Math.PI/6));
+    leftRot = leftRot.rotateBy(new Rotation3d(0, Math.PI/12, 0));
+
+    Rotation3d rightRot = new Rotation3d(Math.PI, 0, 0);
+    rightRot = rightRot.rotateBy(new Rotation3d(0, 0, Math.PI/6));
+    rightRot = rightRot.rotateBy(new Rotation3d(0, Math.PI/12, 0));
+
+    LimelightHelpers.setCameraPose_RobotSpace(limelightLeftName, Units.inchesToMeters(5), Units.inchesToMeters(-7.4), Units.inchesToMeters(25.5), Units.radiansToDegrees(leftRot.getX()), Units.radiansToDegrees(leftRot.getY()), Units.radiansToDegrees(leftRot.getZ()));
+    LimelightHelpers.setCameraPose_RobotSpace(limelightRightName, Units.inchesToMeters(5), Units.inchesToMeters(7.4), Units.inchesToMeters(25.5), Units.radiansToDegrees(rightRot.getX()), Units.radiansToDegrees(rightRot.getY()), Units.radiansToDegrees(rightRot.getZ()));
   }
 
-  public LimelightHelpers.PoseEstimate getRobotPose() {
+  public LimelightHelpers.PoseEstimate getRobotPose(String name) {
     double robotYaw = driveTrain.getState().Pose.getRotation().getDegrees();
-    LimelightHelpers.SetRobotOrientation("", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
-    return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
+    LimelightHelpers.SetRobotOrientation(name, robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+    return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+  }
+
+  public LimelightHelpers.PoseEstimate getMT1RobotPose(String name) {
+    return LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
+  }
+
+  public void updateOdo() {
+    if(robotHeadingReset) {
+      LimelightHelpers.PoseEstimate leftPose = getRobotPose(limelightLeftName);
+      LimelightHelpers.PoseEstimate rightPose = getRobotPose(limelightRightName);
+      if(leftPose != null && leftPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
+      }
+      if(rightPose != null && rightPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
+      }
+    }
+  }
+
+  public void updateDisabledOdo() {
+    if(!robotHeadingReset) {
+      LimelightHelpers.PoseEstimate leftPose = getMT1RobotPose(limelightLeftName);
+      LimelightHelpers.PoseEstimate rightPose = getMT1RobotPose(limelightRightName);
+      if(leftPose != null && leftPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
+        driveTrain.resetRotation(leftPose.pose.getRotation());
+        robotHeadingReset = true;
+      }
+      if(rightPose != null && rightPose.tagCount > 0) {
+        driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
+        driveTrain.resetRotation(rightPose.pose.getRotation());
+        robotHeadingReset = true;
+      }
+    }
+  }
+
+  public boolean IsRobotHeadingReset() {return IsRobotHeadingReset();}
+  public void setRobotHeadingReset(boolean value) {robotHeadingReset = value;}
+
+  public void disabledDeviations() {
+    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(2, 2, 0.3));
+  }
+
+  public void enabledDeviations() {
+    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(2, 2, 9999999));
   }
 
   @Override

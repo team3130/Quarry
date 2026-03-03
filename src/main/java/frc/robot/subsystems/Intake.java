@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
   private final DigitalInput limitSwitch;
   private boolean isZeroed = false;
   
-  private double intakeSpeed = 0.5;
+  private double intakeSpeed = 0.9;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
@@ -55,7 +55,7 @@ public class Intake extends SubsystemBase {
     intake = new TalonFX(Constants.CAN.intake);
     intake.getConfigurator().apply(new TalonFXConfiguration().withMotorOutput(new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast)
-        .withInverted(InvertedValue.CounterClockwise_Positive)));
+        .withInverted(InvertedValue.Clockwise_Positive)));
 
     pivot = new TalonFX(Constants.CAN.intakePivot);
 
@@ -201,9 +201,9 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(atLimit()) {
-      pivot.setPosition(0);
-      setZeroed(true);
-    }
+    //if(atLimit()) {
+      //pivot.setPosition(0);
+      //setZeroed(true);
+    //}
   }
 }

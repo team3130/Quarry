@@ -9,6 +9,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -63,10 +64,11 @@ public class TeleopDrive extends Command {
                 .withRotationalRate(angleInput));
       } else {
       pidController.reset();
+      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
       driveTrain.setControl(drive
-      .withVelocityX(driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller)).vxMetersPerSecond)
-      .withVelocityY(driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller)).vyMetersPerSecond)
-      .withRotationalRate(driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller)).omegaRadiansPerSecond));
+      .withVelocityX(targetSpeeds.vxMetersPerSecond)
+      .withVelocityY(targetSpeeds.vyMetersPerSecond)
+      .withRotationalRate(targetSpeeds.omegaRadiansPerSecond));
     }
   }
 

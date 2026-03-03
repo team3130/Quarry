@@ -28,7 +28,7 @@ public class Feeder extends SubsystemBase {
   private final Slot0Configs config;
   private double kV = 0.12;
   private double kA = 0;
-  private double kP = 0.1;
+  private double kP = 0;
   private double kI = 0;
   private double kD = 0;
 

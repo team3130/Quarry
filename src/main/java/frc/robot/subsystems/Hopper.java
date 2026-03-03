@@ -22,7 +22,7 @@ public class Hopper extends SubsystemBase {
  
     horizontalHopper.getConfigurator().apply(new TalonFXConfiguration().withMotorOutput(new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast)
-        .withInverted(InvertedValue.CounterClockwise_Positive)));
+        .withInverted(InvertedValue.Clockwise_Positive)));
   }
 
   public void runHopperHorizontal() {

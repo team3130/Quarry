@@ -32,10 +32,13 @@ import frc.robot.commands.Intake.Basic.BasicPivotIn;
 import frc.robot.commands.Intake.Basic.BasicPivotOut;
 import frc.robot.commands.Intake.Basic.ReverseIntake;
 import frc.robot.commands.Intake.Basic.RunIntake;
+import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.Shooter.PID.RevToInterpolVel;
 import frc.robot.commands.Shooter.PID.StopRev;
+import frc.robot.commands.Shooter.PID.Rev;
+import frc.robot.commands.Shooter.PID.RevToVelocity;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
@@ -87,6 +90,7 @@ public class RobotContainer {
   private final ShooterHood shooterHood;
   private final ShooterMath shooterMath;
   private final InterpolationDoubleTree interpolationDoubleTree;
+  private final Limelight limelight;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -99,8 +103,11 @@ public class RobotContainer {
     shooter = new Shooter();
     shooterHood = new ShooterHood();
 
+    limelight = new Limelight(driveTrain);
+
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
+    NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter));
     
     // Configure the trigger bindings
     configureBindings();
@@ -123,51 +130,55 @@ public class RobotContainer {
   private void configureBindings() {
     // Note that X is defined as forward according to WPILib convention,
     // and Y is defined as to the left according to WPILib convention.
+    
+    //limelight.setDefaultCommand(new UpdateOdoFromVision(driveTrain, limelight, logger));
     driveTrain.setDefaultCommand(new TeleopDrive(
       driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
-    operatorController.back().and(operatorController.y()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    operatorController.back().and(operatorController.x()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    operatorController.back().and(operatorController.x()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    operatorController.start().and(operatorController.y()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    operatorController.start().and(operatorController.x()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    //operatorController.back().and(operatorController.y()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    //operatorController.back().and(operatorController.x()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    //operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     driverController.R1().whileTrue(new ParallelDeadlineGroup(
       new SequentialCommandGroup(
         new WaitCommand(2), 
         new RunFeederBasic(feeder)), 
-      new RunShooter(shooter)
-    ));
+      new Rev(shooter)));
 
-    driverController.R2().whileTrue(new RunShooter(shooter));
+    //driverController.povLeft().whileTrue(new Rev(shooter));
 
-    //This is for Auto Shoot
-    //driverController.square().whileTrue(new RunFeederBasic(feeder));
-    //driverController.R1().whileTrue(new RevToInterpolVel(shooter, shooterMath));
-    //driverController.circle().whileTrue(new StopRev(shooter));
-
-
+    //driverController.R1().whileTrue(new ShooterHoodDown(shooterHood));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
     //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));
-    //driverController.triangle().whileTrue(new ShooterHoodUp(shooterHood));
-    //driverController.cross().whileTrue(new ShooterHoodDown(shooterHood));
+    driverController.povLeft().whileTrue(new ShooterHoodUp(shooterHood));
+    driverController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
 
-    //driverController.R1().whileTrue(new RunFeederBasic(feeder));
-    //driverController.L1().whileTrue(new ReverseFeederBasic(feeder));
+    driverController.L1().whileTrue(new RunFeederBasic(feeder));
+    //driverController.L2().whileTrue(new ReverseFeederBasic(feeder));
 
-    //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
-    //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
+    driverController.square().whileTrue(new RunHopperHorizontal(hopper));
+    driverController.circle().whileTrue(new ReverseIntake(intake));
 
     //driverController.povRight().whileTrue(new BasicPivotIn(intake));
     //driverController.povLeft().whileTrue(new BasicPivotOut(intake));
 
     driverController.L2().whileTrue(new RunIntake(intake));
-    driverController.L1().whileTrue(new ReverseIntake(intake));
+    //driverController.L1().whileTrue(new ReverseIntake(intake));
 
-    //driverController.options().whileTrue(new BasicClimberUp(climber));
-    //driverController.create().whileTrue(new BasicClimberDown(climber));
+    driverController.triangle().whileTrue(new BasicPivotIn(intake));
+    driverController.cross().whileTrue(new BasicPivotOut(intake));
+
+    driverController.options().whileTrue(new BasicClimberUp(climber));
+    driverController.create().whileTrue(new BasicClimberDown(climber));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
@@ -189,11 +200,27 @@ public class RobotContainer {
   }
 
   public void intakeReset() {intake.setZeroed(false);}
+  public void hoodReset() {shooterHood.setZeroed(false);}
+  public void limelightReset() {limelight.setRobotHeadingReset(false);}
   
   public void hoodtoSetpoint() {
     CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
       new ShooterHoodDown(shooterHood),
       new HoodToSetpoint(shooterHood)));
+  }
+
+  public void updateOdoFromVision() {
+    limelight.updateOdo();
+  }
+  public void updateDisabledOdoFromVision() {
+    limelight.updateDisabledOdo();
+  }
+
+  public void setDisabledDeviations() {
+    limelight.disabledDeviations();
+  }
+  public void setEnabledDeviations() {
+    limelight.enabledDeviations();
   }
 
   public Command pick() {
