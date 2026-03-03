@@ -77,7 +77,7 @@ public class Shooter extends SubsystemBase {
 
     voltRequest = new MotionMagicVelocityVoltage(0);
 
-    slewRateLimiter = new SlewRateLimiter(accelerationRotations, -accelerationRotations, 0, 0.00007, accelerationRotations);
+    slewRateLimiter = new SlewRateLimiter(100, -100, 0, 0.00007, 100);
     shooterAccount = PowerBank.getInstance().openAccount("shooter", 1);
   }
 

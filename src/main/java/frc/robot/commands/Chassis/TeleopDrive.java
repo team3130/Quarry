@@ -37,7 +37,7 @@ public class TeleopDrive extends Command {
     this.maxSpeed = maxSpeed;
     this.maxAngularRate = maxAngularRate;
     this.drive = drive;
-    accelLimiter = new AccelLimiter(50, -5, 0, 100);
+    accelLimiter = new AccelLimiter(15, -15, 0, 1000);
     pidController = new PIDController(0.05, 0, 0);
     SmartDashboard.putData(pidController);
     // Use addRequirements() here to declare subsystem dependencies.
