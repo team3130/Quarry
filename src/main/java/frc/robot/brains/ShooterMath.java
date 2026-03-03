@@ -18,10 +18,10 @@ public class ShooterMath {
     private final double radius = Units.inchesToMeters(2);
 
     //New Measurment Arrays
-    private static final double[] distances = {-1,-1,-1,-1,-1};  //meters
-    private static final double[] angles = {-1,-1,-1,-1,-1};     //rots from position zero
-    private static final double[] velocities = {-1,-1,-1,-1,-1}; //meters per seconds
-    private static final double[] times = {-1,-1,-1,-1,-1};      //seconds
+    private static final double[] distances = {1,3.5};//,0,0,0};  //meters
+    private static final double[] angles = {0,0.5};//,0,0,0};     //rots from position zero
+    private static final double[] velocities = {16,16};//,0,0,0}; //meters per seconds
+    private static final double[] times = {0,0};//,0,0,0};        //seconds
 
     //Interpolation Objects
     InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();

@@ -41,6 +41,7 @@ import frc.robot.commands.Shooter.PID.Rev;
 import frc.robot.commands.Shooter.PID.RevToVelocity;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
+import frc.robot.commands.ShooterHood.PID.HoodToInterpol;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -154,6 +155,10 @@ public class RobotContainer {
       new Rev(shooter)));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
+
+    //Auto Shoot Groups
+    //driverController.R1().whileTrue(new ParallelCommandGroup(new Rev(shooter),new HoodToInterpol(shooterHood, shooterMath)));
+    //driverController.R2().whileTrue(new ParallelCommandGroup(new RunHopperHorizontal(hopper),new RunFeederBasic(feeder)));
 
     //driverController.R1().whileTrue(new ShooterHoodDown(shooterHood));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
