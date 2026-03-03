@@ -34,6 +34,7 @@ import frc.robot.commands.Intake.Basic.RunIntake;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
+import frc.robot.commands.Shooter.PID.Rev;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
@@ -143,6 +144,8 @@ public class RobotContainer {
         new RunFeederBasic(feeder)), 
       new RunShooter(shooter)));
 
+    driverController.povLeft().whileTrue(new Rev(shooter));
+
     driverController.R1().whileTrue(new ShooterHoodDown(shooterHood));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
@@ -150,23 +153,23 @@ public class RobotContainer {
     //driverController.triangle().whileTrue(new ShooterHoodUp(shooterHood));
     //driverController.cross().whileTrue(new ShooterHoodDown(shooterHood));
 
-    //driverController.R1().whileTrue(new RunFeederBasic(feeder));
-    //driverController.L1().whileTrue(new ReverseFeederBasic(feeder));
+    driverController.L1().whileTrue(new RunFeederBasic(feeder));
+    driverController.L2().whileTrue(new ReverseFeederBasic(feeder));
 
-    //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
-    //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
+    driverController.square().whileTrue(new RunHopperHorizontal(hopper));
+    driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
 
     //driverController.povRight().whileTrue(new BasicPivotIn(intake));
     //driverController.povLeft().whileTrue(new BasicPivotOut(intake));
 
-    driverController.L2().whileTrue(new RunIntake(intake));
-    driverController.L1().whileTrue(new ReverseIntake(intake));
+    //driverController.L2().whileTrue(new RunIntake(intake));
+    //driverController.L1().whileTrue(new ReverseIntake(intake));
 
     driverController.triangle().whileTrue(new BasicPivotIn(intake));
     driverController.cross().whileTrue(new BasicPivotOut(intake));
 
-    //driverController.options().whileTrue(new BasicClimberUp(climber));
-    //driverController.create().whileTrue(new BasicClimberDown(climber));
+    driverController.options().whileTrue(new BasicClimberUp(climber));
+    driverController.create().whileTrue(new BasicClimberDown(climber));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));

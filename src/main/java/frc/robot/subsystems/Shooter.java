@@ -36,18 +36,18 @@ public class Shooter extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kV = 0.12;
-  private double kA = 0;
-  private double kP = 0;
+  private double kV = 0.11636;
+  private double kA = 0.011846;
+  private double kP = 0.500000;
   private double kI = 0;
   private double kD = 0;
 
   private double sensorToMechGearRatio = 1;
 
-  private double accelerationMetersPerSecSquared = 5;
+  private double accelerationMetersPerSecSquared = 45;
   private final double accelerationRotations = Units.radiansToRotations(accelerationMetersPerSecSquared/Units.inchesToMeters(2));
 
-  private double targetVelocityMetersPerSec = 15;
+  private double targetVelocityMetersPerSec = 16;
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(2));
 
   private double speed = 0.7;
