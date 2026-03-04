@@ -148,6 +148,7 @@ public class Shooter extends SubsystemBase {
 
   public void stopShooter() {
     rightShooter.set(0);
+    shooterAccount.setMaxRequest(0);
   }
 
   public double getkV() {return kV;}
