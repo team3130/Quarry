@@ -27,6 +27,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.PowerAccount;
+import frc.robot.PowerBank;
+import frc.robot.SlewRateLimiter;
 
 public class Shooter extends SubsystemBase {
   private final TalonFX leftShooter;
@@ -34,6 +37,9 @@ public class Shooter extends SubsystemBase {
 
   private final MotionMagicVelocityVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
+
+  private final SlewRateLimiter slewRateLimiter;
+  private final PowerAccount shooterAccount;
 
   private final Slot0Configs config;
   private double kV = 0.11636;
@@ -82,6 +88,9 @@ public class Shooter extends SubsystemBase {
 
     voltRequest = new MotionMagicVelocityVoltage(0);
 
+    slewRateLimiter = new SlewRateLimiter(100, -100, 0, 0.00007, 100);
+    shooterAccount = PowerBank.getInstance().openAccount("shooter", 1);
+
     //SysID
     m_sysIdRoutine = new SysIdRoutine(
       new SysIdRoutine.Config(
@@ -120,6 +129,15 @@ public class Shooter extends SubsystemBase {
     rightShooter.setControl(voltRequest.withVelocity(targetVelocityRotations));
   }
 
+  public void revWithGivenPower(boolean forward) {
+    int sign = forward ? 1 : -1;
+    double powerReq = slewRateLimiter.getPowerFromAcceleration(sign*accelerationRotations, slewRateLimiter.lastValue());
+    shooterAccount.setMaxRequest(powerReq);
+    double rotAccel = slewRateLimiter.getAccelerationFromPower(shooterAccount.getAllowance(), slewRateLimiter.lastValue());
+    double newRotVel = slewRateLimiter.calculate(sign*rotAccel);
+    rightShooter.setControl(voltRequest.withVelocity(newRotVel/(2 * Math.PI)));
+  }
+
   public void runShooter() {
     rightShooter.set(speed);
   }
@@ -130,6 +148,7 @@ public class Shooter extends SubsystemBase {
 
   public void stopShooter() {
     rightShooter.set(0);
+    shooterAccount.setMaxRequest(0);
   }
 
   public double getkV() {return kV;}

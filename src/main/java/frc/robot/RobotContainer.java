@@ -36,6 +36,7 @@ import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.Shooter.PID.Rev;
 import frc.robot.commands.Shooter.PID.RevToVelocity;
+import frc.robot.commands.Shooter.PID.RevWithPower;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
@@ -144,7 +145,7 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new WaitCommand(2), 
         new RunFeederBasic(feeder)), 
-      new Rev(shooter)));
+      new RevWithPower(shooter)));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
 

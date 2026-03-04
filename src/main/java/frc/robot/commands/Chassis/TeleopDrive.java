@@ -13,12 +13,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.robot.AccelLimiter;
+import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TeleopDrive extends Command {
   private final CommandSwerveDrivetrain driveTrain;
   private final CommandPS5Controller controller;
+  private final AccelLimiter accelLimiter;
   private final double maxSpeed;
   private final double maxAngularRate;
   private final SwerveRequest.FieldCentric drive;
@@ -34,6 +37,7 @@ public class TeleopDrive extends Command {
     this.maxSpeed = maxSpeed;
     this.maxAngularRate = maxAngularRate;
     this.drive = drive;
+    accelLimiter = new AccelLimiter(15, -15, 0, 1000);
     pidController = new PIDController(0.05, 0, 0);
     SmartDashboard.putData(pidController);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -64,11 +68,14 @@ public class TeleopDrive extends Command {
                 .withRotationalRate(angleInput));
       } else {
       pidController.reset();
-      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
+      ChassisSpeeds speeds = driveTrain.getHIDspeedsMPS(controller);
+      ChassisSpeeds limitedSpeeds = accelLimiter.accelLimitVectorDrive(speeds);
+      //System.out.println(limitedSpeeds.vxMetersPerSecond);
+      //System.out.println(limitedSpeeds.vyMetersPerSecond);
       driveTrain.setControl(drive
-      .withVelocityX(targetSpeeds.vxMetersPerSecond)
-      .withVelocityY(targetSpeeds.vyMetersPerSecond)
-      .withRotationalRate(targetSpeeds.omegaRadiansPerSecond));
+      .withVelocityX(limitedSpeeds.vxMetersPerSecond)
+      .withVelocityY(limitedSpeeds.vyMetersPerSecond)
+      .withRotationalRate(limitedSpeeds.omegaRadiansPerSecond));
     }
   }
 
