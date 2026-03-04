@@ -29,7 +29,7 @@ public class AccelLimiter {
                 double cos = Math.cos(delta);
                 if(cos > 0){ //positive cos means keep moving (turn angle is small)
                     var mag = vector.getNorm() * cos;
-                    translationAccount.setMaxRequest(driveLimiter.getPowerFromAcceleration(driveLimiter.getMaxAcceleration(), driveLimiter.lastValue()));
+                    translationAccount.setMaxRequest(driveLimiter.getPowerFromAcceleration(Math.min(driveLimiter.getMaxAcceleration(), (mag - driveLimiter.lastValue())/0.02), driveLimiter.lastValue()));
                     driveLimiter.setPositiveRateLimit(driveLimiter.getAccelerationFromPower(translationAccount.getAllowance(), driveLimiter.lastValue()));
                     mag = driveLimiter.calculate(mag);
                     double thetaLimiterConstant = 10;
@@ -42,7 +42,7 @@ public class AccelLimiter {
             }
             //here we continue if we are decelerating, either small mag or big turn.
             thetaLimiter.reset(thetaLimiter.lastValue());
-            translationAccount.setMaxRequest(driveLimiter.getPowerFromAcceleration(driveLimiter.getMaxAcceleration(), driveLimiter.lastValue()));
+            translationAccount.setMaxRequest(driveLimiter.getPowerFromAcceleration(Math.min(driveLimiter.getMaxAcceleration(), (0 - driveLimiter.lastValue())/0.02), driveLimiter.lastValue()));
             driveLimiter.setPositiveRateLimit(driveLimiter.getAccelerationFromPower(translationAccount.getAllowance(), driveLimiter.lastValue()));
             var newMag = driveLimiter.calculate(0);
             Rotation2d angle = new Rotation2d(thetaLimiter.lastValue());
