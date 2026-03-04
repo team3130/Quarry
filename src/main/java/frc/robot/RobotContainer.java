@@ -35,6 +35,7 @@ import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
+import frc.robot.commands.ShooterHood.PID.FindAngle;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -178,7 +179,7 @@ public class RobotContainer {
   public void hoodtoSetpoint() {
     CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
       new ShooterHoodDown(shooterHood),
-      new HoodToSetpoint(shooterHood)));
+      new FindAngle(new ShooterHub(1.8288, 11.0), shooterHood, driveTrain)));
   }
 
   public Command pick() {
