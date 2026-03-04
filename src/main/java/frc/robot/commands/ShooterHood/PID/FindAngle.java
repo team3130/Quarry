@@ -39,7 +39,7 @@ public class FindAngle extends Command {
     Translation2d targetVector = hubVector.minus(odoVec);
     double distance = targetVector.getNorm();
     double angle = shooterHub.findAngle(distance);
-    if(45 <= angle && 90 >= angle) {
+    if(0 <= angle && 0.1 >= angle) {
       shooterHood.goToAngle(distance);
     }
   }
