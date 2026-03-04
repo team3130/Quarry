@@ -44,7 +44,7 @@ public class FindAngle extends Command {
     Translation2d odoVec = drivetrain.getState().Pose.getTranslation();
     Translation2d targetVector = hubVector.minus(odoVec);
     double distance = targetVector.getNorm();
-    double angle = shooterHub.findAngle(distance);
+    double angle = shooterHub.findLowAngle(distance) / (2*Math.PI);
     if(0 <= angle && 0.1 >= angle) {
       shooterHood.goToAngle(distance);
     }
