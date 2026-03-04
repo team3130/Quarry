@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.brains.ShooterMath;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
@@ -34,10 +35,13 @@ import frc.robot.commands.Intake.Basic.RunIntake;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
+import frc.robot.commands.Shooter.PID.RevToInterpolVel;
+import frc.robot.commands.Shooter.PID.StopRev;
 import frc.robot.commands.Shooter.PID.Rev;
 import frc.robot.commands.Shooter.PID.RevToVelocity;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
+import frc.robot.commands.ShooterHood.PID.HoodToInterpol;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -85,10 +89,12 @@ public class RobotContainer {
   private final Intake intake;
   private final Shooter shooter;
   private final ShooterHood shooterHood;
+  private final ShooterMath shooterMath;
   private final Limelight limelight;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    shooterMath = new ShooterMath(driveTrain);
     climber = new Climber();
     feeder = new Feeder();
     hopper = new Hopper();
@@ -140,13 +146,22 @@ public class RobotContainer {
     //operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     //operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-    driverController.R2().whileTrue(new ParallelDeadlineGroup(
+    driverController.R1().whileTrue(new ParallelDeadlineGroup(
       new SequentialCommandGroup(
         new WaitCommand(2), 
         new RunFeederBasic(feeder)), 
       new Rev(shooter)));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
+
+    //Auto Shoot Groups
+    //driverController.R1().whileTrue(new ParallelCommandGroup(new Rev(shooter),new HoodToInterpol(shooterHood, shooterMath)));
+    //driverController.R2().whileTrue(new ParallelCommandGroup(new RunHopperHorizontal(hopper),new RunFeederBasic(feeder)));
+    
+    //Intake and Outtake groups
+    //driverController.cross().whileTrue(new ParallelCommandGroup(new RunIntake(intake), new RunHopperHorizontal(hopper)));
+    //driverController.triangle().whileTrue(new ParallelCommandGroup(new ReverseIntake(intake), new ReverseHopperHorizontal(hopper)));
+
 
     //driverController.R1().whileTrue(new ShooterHoodDown(shooterHood));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
