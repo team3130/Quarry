@@ -120,6 +120,15 @@ public class Shooter extends SubsystemBase {
     rightShooter.setControl(voltRequest.withVelocity(targetVelocityRotations));
   }
 
+  public void revWithGivenPower(boolean forward) {
+    int sign = forward ? 1 : -1;
+    double powerReq = slewRateLimiter.getPowerFromAcceleration(sign*accelerationRotations, slewRateLimiter.lastValue());
+    shooterAccount.setMaxRequest(powerReq);
+    double rotAccel = slewRateLimiter.getAccelerationFromPower(shooterAccount.getAllowance(), slewRateLimiter.lastValue());
+    double newRotVel = slewRateLimiter.calculate(sign*rotAccel);
+    rightShooter.setControl(voltRequest.withVelocity(newRotVel/(2 * Math.PI)));
+  }
+
   public void runShooter() {
     rightShooter.set(speed);
   }
