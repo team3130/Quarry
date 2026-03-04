@@ -90,13 +90,11 @@ public class RobotContainer {
   private final Shooter shooter;
   private final ShooterHood shooterHood;
   private final ShooterMath shooterMath;
-  private final InterpolationDoubleTree interpolationDoubleTree;
   private final Limelight limelight;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    interpolationDoubleTree = new InterpolationDoubleTree();
-    shooterMath = new ShooterMath(interpolationDoubleTree, driveTrain);
+    shooterMath = new ShooterMath(driveTrain);
     climber = new Climber();
     feeder = new Feeder();
     hopper = new Hopper();
@@ -159,6 +157,11 @@ public class RobotContainer {
     //Auto Shoot Groups
     //driverController.R1().whileTrue(new ParallelCommandGroup(new Rev(shooter),new HoodToInterpol(shooterHood, shooterMath)));
     //driverController.R2().whileTrue(new ParallelCommandGroup(new RunHopperHorizontal(hopper),new RunFeederBasic(feeder)));
+    
+    //Intake and Outtake groups
+    //driverController.cross().whileTrue(new ParallelCommandGroup(new RunIntake(intake), new RunHopperHorizontal(hopper)));
+    //driverController.triangle().whileTrue(new ParallelCommandGroup(new ReverseIntake(intake), new ReverseHopperHorizontal(hopper)));
+
 
     //driverController.R1().whileTrue(new ShooterHoodDown(shooterHood));
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
