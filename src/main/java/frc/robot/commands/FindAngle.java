@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ShooterHood;
@@ -16,7 +17,9 @@ public class FindAngle extends Command {
   private final CommandSwerveDrivetrain drivetrain;
   private final ShooterHub shooterHub;
   private final ShooterHood shooterHood;
-  private final Translation2d hubVector = new Translation2d(3.9, 0);
+  private static final double FIELD_LENGTH_METERS = 16.4592;
+  private static final double FIELD_WIDTH_METERS = 8.2296;
+  private static final Translation2d BLUE_HUB_VECTOR = new Translation2d(7.3152, 2.3368);
   public FindAngle(ShooterHub shooterHub, ShooterHood shooterHood, CommandSwerveDrivetrain drivetrain) {
     this.shooterHub = shooterHub;
     this.shooterHood = shooterHood;
@@ -33,6 +36,9 @@ public class FindAngle extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    Translation2d hubVector = DriverStation.getAlliance().map(alliance -> alliance == DriverStation.Alliance.Red
+      ? new Translation2d(FIELD_LENGTH_METERS - BLUE_HUB_VECTOR.getX(),FIELD_WIDTH_METERS - BLUE_HUB_VECTOR.getY())
+      : BLUE_HUB_VECTOR).orElse(BLUE_HUB_VECTOR);
     Translation2d odoVec = drivetrain.getState().Pose.getTranslation();
     Translation2d targetVector = hubVector.minus(odoVec);
     double distance = targetVector.getNorm();
