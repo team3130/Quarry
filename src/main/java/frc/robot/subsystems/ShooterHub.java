@@ -31,6 +31,23 @@ public class ShooterHub {
         
         return Math.atan(tanTheta); 
     }
+
+    public double findHighAngle(double D) {
+        double g = 9.81;
+        double v2 = v * v;
+        
+        // The discriminant: determines if the target is within reach
+        double discriminant = Math.pow(v2, 2) - g * (g * Math.pow(D, 2) + 2 * h * v2);
+        
+        if (discriminant < 0) {
+            return Double.NaN; // Velocity is too low to reach the target
+        }
+
+        // Using the plus sign here for the steeper, "high" trajectory
+        double tanTheta = (v2 + Math.sqrt(discriminant)) / (g * D);
+        
+        return Math.atan(tanTheta); 
+    }
 }
 
 
