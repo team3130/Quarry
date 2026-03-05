@@ -66,12 +66,10 @@ public class Limelight extends SubsystemBase {
       if(leftPose != null && leftPose.tagCount > 0) {
         driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
         driveTrain.resetRotation(leftPose.pose.getRotation());
-        robotHeadingReset = true;
       }
       if(rightPose != null && rightPose.tagCount > 0) {
         driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
         driveTrain.resetRotation(rightPose.pose.getRotation());
-        robotHeadingReset = true;
       }
     }
   }
