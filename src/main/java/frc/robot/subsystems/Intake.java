@@ -28,27 +28,27 @@ public class Intake extends SubsystemBase {
   private final DigitalInput limitSwitch;
   private boolean isZeroed = false;
   
-  private double intakeSpeed = 0.9;
+  private double intakeSpeed = 0.75;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
   private double kG = 0;
-  private double kV = 0.12;
+  private double kV = 0;
   private double kA = 0;
-  private double kP = 0;
+  private double kP = 48;
   private double kI = 0;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 87;
+  private double sensorToMechGearRatio = 200;
   private double offset = 0;
 
   private double targetAcceleration = 1;
-  private double targetVelocity = 1;
+  private double targetVelocity = 0.5;
 
-  private double outPos = 0.05;
-  private double inPos = 0.25;
+  private double outPos = 0.234;
+  private double inPos = 0;
   public Intake() {
     limitSwitch = new DigitalInput(Constants.IDs.intakeLimit);
 
@@ -73,7 +73,7 @@ public class Intake extends SubsystemBase {
     motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake)
-        .withInverted(InvertedValue.CounterClockwise_Positive);
+        .withInverted(InvertedValue.Clockwise_Positive);
     motorConfig.MotionMagic = new MotionMagicConfigs()
         .withMotionMagicAcceleration(targetAcceleration)
         .withMotionMagicCruiseVelocity(targetVelocity);
@@ -83,6 +83,8 @@ public class Intake extends SubsystemBase {
     pivot.getConfigurator().apply(motorConfig);
 
     voltRequest = new MotionMagicVoltage(0);
+
+    pivot.setPosition(0);
   }
 
   public void extendIntakeToSetpoint(double setpoint) {
@@ -96,10 +98,10 @@ public class Intake extends SubsystemBase {
   }
 
   public void basicPivotUp() {
-    pivot.set(0.2);
+    pivot.set(-0.2);
   }
   public void basicPivotDown() {
-    pivot.set(-0.2);
+    pivot.set(0.2);
   }
   public void stopPivot() {
     pivot.set(0);
@@ -171,12 +173,15 @@ public class Intake extends SubsystemBase {
   public boolean isZeroed() {return isZeroed;}
   public void setZeroed(boolean value) {isZeroed = value;}
 
+  public void intakeResetPos() {pivot.setPosition(0);}
+
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Intake");
 
     builder.addBooleanProperty("is Zeroed", this::isZeroed, this::setZeroed);
     builder.addBooleanProperty("Limit Reached", this::atLimit, null);
 
+    builder.addDoubleProperty("Position (rot)", this::getPosition, null);
     builder.addDoubleProperty("Velocity (rot/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (rot/s^2)", this::getAcceleration, null);
 
@@ -184,7 +189,7 @@ public class Intake extends SubsystemBase {
     builder.addDoubleProperty("Target Velocity (rot/s)", this::getTargetVelocity, this::setTargetVelocity);
 
     builder.addDoubleProperty("Profile Velocity (rot/s)", this::getProfileVelocity, null);
-    builder.addDoubleProperty("Profile Acceleration (rot)", this::getProfilePosition, null);
+    builder.addDoubleProperty("Profile Position (rot)", this::getProfilePosition, null);
 
     builder.addDoubleProperty("Stator Current (A)", this::getStatorCurrent, null);
 

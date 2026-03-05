@@ -37,6 +37,7 @@ import frc.robot.commands.Intake.Basic.BasicPivotOut;
 import frc.robot.commands.Intake.Basic.ReverseIntake;
 import frc.robot.commands.Intake.Basic.RunIntake;
 import frc.robot.commands.Intake.PID.PivotIn;
+import frc.robot.commands.Intake.PID.PivotOut;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.Shooter.PID.RevToInterpolVel;
@@ -109,9 +110,39 @@ public class RobotContainer {
     limelight = new Limelight(driveTrain);
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
+
+    NamedCommands.registerCommand("Run Hopper", new RunHopperHorizontal(hopper));
+
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
     NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter));
+    NamedCommands.registerCommand("Shooting Sequence 1", 
+    new ParallelDeadlineGroup(
+      new SequentialCommandGroup(
+        new WaitUntilCommand(shooter::isAtVelocity), 
+        new ParallelCommandGroup(
+          new HoodToSetpoint(shooterHood),
+          new RunFeederBasic(feeder),
+          new RunHopperHorizontal(hopper)
+        )),
+      new RevToVelocity(shooter)));
+
+    NamedCommands.registerCommand("Shooting Sequence 2", 
+    new ParallelDeadlineGroup(
+      new SequentialCommandGroup(
+        new WaitUntilCommand(shooter::isAtVelocity), 
+        new ParallelCommandGroup(
+          new HoodToSetpoint(shooterHood),
+          new RunFeederBasic(feeder),
+          new RunHopperHorizontal(hopper)
+        )),
+      new RevToVelocity(shooter)));
+
     NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
+
+    NamedCommands.registerCommand("Pivot Out", new PivotOut(intake));
+
+    NamedCommands.registerCommand("Shooter Hood Down", new ShooterHoodDown(shooterHood));
+    NamedCommands.registerCommand("Hood To Setpoint", new HoodToSetpoint(shooterHood));
     
     // Configure the trigger bindings
     configureBindings();
@@ -155,10 +186,11 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new WaitUntilCommand(shooter::isAtVelocity), 
         new ParallelCommandGroup(
+          new HoodToSetpoint(shooterHood),
           new RunFeederBasic(feeder),
           new RunHopperHorizontal(hopper)
-        ),
-      new Rev(shooter))));
+        )),
+      new Rev(shooter)));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
 
@@ -185,7 +217,7 @@ public class RobotContainer {
     //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
 
     driverController.povLeft().whileTrue(new BasicPivotIn(intake));
-    driverController.povRight().whileTrue(new BasicPivotOut(intake));
+    driverController.povRight().whileTrue(new PivotOut(intake));
     driverController.L2().whileTrue(new RunIntake(intake));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(
@@ -195,6 +227,21 @@ public class RobotContainer {
 
     driverController.options().whileTrue(new BasicClimberUp(climber));
     driverController.create().whileTrue(new BasicClimberDown(climber));
+
+    operatorController.rightTrigger().whileTrue(new Rev(shooter));
+    operatorController.rightBumper().whileTrue(
+      new ParallelCommandGroup(
+        new RunHopperHorizontal(hopper),
+        new RunFeederBasic(feeder)
+      ));
+    operatorController.leftTrigger().whileTrue(new RunIntake(intake));
+    operatorController.leftBumper().whileTrue(new ReverseIntake(intake));
+    operatorController.povLeft().whileTrue(new BasicPivotIn(intake));
+    operatorController.povRight().whileTrue(new BasicPivotOut(intake));
+    operatorController.x().whileTrue(new BasicClimberDown(climber));
+    operatorController.b().whileTrue(new BasicClimberUp(climber));
+    operatorController.povUp().whileTrue(new ShooterHoodUp(shooterHood));
+    operatorController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));

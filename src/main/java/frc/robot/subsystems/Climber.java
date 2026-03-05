@@ -58,7 +58,8 @@ public class Climber extends SubsystemBase {
   private boolean bottomExtended = false;
   private boolean topExtended = false;
 
-  private final double speed = 0.75;
+  private final double downSpeed = -0.85;
+  private final double upSpeed = 0.85;
   /** Creates a new Climber. */
   public Climber() {
     elevator = new TalonFX(Constants.CAN.climberElevator);
@@ -98,10 +99,10 @@ public class Climber extends SubsystemBase {
   }
 
   public void climberUp() {
-    elevator.set(speed);
+    elevator.set(upSpeed);
   }
   public void climberDown() {
-    elevator.set(-speed);
+    elevator.set(downSpeed);
   }
   public void stopClimber() {
     elevator.set(0);

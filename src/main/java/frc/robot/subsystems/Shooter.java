@@ -150,6 +150,7 @@ public class Shooter extends SubsystemBase {
     config.kI = kI;
     config.kD = kD;
     motorConfig.Slot0 = config;
+    
     rightShooter.getConfigurator().apply(motorConfig);
   }
   
