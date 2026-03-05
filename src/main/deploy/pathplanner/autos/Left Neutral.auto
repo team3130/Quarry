@@ -7,7 +7,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Pivot Out"
+            "name": "Shooter Hood Down"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shooting Sequence"
           }
         },
         {
@@ -17,13 +23,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Shooter Hood Down"
+                  "name": "Pivot Out"
                 }
               },
               {
                 "type": "path",
                 "data": {
-                  "pathName": "MidPreload"
+                  "pathName": "LeftNeutralIntakePath"
                 }
               }
             ]

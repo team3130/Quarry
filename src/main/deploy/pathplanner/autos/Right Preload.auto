@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Pivot Out"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [

@@ -296,6 +296,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public boolean getHubToggle() {return hubToggle;}
     public void setHubToggle(boolean value) {hubToggle = value;}
 
+    public double getDistanceFromHub() {
+      if(DriverStation.getAlliance().isPresent()) {}
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+          Translation2d originToBlueHub = new Translation2d(Units.inchesToMeters(181.56),Units.inchesToMeters(158.32));
+          double distanceBlue = getStatePose().getTranslation().getDistance(originToBlueHub);
+          return distanceBlue;
+      } else {
+          Translation2d originToRedHub = new Translation2d(Units.inchesToMeters(181.56+287),Units.inchesToMeters(158.32));
+          double distanceRed = getStatePose().getTranslation().getDistance(originToRedHub);
+          return distanceRed;
+      }
+    }
+
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.

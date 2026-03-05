@@ -39,10 +39,12 @@ import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
+import frc.robot.commands.Shooter.PID.AutoRev;
 import frc.robot.commands.Shooter.PID.Rev;
 import frc.robot.commands.Shooter.PID.RevToVelocity;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
+import frc.robot.commands.ShooterHood.PID.AutoAim;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -98,8 +100,8 @@ public class RobotContainer {
     feeder = new Feeder();
     hopper = new Hopper();
     intake = new Intake();
-    shooter = new Shooter();
-    shooterHood = new ShooterHood();
+    shooter = new Shooter(driveTrain);
+    shooterHood = new ShooterHood(driveTrain);
 
     limelight = new Limelight(driveTrain);
 
@@ -109,27 +111,16 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
     NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter));
-    NamedCommands.registerCommand("Shooting Sequence 1", 
+    NamedCommands.registerCommand("Shooting Sequence",
     new ParallelDeadlineGroup(
       new SequentialCommandGroup(
         new WaitUntilCommand(shooter::isAtVelocity), 
         new ParallelCommandGroup(
-          new HoodToSetpoint(shooterHood),
+          new AutoAim(shooterHood),
           new RunFeederBasic(feeder),
           new RunHopperHorizontal(hopper)
         )),
-      new RevToVelocity(shooter)));
-
-    NamedCommands.registerCommand("Shooting Sequence 2", 
-    new ParallelDeadlineGroup(
-      new SequentialCommandGroup(
-        new WaitUntilCommand(shooter::isAtVelocity), 
-        new ParallelCommandGroup(
-          new HoodToSetpoint(shooterHood),
-          new RunFeederBasic(feeder),
-          new RunHopperHorizontal(hopper)
-        )),
-      new RevToVelocity(shooter)));
+      new AutoRev(shooter)));
 
     NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
 

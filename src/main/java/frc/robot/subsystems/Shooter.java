@@ -21,8 +21,12 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -56,8 +60,25 @@ public class Shooter extends SubsystemBase {
   private final VoltageOut m_voltReq = new VoltageOut(0.0);
   private final SysIdRoutine m_sysIdRoutine;
 
+
+  //Shooter Curves
+    private final CommandSwerveDrivetrain driveTrain;
+    private final double radius = Units.inchesToMeters(2);
+
+
+    //New Measurment Arrays
+    private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};  //meters
+    private static final double[] velocities = {16,16,16,16};//,0,0,0}; //meters per seconds
+
+    private final double[] linearizeVel = {velocityLinearizer(velocities[0]),velocityLinearizer(velocities[1])};
+
+    //Interpolation Objects
+    InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap tableVelLin = new InterpolatingDoubleTreeMap();
+
   /** Creates a new Shooter. */
-  public Shooter() {
+  public Shooter(CommandSwerveDrivetrain drivetrain) {
+    this.driveTrain = drivetrain;
     rightShooter = new TalonFX(Constants.CAN.shooterRight);
     leftShooter = new TalonFX(Constants.CAN.shooterLeft);
 
@@ -114,6 +135,10 @@ public class Shooter extends SubsystemBase {
     double radsPerSec = velocityMetersPerSec / Units.inchesToMeters(2);
     double rotsPerSec = Units.radiansToRotations(radsPerSec);
     rightShooter.setControl(voltRequest.withVelocity(rotsPerSec));
+  }
+
+  public void autoRev() {
+    rightShooter.setControl(voltRequest.withVelocity(interpolTargetSpeed()));
   }
 
   public void rev() {
@@ -185,6 +210,33 @@ public class Shooter extends SubsystemBase {
     double metersPerSecSquared = radsPerSecSquared * Units.inchesToMeters(2);
     return metersPerSecSquared;
   }
+
+    public void InterpolationDoubleTree(){
+        //Interpolation Double tree for Velocities
+        tableVel.put(distances[0], velocities[0]);
+        tableVel.put(distances[1], velocities[1]);
+        tableVel.put(distances[2], velocities[2]);
+        tableVel.put(distances[3], velocities[3]);
+        //tableVel.put(distances[4], velocities[4]);
+
+        //Linearized Velocity Table
+        tableVelLin.put(distances[0], linearizeVel[0]);
+        tableVelLin.put(distances[1], linearizeVel[1]);
+    }
+
+    public double velocityLinearizer(double speed) {return speed*speed;}
+
+    public double getInterPolVel() {
+        return Math.sqrt(tableVelLin.get(driveTrain.getDistanceFromHub()));
+    }
+
+    // Interpolation Request for Velocity
+    public double interpolTargetSpeed() {
+        double velmps = tableVel.get(driveTrain.getDistanceFromHub());
+        double radspersec = velmps/(radius);
+        double rotspersec = Units.radiansToRotations(radspersec);
+        return rotspersec;
+    }
 
   public double getStatorCurrent() {return rightShooter.getStatorCurrent().getValueAsDouble();}
 

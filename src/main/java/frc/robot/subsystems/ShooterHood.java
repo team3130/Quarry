@@ -15,14 +15,17 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterHood extends SubsystemBase {
+  private final CommandSwerveDrivetrain drivetrain;
   private final TalonFX hood;
 
   private final DigitalInput limit;
@@ -40,8 +43,15 @@ public class ShooterHood extends SubsystemBase {
 
   private double targetAcceleration = 100;
   private double targetVelocity = 20;
+
+  //Shooter Curves
+  private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};           //meters
+  private static final double[] angles = {0,0.009033,0.5,0.050781};//,0,0,0};     //rots from position zero
+
+  InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
-  public ShooterHood() {
+  public ShooterHood(CommandSwerveDrivetrain drivetrain) {
+    this.drivetrain = drivetrain;
     hood = new TalonFX(Constants.CAN.shooterHood);
     limit = new DigitalInput(Constants.IDs.shooterHoodLimit);
 
@@ -63,6 +73,11 @@ public class ShooterHood extends SubsystemBase {
     hood.getConfigurator().apply(motorConfig);
 
     voltRequest = new MotionMagicVoltage(0);
+  }
+
+  public void autoAim() {
+    hood.setControl(voltRequest.withPosition(autoAimValue()));
+    System.out.println(autoAimValue());
   }
 
   public void goToAngle(double setpoint) {
@@ -122,6 +137,19 @@ public class ShooterHood extends SubsystemBase {
   
   public boolean isZeroed() {return isZeroed;}
   public void setZeroed(boolean value) {isZeroed = value;}
+
+  public void InterpolationDoubleTree(){
+    //Interpolation Double tree for Angles
+    tableAngle.put(distances[0], angles[0]);
+    tableAngle.put(distances[1], angles[1]);
+    tableAngle.put(distances[2], angles[2]);
+    tableAngle.put(distances[3], angles[3]);
+  }
+
+    //Interpolation Request for Angle
+  public double autoAimValue() {
+    return tableAngle.get(drivetrain.getDistanceFromHub());
+  }
 
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter Hood");
