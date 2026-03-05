@@ -8,6 +8,9 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.EventMarker;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.brains.ShooterMath;
@@ -107,6 +111,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
     NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter));
+    NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
     
     // Configure the trigger bindings
     configureBindings();
@@ -136,10 +141,10 @@ public class RobotContainer {
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
-    operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    operatorController.back().and(operatorController.x()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    operatorController.start().and(operatorController.y()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    operatorController.start().and(operatorController.x()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    //operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    //operatorController.back().and(operatorController.x()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    //operatorController.start().and(operatorController.y()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //operatorController.start().and(operatorController.x()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     //operatorController.back().and(operatorController.y()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
     //operatorController.back().and(operatorController.x()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
@@ -148,9 +153,12 @@ public class RobotContainer {
 
     driverController.R1().whileTrue(new ParallelDeadlineGroup(
       new SequentialCommandGroup(
-        new WaitCommand(2), 
-        new RunFeederBasic(feeder)), 
-      new Rev(shooter)));
+        new WaitUntilCommand(shooter::isAtVelocity), 
+        new ParallelCommandGroup(
+          new RunFeederBasic(feeder),
+          new RunHopperHorizontal(hopper)
+        ),
+      new Rev(shooter))));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
 
@@ -167,23 +175,23 @@ public class RobotContainer {
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
     //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));
-    driverController.povLeft().whileTrue(new ShooterHoodUp(shooterHood));
-    driverController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
+    //driverController.povLeft().whileTrue(new ShooterHoodUp(shooterHood));
+    //driverController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
 
-    driverController.L1().whileTrue(new RunFeederBasic(feeder));
+    //driverController.L1().whileTrue(new RunFeederBasic(feeder));
     //driverController.L2().whileTrue(new ReverseFeederBasic(feeder));
 
-    driverController.square().whileTrue(new RunHopperHorizontal(hopper));
-    driverController.circle().whileTrue(new ReverseIntake(intake));
+    //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
+    //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
 
-    //driverController.povRight().whileTrue(new BasicPivotIn(intake));
-    //driverController.povLeft().whileTrue(new BasicPivotOut(intake));
-
+    driverController.povLeft().whileTrue(new BasicPivotIn(intake));
+    driverController.povRight().whileTrue(new BasicPivotOut(intake));
     driverController.L2().whileTrue(new RunIntake(intake));
-    //driverController.L1().whileTrue(new ReverseIntake(intake));
-
-    driverController.triangle().whileTrue(new BasicPivotIn(intake));
-    driverController.cross().whileTrue(new BasicPivotOut(intake));
+    driverController.L1().whileTrue(
+      new ParallelCommandGroup(
+        new ReverseHopperHorizontal(hopper),
+        new ReverseIntake(intake)
+      ));
 
     driverController.options().whileTrue(new BasicClimberUp(climber));
     driverController.create().whileTrue(new BasicClimberDown(climber));
@@ -209,7 +217,6 @@ public class RobotContainer {
 
   public void intakeReset() {intake.setZeroed(false);}
   public void hoodReset() {shooterHood.setZeroed(false);}
-  public void limelightReset() {limelight.setRobotHeadingReset(false);}
   
   public void hoodtoSetpoint() {
     CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
@@ -225,9 +232,11 @@ public class RobotContainer {
   }
 
   public void setDisabledDeviations() {
+    limelight.setRobotHeadingReset(false);
     limelight.disabledDeviations();
   }
   public void setEnabledDeviations() {
+    limelight.setRobotHeadingReset(true);
     limelight.enabledDeviations();
   }
 
