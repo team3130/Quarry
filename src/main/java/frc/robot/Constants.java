@@ -57,7 +57,7 @@ public final class Constants {
   public static class Swerve {
     public static double[] translationPID = {5, 0, 0};
     public static double[] rotationPID = {5, 0, 0};
-    public static double maxSpeed = 4; // NOT kSpeedAt12Volts
+    public static double maxSpeed = 4.5; // NOT kSpeedAt12Volts
     public static double maxSpeedPartiallyExtended = 1.5;
     public static double maxSpeedFullExtended = 1;
     public static double maxAccelerationFromRest = 7.875; //in m/s^2 gotten from assumed mass of 70 kg

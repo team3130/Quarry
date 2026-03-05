@@ -5,9 +5,40 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "RightNeutralIntakePath"
+            "name": "Shooter Hood Down"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shooting Sequence 1"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Pivot Out"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightNeutralIntakePath"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shooting Sequence 1"
           }
         }
       ]
