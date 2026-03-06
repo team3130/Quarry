@@ -55,7 +55,7 @@ public final class Constants {
   }
 
   public static class Swerve {
-    public static double[] translationPID = {5, 0, 0};
+    public static double[] translationPID = {10, 0, 0};
     public static double[] rotationPID = {5, 0, 0};
     public static double maxSpeed = 4.5; // NOT kSpeedAt12Volts
     public static double maxSpeedPartiallyExtended = 1.5;

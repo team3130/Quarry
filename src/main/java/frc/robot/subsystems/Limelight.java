@@ -78,11 +78,11 @@ public class Limelight extends SubsystemBase {
   public void setRobotHeadingReset(boolean value) {robotHeadingReset = value;}
 
   public void disabledDeviations() {
-    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(2, 2, 0.3));
+    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 0.3));
   }
 
   public void enabledDeviations() {
-    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(2, 2, 9999999));
+    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 9999999));
   }
 
   @Override

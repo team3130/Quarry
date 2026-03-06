@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_robotContainer.setEnabledDeviations();
+    m_robotContainer.intakeResetPos();
     m_autonomousCommand = m_robotContainer.pick();
 
     // schedule the autonomous command (example)
