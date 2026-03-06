@@ -53,6 +53,7 @@ public class Robot extends TimedRobot {
     m_robotContainer.setDisabledDeviations();
     m_robotContainer.hoodReset();
     m_robotContainer.intakeReset();
+    m_robotContainer.hubToggleReset();
   }
 
   @Override
@@ -83,7 +84,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.hoodtoSetpoint();
+    m_robotContainer.setEnabledDeviations();
   }
 
   /** This function is called periodically during operator control. */

@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
+import frc.robot.commands.Chassis.HubToggle;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
@@ -116,10 +117,9 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new WaitUntilCommand(shooter::isAtVelocity), 
         new ParallelCommandGroup(
-          new AutoAim(shooterHood),
           new RunFeederBasic(feeder),
           new RunHopperHorizontal(hopper)
-        )),
+      )),
       new AutoRev(shooter)));
 
     NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
@@ -155,6 +155,8 @@ public class RobotContainer {
     driveTrain.setDefaultCommand(new TeleopDrive(
       driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
 
+    shooterHood.setDefaultCommand(new AutoAim(shooterHood));
+
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
     //operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
@@ -167,15 +169,17 @@ public class RobotContainer {
     //operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     //operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-    driverController.R2().whileTrue(new ParallelDeadlineGroup(
+    driverController.R2().whileTrue(
+    new ParallelDeadlineGroup(
       new SequentialCommandGroup(
         new WaitUntilCommand(shooter::isAtVelocity), 
         new ParallelCommandGroup(
-          new HoodToSetpoint(shooterHood),
           new RunFeederBasic(feeder),
           new RunHopperHorizontal(hopper)
-        )),
-      new Rev(shooter)));
+      )),
+      new AutoRev(shooter)));
+
+    driverController.axisGreaterThan(PS5Controller.Axis.kRightY.value, 0.7).whileTrue(new HubToggle(driveTrain));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
 
@@ -238,14 +242,9 @@ public class RobotContainer {
     SmartDashboard.putData(shooterHood);
   }
 
+  public void hubToggleReset() {driveTrain.setHubToggle(false);}
   public void intakeReset() {intake.setZeroed(false);}
   public void hoodReset() {shooterHood.setZeroed(false);}
-  
-  public void hoodtoSetpoint() {
-    CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
-      new ShooterHoodDown(shooterHood),
-      new HoodToSetpoint(shooterHood)));
-  }
 
   public void updateOdoFromVision() {
     limelight.updateOdo();

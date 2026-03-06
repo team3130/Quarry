@@ -35,18 +35,18 @@ public class ShooterHood extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kP = 50;
+  private double kP = 100;
   private double kI = 0;
   private double kD = 0;
 
   private double sensorToMechGearRatio = 117.63;
 
-  private double targetAcceleration = 100;
-  private double targetVelocity = 20;
+  private double targetAcceleration = 500;
+  private double targetVelocity = 100;
 
   //Shooter Curves
   private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};           //meters
-  private static final double[] angles = {0,0.009033,0.5,0.050781};//,0,0,0};     //rots from position zero
+  private static final double[] angles = {0.002,0.009033,0.05,0.050781};//,0,0,0};     //rots from position zero
 
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
@@ -73,11 +73,16 @@ public class ShooterHood extends SubsystemBase {
     hood.getConfigurator().apply(motorConfig);
 
     voltRequest = new MotionMagicVoltage(0);
+
+    //Interpolation Double tree for Angles
+    tableAngle.put(distances[0], angles[0]);
+    tableAngle.put(distances[1], angles[1]);
+    tableAngle.put(distances[2], angles[2]);
+    tableAngle.put(distances[3], angles[3]);
   }
 
   public void autoAim() {
     hood.setControl(voltRequest.withPosition(autoAimValue()));
-    System.out.println(autoAimValue());
   }
 
   public void goToAngle(double setpoint) {
@@ -137,14 +142,6 @@ public class ShooterHood extends SubsystemBase {
   
   public boolean isZeroed() {return isZeroed;}
   public void setZeroed(boolean value) {isZeroed = value;}
-
-  public void InterpolationDoubleTree(){
-    //Interpolation Double tree for Angles
-    tableAngle.put(distances[0], angles[0]);
-    tableAngle.put(distances[1], angles[1]);
-    tableAngle.put(distances[2], angles[2]);
-    tableAngle.put(distances[3], angles[3]);
-  }
 
     //Interpolation Request for Angle
   public double autoAimValue() {

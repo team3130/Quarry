@@ -2,27 +2,24 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.ShooterHood.PID;
+package frc.robot.commands.Chassis;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ShooterHood;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class HoodToSetpoint extends Command {
-  private final double angle = 0.03;
-  private final ShooterHood shooterHood;
-  /** Creates a new HoodToSetpoint. */
-  public HoodToSetpoint(ShooterHood shooterHood) {
-    this.shooterHood = shooterHood;
+public class HubToggle extends Command {
+  private final CommandSwerveDrivetrain drivetrain;
+  /** Creates a new HubToggle. */
+  public HubToggle(CommandSwerveDrivetrain drivetrain) {
+    this.drivetrain = drivetrain;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooterHood);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterHood.updatePID();
-    shooterHood.goToAngle(angle);
+    drivetrain.setHubToggle(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -32,7 +29,7 @@ public class HoodToSetpoint extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooterHood.stopHood();
+    drivetrain.setHubToggle(false);
   }
 
   // Returns true when the command should end.

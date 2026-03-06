@@ -68,9 +68,9 @@ public class Shooter extends SubsystemBase {
 
     //New Measurment Arrays
     private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};  //meters
-    private static final double[] velocities = {16,16,16,16};//,0,0,0}; //meters per seconds
+    private static final double[] velocities = {16,16,16,16};//,0,0,0};    //meters per seconds
 
-    private final double[] linearizeVel = {velocityLinearizer(velocities[0]),velocityLinearizer(velocities[1])};
+    private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1])};
 
     //Interpolation Objects
     InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
@@ -118,6 +118,15 @@ public class Shooter extends SubsystemBase {
          this
       )
     );
+    //Interpolation Double tree for Velocities
+    tableVel.put(distances[0], velocities[0]);
+    tableVel.put(distances[1], velocities[1]);
+    tableVel.put(distances[2], velocities[2]);
+    tableVel.put(distances[3], velocities[3]);
+
+    //Linearized Velocity Table
+    tableVelLin.put(distances[0], linearizeVel[0]);
+    tableVelLin.put(distances[1], linearizeVel[1]);
   }
 
   //SysID
@@ -210,19 +219,6 @@ public class Shooter extends SubsystemBase {
     double metersPerSecSquared = radsPerSecSquared * Units.inchesToMeters(2);
     return metersPerSecSquared;
   }
-
-    public void InterpolationDoubleTree(){
-        //Interpolation Double tree for Velocities
-        tableVel.put(distances[0], velocities[0]);
-        tableVel.put(distances[1], velocities[1]);
-        tableVel.put(distances[2], velocities[2]);
-        tableVel.put(distances[3], velocities[3]);
-        //tableVel.put(distances[4], velocities[4]);
-
-        //Linearized Velocity Table
-        tableVelLin.put(distances[0], linearizeVel[0]);
-        tableVelLin.put(distances[1], linearizeVel[1]);
-    }
 
     public double velocityLinearizer(double speed) {return speed*speed;}
 

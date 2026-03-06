@@ -10,6 +10,8 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -23,7 +25,7 @@ public class TeleopDrive extends Command {
   private final double maxAngularRate;
   private final SwerveRequest.FieldCentric drive;
 
-  private Translation2d hubVector = new Translation2d(3.9, 0);
+  private Translation2d hubVector = new Translation2d(0, 0);
   private final PIDController pidController;
   /** Creates a new TeleopDrive. */
   public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, 
@@ -42,7 +44,15 @@ public class TeleopDrive extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    if(DriverStation.getAlliance().isPresent()) {
+      if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+        hubVector = new Translation2d(Units.inchesToMeters(181.56),Units.inchesToMeters(158.32));
+      } else {
+        hubVector = new Translation2d(Units.inchesToMeters(181.56 + 287),Units.inchesToMeters(158.32));
+      }
+    }
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
