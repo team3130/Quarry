@@ -178,7 +178,7 @@ public class RobotContainer {
           new RunFeederBasic(feeder),
           new RunHopperHorizontal(hopper)
       )),
-      new AutoRev(shooter)));
+      new RevToVelocity(shooter)));
 
     driverController.axisGreaterThan(PS5Controller.Axis.kRightY.value, 0.7).whileTrue(new HubToggle(driveTrain));
 
