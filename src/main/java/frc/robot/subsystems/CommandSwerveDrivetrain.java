@@ -451,4 +451,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return this.getKinematics().toChassisSpeeds(this.getState().ModuleStates);
     }
+
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("Drivetrain");
+        builder.addDoubleProperty("Distance from Hub", this::getDistanceFromHub, null);
+    }
 }

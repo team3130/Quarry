@@ -241,11 +241,8 @@ public class Shooter extends SubsystemBase {
 
   public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.3;}
 
-  public double getDistanceHub() {return driveTrain.getDistanceFromHub();}
-
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter");
-
     builder.addDoubleProperty("Velocity (m/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (m/s^2)", this::getAcceleration, null);
 
@@ -264,7 +261,6 @@ public class Shooter extends SubsystemBase {
     builder.addDoubleProperty("kP", this::getkP, this::setkP);
     builder.addDoubleProperty("kI", this::getkI, this::setkI);
     builder.addDoubleProperty("kD", this::getkD, this::setkD);
-    builder.addDoubleProperty("Distance From Hub", this::getDistanceHub, null);
   }
 
   @Override
