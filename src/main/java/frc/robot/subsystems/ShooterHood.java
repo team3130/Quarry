@@ -148,6 +148,10 @@ public class ShooterHood extends SubsystemBase {
     return tableAngle.get(drivetrain.getDistanceFromHub());
   }
 
+  public double getDistanceHub() {
+    return drivetrain.getDistanceFromHub();
+  }
+
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter Hood");
 
@@ -172,6 +176,7 @@ public class ShooterHood extends SubsystemBase {
     builder.addDoubleProperty("kP", this::getkP, this::setkP);
     builder.addDoubleProperty("kI", this::getkI, this::setkI);
     builder.addDoubleProperty("kD", this::getkD, this::setkD);
+    builder.addDoubleProperty("Distance from Hub", this::getDistanceHub, null);
   }
 
   @Override
