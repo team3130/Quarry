@@ -70,7 +70,8 @@ public class Shooter extends SubsystemBase {
     private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};  //meters
     private static final double[] velocities = {13.5,14,17,16};//,0,0,0};    //meters per seconds
 
-    private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1])};
+    private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
+       velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
 
     //Interpolation Objects
     InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
@@ -127,6 +128,8 @@ public class Shooter extends SubsystemBase {
     //Linearized Velocity Table
     tableVelLin.put(distances[0], linearizeVel[0]);
     tableVelLin.put(distances[1], linearizeVel[1]);
+    tableVelLin.put(distances[2], linearizeVel[2]);
+    tableVelLin.put(distances[3], linearizeVel[3]);
   }
 
   //SysID
@@ -228,7 +231,7 @@ public class Shooter extends SubsystemBase {
 
     // Interpolation Request for Velocity
     public double interpolTargetSpeed() {
-        double velmps = tableVel.get(driveTrain.getDistanceFromHub());
+        double velmps = tableVel.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
         double radspersec = velmps/(radius);
         double rotspersec = Units.radiansToRotations(radspersec);
         return rotspersec;
