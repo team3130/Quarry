@@ -178,7 +178,7 @@ public class RobotContainer {
           new RunFeederBasic(feeder),
           new RunHopperHorizontal(hopper)
       )),
-      new Rev(shooter)));
+      new AutoRev(shooter)));
 
     driverController.axisGreaterThan(PS5Controller.Axis.kRightY.value, 0.7).whileTrue(new HubToggle(driveTrain));
 
@@ -242,7 +242,6 @@ public class RobotContainer {
     SmartDashboard.putData(intake);
     SmartDashboard.putData(shooter);
     SmartDashboard.putData(shooterHood);
-    SmartDashboard.putData()
   }
 
   public void hubToggleReset() {driveTrain.setHubToggle(false);}

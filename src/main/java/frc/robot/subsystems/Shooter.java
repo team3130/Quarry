@@ -68,7 +68,7 @@ public class Shooter extends SubsystemBase {
 
     //New Measurment Arrays
     private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};  //meters
-    private static final double[] velocities = {16,16,16,16};//,0,0,0};    //meters per seconds
+    private static final double[] velocities = {13.5,14,17,16};//,0,0,0};    //meters per seconds
 
     private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1])};
 
