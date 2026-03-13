@@ -226,7 +226,9 @@ public class Shooter extends SubsystemBase {
     public double velocityLinearizer(double speed) {return speed*speed;}
 
     public double getInterPolVel() {
-        return Math.sqrt(tableVelLin.get(driveTrain.getDistanceFromHub()));
+        double distance = driveTrain.getDistanceFromHub();
+        setTargetVelocity(distance);
+        return Math.sqrt(tableVelLin.get(distance));
     }
 
     // Interpolation Request for Velocity
