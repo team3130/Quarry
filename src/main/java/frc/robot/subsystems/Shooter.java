@@ -67,8 +67,8 @@ public class Shooter extends SubsystemBase {
 
 
     //New Measurment Arrays
-    private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};  //meters
-    private static final double[] velocities = {13.5,14,17,16};//,0,0,0};    //meters per seconds
+    private static final double[] distances = {1,2,3.5,1.5,2.5,3,4};//,0,0,0};  //meters
+    private static final double[] velocities = {13.5,15.36,18.51,14.18,16.47,17.52,19.44};//,0,0,0};    //meters per seconds
 
     private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
        velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
@@ -124,6 +124,9 @@ public class Shooter extends SubsystemBase {
     tableVel.put(distances[1], velocities[1]);
     tableVel.put(distances[2], velocities[2]);
     tableVel.put(distances[3], velocities[3]);
+    tableVel.put(distances[4], velocities[4]);
+    tableVel.put(distances[5], velocities[5]);
+    tableVel.put(distances[6], velocities[6]);
 
     //Linearized Velocity Table
     tableVelLin.put(distances[0], linearizeVel[0]);
