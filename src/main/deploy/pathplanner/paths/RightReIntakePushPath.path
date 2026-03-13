@@ -84,12 +84,12 @@
         "y": 1.2265783132530124
       },
       "prevControl": {
-        "x": 6.171879518072289,
-        "y": 0.6801927710843383
+        "x": 6.106318099052397,
+        "y": 0.7057012628062931
       },
       "nextControl": {
-        "x": 6.570090038123366,
-        "y": 1.924600646243946
+        "x": 6.543421686746988,
+        "y": 1.652759036144579
       },
       "isLocked": false,
       "linkedName": null
@@ -192,7 +192,14 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Run Intake Event",
+      "waypointRelativePos": 4.94035087719298,
+      "endWaypointRelativePos": 6.091228070175443,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 5.0,
