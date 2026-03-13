@@ -15,7 +15,7 @@ import frc.robot.Constants;
 
 public class Hopper extends SubsystemBase {
   private final TalonFX horizontalHopper;
-  private double horizontalSpeed = 0.8;
+  private double horizontalSpeed = 0.6;
   /** Creates a new Hopper. */
   public Hopper() {
     horizontalHopper = new TalonFX(Constants.CAN.hopper);
