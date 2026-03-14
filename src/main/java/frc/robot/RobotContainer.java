@@ -170,7 +170,7 @@ public class RobotContainer {
     //operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     //operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-    driverController.R2().whileTrue(
+    driverController.triangle().whileTrue(
     new ParallelDeadlineGroup(
       new SequentialCommandGroup(
         new WaitUntilCommand(shooter::isAtVelocity), 
@@ -197,15 +197,15 @@ public class RobotContainer {
     //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
     //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
 
-    driverController.povLeft().whileTrue(new PivotIn(intake));
-    driverController.povDown().whileTrue(new BasicPivotIn(intake));
-    driverController.povRight().whileTrue(new PivotOut(intake));
-    driverController.L2().whileTrue(new RunIntake(intake));
-    driverController.L1().whileTrue(
-      new ParallelCommandGroup(
-        new ReverseHopperHorizontal(hopper),
-        new ReverseIntake(intake)
-      ));
+    //driverController.povLeft().whileTrue(new PivotIn(intake));
+    // driverController.povDown().whileTrue(new BasicPivotIn(intake));
+    // driverController.povRight().whileTrue(new PivotOut(intake));
+    // driverController.L2().whileTrue(new RunIntake(intake));
+    // driverController.L1().whileTrue(
+    //   new ParallelCommandGroup(
+    //     new ReverseHopperHorizontal(hopper),
+    //     new ReverseIntake(intake)
+    //   ));
 
     driverController.options().whileTrue(new BasicClimberUp(climber));
     driverController.create().whileTrue(new BasicClimberDown(climber));
