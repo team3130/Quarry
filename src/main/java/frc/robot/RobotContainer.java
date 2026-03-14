@@ -197,6 +197,26 @@ public class RobotContainer {
     //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
     //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
 
+    //Binded Buttons Currently: R2:Shooting, L1:Outtaking, L2:Intaking, Cross:Shake_Hopper, Circle:Shake_Intake
+
+    driverController.circle().whileTrue(new SequentialCommandGroup(
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.1)
+        , new ReverseIntake(intake)),
+        new ParallelDeadlineGroup(
+        new WaitCommand(0.1)
+        , new RunIntake(intake))
+    ));
+
+    driverController.cross().whileTrue(new SequentialCommandGroup(
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.1)
+        , new ReverseHopperHorizontal(hopper)),
+        new ParallelDeadlineGroup(
+        new WaitCommand(0.1)
+        , new RunHopperHorizontal(hopper))
+    ));
+
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().whileTrue(new PivotOut(intake));
