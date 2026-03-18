@@ -102,9 +102,8 @@ public class RobotContainer {
     feeder = new Feeder();
     hopper = new Hopper();
     intake = new Intake();
-    shooter = new Shooter(driveTrain);
     shooterHood = new ShooterHood(driveTrain);
-
+    shooter = new Shooter(driveTrain, shooterHood);
     limelight = new Limelight(driveTrain);
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));

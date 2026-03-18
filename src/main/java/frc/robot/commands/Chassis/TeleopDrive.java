@@ -37,6 +37,7 @@ public class TeleopDrive extends Command {
     this.maxAngularRate = maxAngularRate;
     this.drive = drive;
     pidController = new PIDController(0.05, 0, 0);
+    pidController.enableContinuousInput(-180, 180);
     SmartDashboard.putData(pidController);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveTrain);
@@ -58,8 +59,6 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     if(driveTrain.getHubToggle()) {
-      Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
-      Translation2d targetVector = hubVector.minus(robotVector);
       double targetAngle = driveTrain.getAngleSetpoint();
       double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
       if(targetAngle - robotAngle > 180) {
@@ -67,7 +66,7 @@ public class TeleopDrive extends Command {
       } else if(targetAngle - robotAngle < -180) {
         targetAngle += 360;
       }
-      double angleInput = pidController.calculate(robotAngle, targetAngle);
+      double angleInput = pidController.calculate(Math.toRadians(robotAngle), Math.toRadians(targetAngle));
       driveTrain.setControl(drive
                 .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
                 .withVelocityY(driveTrain.applySingleDeadband(-controller.getLeftX(), maxSpeed))

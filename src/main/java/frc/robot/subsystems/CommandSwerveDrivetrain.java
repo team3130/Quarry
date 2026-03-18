@@ -301,13 +301,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void setAngleSetpoint(double angleSetpoint) {this.angleSetpoint = angleSetpoint;}
 
     public Translation2d getTranslationToHub() {
+        if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}
         if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
           Translation2d originToBlueHub = new Translation2d(Units.inchesToMeters(181.56),Units.inchesToMeters(158.32));
-          Translation2d blue = getStatePose().getTranslation().minus(originToBlueHub);
+          Translation2d blue = getStatePose().getTranslation().minus(originToBlueHub).unaryMinus();
           return blue;
       } else {
           Translation2d originToRedHub = new Translation2d(Units.inchesToMeters(181.56+287),Units.inchesToMeters(158.32));
-          Translation2d red = getStatePose().getTranslation().minus(originToRedHub);
+          Translation2d red = getStatePose().getTranslation().minus(originToRedHub).unaryMinus();
           return red;
       }
     }
@@ -457,6 +458,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return this.getKinematics().toChassisSpeeds(this.getState().ModuleStates);
+    }
+    public ChassisSpeeds getFieldRelativeSpeeds() {
+        return this.getState().Speeds;
     }
 
     public void initSendable(SendableBuilder builder) {

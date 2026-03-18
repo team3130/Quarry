@@ -64,6 +64,7 @@ public class Shooter extends SubsystemBase {
 
   //Shooter Curves
     private final CommandSwerveDrivetrain driveTrain;
+    private final ShooterHood shooterHood;
     private final double radius = Units.inchesToMeters(2);
 
 
@@ -79,8 +80,9 @@ public class Shooter extends SubsystemBase {
     InterpolatingDoubleTreeMap tableVelLin = new InterpolatingDoubleTreeMap();
 
   /** Creates a new Shooter. */
-  public Shooter(CommandSwerveDrivetrain drivetrain) {
+  public Shooter(CommandSwerveDrivetrain drivetrain, ShooterHood shooterHood) {
     this.driveTrain = drivetrain;
+    this.shooterHood = shooterHood;
     rightShooter = new TalonFX(Constants.CAN.shooterRight);
     leftShooter = new TalonFX(Constants.CAN.shooterLeft);
 
@@ -240,18 +242,20 @@ public class Shooter extends SubsystemBase {
 
     // Interpolation Request for Velocity
     public double interpolTargetSpeed() {
-        double velmps = tableVel.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
-        Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
-        ballVelocityVector.times(velmps/ballVelocityVector.getNorm());
-        Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
-        Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
-        double velocityMetersPerSec = velocityVector.getNorm();
-        driveTrain.setAngleSetpoint(velocityVector.getAngle().getDegrees());
+      double distance = driveTrain.getDistanceFromHub();
+      double velmps = tableVel.get(distance);//Change tableVel to tableVelLin for linearized velocity.
+      Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
+      ballVelocityVector = ballVelocityVector.times(0.45 * velmps/ballVelocityVector.getNorm());
+      ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.autoAimValue() + 9)));
+      Translation2d robotVelocityVector = new Translation2d(driveTrain.getFieldRelativeSpeeds().vxMetersPerSecond, driveTrain.getFieldRelativeSpeeds().vyMetersPerSecond);
+      Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
+      double velocityMetersPerSec = velocityVector.getNorm();
+      driveTrain.setAngleSetpoint(velocityVector.getAngle().getDegrees());
 
-        setTargetVelocity(velocityMetersPerSec);
-        double radspersec = velocityMetersPerSec/(radius);
-        double rotspersec = Units.radiansToRotations(radspersec);
-        return rotspersec;
+      setTargetVelocity(velocityMetersPerSec);
+      double radspersec = velocityMetersPerSec/(radius);
+      double rotspersec = Units.radiansToRotations(radspersec);
+      return rotspersec;
     }
 
   public double getStatorCurrent() {return rightShooter.getStatorCurrent().getValueAsDouble();}
