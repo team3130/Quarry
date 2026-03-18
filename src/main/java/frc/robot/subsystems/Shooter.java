@@ -21,6 +21,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
@@ -144,10 +145,13 @@ public class Shooter extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
-
-
   public void revAtVelocity(double velocityMetersPerSec) {
-    double radsPerSec = velocityMetersPerSec / Units.inchesToMeters(2);
+    Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
+    Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
+    Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
+    double newVelocityMetersPerSec = velocityVector.getNorm();
+
+    double radsPerSec = newVelocityMetersPerSec / Units.inchesToMeters(2);
     double rotsPerSec = Units.radiansToRotations(radsPerSec);
     rightShooter.setControl(voltRequest.withVelocity(rotsPerSec));
   }
@@ -237,8 +241,15 @@ public class Shooter extends SubsystemBase {
     // Interpolation Request for Velocity
     public double interpolTargetSpeed() {
         double velmps = tableVel.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
-        setTargetVelocity(velmps);
-        double radspersec = velmps/(radius);
+        Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
+        ballVelocityVector.times(velmps/ballVelocityVector.getNorm());
+        Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
+        Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
+        double velocityMetersPerSec = velocityVector.getNorm();
+        driveTrain.setAngleSetpoint(velocityVector.getAngle().getDegrees());
+
+        setTargetVelocity(velocityMetersPerSec);
+        double radspersec = velocityMetersPerSec/(radius);
         double rotspersec = Units.radiansToRotations(radspersec);
         return rotspersec;
     }

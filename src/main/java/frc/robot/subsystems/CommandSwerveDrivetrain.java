@@ -58,6 +58,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public final MySlewRateLimiter driveLimiter = new MySlewRateLimiter(2, -5, 0);
     public final MySlewRateLimiter thetaLimiter = new MySlewRateLimiter(0);
     private boolean isAngleReal = false;
+    private double angleSetpoint = 0;
     private final double deadband = 0.05 * Constants.Swerve.maxSpeed;
     private RobotConfig config;
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds().withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
@@ -296,17 +297,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public boolean getHubToggle() {return hubToggle;}
     public void setHubToggle(boolean value) {hubToggle = value;}
 
-    public double getDistanceFromHub() {
-      if(DriverStation.getAlliance().isPresent()) {}
+    public double getAngleSetpoint() {return angleSetpoint;}
+    public void setAngleSetpoint(double angleSetpoint) {this.angleSetpoint = angleSetpoint;}
+
+    public Translation2d getTranslationToHub() {
         if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
           Translation2d originToBlueHub = new Translation2d(Units.inchesToMeters(181.56),Units.inchesToMeters(158.32));
-          double distanceBlue = getStatePose().getTranslation().getDistance(originToBlueHub);
-          return distanceBlue;
+          Translation2d blue = getStatePose().getTranslation().minus(originToBlueHub);
+          return blue;
       } else {
           Translation2d originToRedHub = new Translation2d(Units.inchesToMeters(181.56+287),Units.inchesToMeters(158.32));
-          double distanceRed = getStatePose().getTranslation().getDistance(originToRedHub);
-          return distanceRed;
+          Translation2d red = getStatePose().getTranslation().minus(originToRedHub);
+          return red;
       }
+    }
+
+    public double getDistanceFromHub() {
+      return getTranslationToHub().getNorm();
     }
 
 
