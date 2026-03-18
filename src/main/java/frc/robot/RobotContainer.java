@@ -30,6 +30,7 @@ import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
 import frc.robot.commands.Feeder.Basic.ReverseFeederBasic;
 import frc.robot.commands.Feeder.Basic.RunFeederBasic;
+import frc.robot.commands.Feeder.PID.RunFeeder;
 import frc.robot.commands.Hopper.ReverseHopperHorizontal;
 import frc.robot.commands.Hopper.RunHopperHorizontal;
 import frc.robot.commands.Intake.Basic.BasicPivotIn;
@@ -210,6 +211,7 @@ public class RobotContainer {
 
     driverController.options().whileTrue(new BasicClimberUp(climber));
     driverController.create().whileTrue(new BasicClimberDown(climber));
+    driverController.triangle().whileTrue(new RunFeeder(feeder));
 
     operatorController.rightTrigger().whileTrue(new Rev(shooter));
     operatorController.rightBumper().whileTrue(
