@@ -67,10 +67,11 @@ public class Shooter extends SubsystemBase {
 
 
     //New Measurment Arrays
-    private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};  //meters
-    private static final double[] velocities = {16,16,16,16};//,0,0,0};    //meters per seconds
+    private static final double[] distances = {1, 1.5, 2, 2.5, 3.1, 3.6, 4.1};                      //meters
+    private static final double[] velocities = {13.5, 13.68, 13.93, 14.23, 17.57, 17.85, 18.14};    //meters per seconds
 
-    private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1])};
+    private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
+       velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
 
     //Interpolation Objects
     InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
@@ -123,10 +124,15 @@ public class Shooter extends SubsystemBase {
     tableVel.put(distances[1], velocities[1]);
     tableVel.put(distances[2], velocities[2]);
     tableVel.put(distances[3], velocities[3]);
+    tableVel.put(distances[4], velocities[4]);
+    tableVel.put(distances[5], velocities[5]);
+    tableVel.put(distances[6], velocities[6]);
 
     //Linearized Velocity Table
     tableVelLin.put(distances[0], linearizeVel[0]);
     tableVelLin.put(distances[1], linearizeVel[1]);
+    tableVelLin.put(distances[2], linearizeVel[2]);
+    tableVelLin.put(distances[3], linearizeVel[3]);
   }
 
   //SysID
@@ -220,19 +226,22 @@ public class Shooter extends SubsystemBase {
     return metersPerSecSquared;
   }
 
-    public double velocityLinearizer(double speed) {return speed*speed;}
+  public double velocityLinearizer(double speed) {return speed*speed;}
 
-    public double getInterPolVel() {
-        return Math.sqrt(tableVelLin.get(driveTrain.getDistanceFromHub()));
-    }
+  public double getInterPolVel() {
+    double velmps = tableVelLin.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
+    setTargetVelocity(velmps);
+    return Math.sqrt(velmps);
+  }
 
-    // Interpolation Request for Velocity
-    public double interpolTargetSpeed() {
-        double velmps = tableVel.get(driveTrain.getDistanceFromHub());
-        double radspersec = velmps/(radius);
-        double rotspersec = Units.radiansToRotations(radspersec);
-        return rotspersec;
-    }
+  // Interpolation Request for Velocity
+  public double interpolTargetSpeed() {
+    double velmps = tableVel.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
+    setTargetVelocity(velmps);
+    double radspersec = velmps/(radius);
+    double rotspersec = Units.radiansToRotations(radspersec);
+    return rotspersec;
+  }
 
   public double getStatorCurrent() {return rightShooter.getStatorCurrent().getValueAsDouble();}
 

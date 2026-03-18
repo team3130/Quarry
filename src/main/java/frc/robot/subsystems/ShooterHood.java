@@ -45,8 +45,9 @@ public class ShooterHood extends SubsystemBase {
   private double targetVelocity = 20;
 
   //Shooter Curves
-  private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};           //meters
-  private static final double[] angles = {0, 0.010533, 0.0515, 0.052281};//,0,0,0};     //rots from position zero
+  private static final double[] distances = {1, 1.5, 2, 2.5, 3.1, 3.6, 4.1};                              //meters
+  private static final double[] angles = 
+  {0.00308333333, 0.01352777778, 0.02363888889, 0.03336111111, 0.0214444444, 0.0273611111, 0.0340555556}; //rots from position zero
 
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
@@ -79,6 +80,9 @@ public class ShooterHood extends SubsystemBase {
     tableAngle.put(distances[1], angles[1]);
     tableAngle.put(distances[2], angles[2]);
     tableAngle.put(distances[3], angles[3]);
+    tableAngle.put(distances[4], angles[4]);
+    tableAngle.put(distances[5], angles[5]);
+    tableAngle.put(distances[6], angles[6]);
   }
 
   public void autoAim() {
