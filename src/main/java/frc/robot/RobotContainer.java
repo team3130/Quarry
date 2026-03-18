@@ -36,6 +36,7 @@ import frc.robot.commands.Intake.Basic.BasicPivotIn;
 import frc.robot.commands.Intake.Basic.BasicPivotOut;
 import frc.robot.commands.Intake.Basic.ReverseIntake;
 import frc.robot.commands.Intake.Basic.RunIntake;
+import frc.robot.commands.Intake.Basic.intakeReverseShake;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
@@ -158,7 +159,8 @@ public class RobotContainer {
         new ShooterHoodDown(shooterHood),
         new AutoAim(shooterHood)));
 
-    // Run SysId routines when holding back/start and X/Y.
+
+        // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
     //operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
     //operatorController.back().and(operatorController.x()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
@@ -197,25 +199,25 @@ public class RobotContainer {
     //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
     //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
 
-    //Binded Buttons Currently: R2:Shooting, L1:Outtaking, L2:Intaking, Cross:Shake_Hopper, Circle:Shake_Intake
+    //Binded Buttons Currently: R2:Shooting, L1:Outtaking, L2:Intaking, Commented Out: Cross:Shake_Hopper, Circle:Shake_Intake
 
-    driverController.circle().whileTrue(new SequentialCommandGroup(
-      new ParallelDeadlineGroup(
-        new WaitCommand(0.1)
-        , new ReverseIntake(intake)),
-        new ParallelDeadlineGroup(
-        new WaitCommand(0.1)
-        , new RunIntake(intake))
-    ));
+    // driverController.circle().whileTrue(new SequentialCommandGroup(
+    //   new ParallelDeadlineGroup(
+    //     new WaitCommand(0.1)
+    //     , new intakeReverseShake(intake)),
+    //     new ParallelDeadlineGroup(
+    //     new WaitCommand(0.1)
+    //     , new RunIntake(intake))
+    // ));
 
-    driverController.cross().whileTrue(new SequentialCommandGroup(
-      new ParallelDeadlineGroup(
-        new WaitCommand(0.1)
-        , new ReverseHopperHorizontal(hopper)),
-        new ParallelDeadlineGroup(
-        new WaitCommand(0.1)
-        , new RunHopperHorizontal(hopper))
-    ));
+    // driverController.cross().whileTrue(new SequentialCommandGroup(
+    //   new ParallelDeadlineGroup(
+    //     new WaitCommand(0.1)
+    //     , new ReverseHopperHorizontal(hopper)),
+    //     new ParallelDeadlineGroup(
+    //     new WaitCommand(0.1)
+    //     , new RunHopperHorizontal(hopper))
+    // ));
 
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));

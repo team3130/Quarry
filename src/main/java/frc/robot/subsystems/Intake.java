@@ -97,6 +97,10 @@ public class Intake extends SubsystemBase {
     pivot.setControl(voltRequest.withPosition(inPos));
   }
 
+  public void intakeReverseShake() {
+    intake.set(-0.4);
+  }
+
   public void basicPivotUp() {
     pivot.set(-0.2);
   }
