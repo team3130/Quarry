@@ -125,6 +125,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
 
     NamedCommands.registerCommand("Pivot Out", new PivotOut(intake));
+    NamedCommands.registerCommand("Pivot In", new PivotIn(intake));
 
     NamedCommands.registerCommand("Shooter Hood Down", new ShooterHoodDown(shooterHood));
     NamedCommands.registerCommand("Hood To Setpoint", new HoodToSetpoint(shooterHood));

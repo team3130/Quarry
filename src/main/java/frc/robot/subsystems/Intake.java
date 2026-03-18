@@ -4,15 +4,20 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CommutationConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -22,13 +27,13 @@ import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
-  private final TalonFX intake;
+  private final TalonFXS intake;
   private final TalonFX pivot;
 
   private final DigitalInput limitSwitch;
   private boolean isZeroed = false;
   
-  private double intakeSpeed = 0.75;
+  private double intakeSpeed = 0.9;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
@@ -52,10 +57,13 @@ public class Intake extends SubsystemBase {
   public Intake() {
     limitSwitch = new DigitalInput(Constants.IDs.intakeLimit);
 
-    intake = new TalonFX(Constants.CAN.intake);
-    intake.getConfigurator().apply(new TalonFXConfiguration().withMotorOutput(new MotorOutputConfigs()
+    intake = new TalonFXS(Constants.CAN.intake);
+    intake.getConfigurator().apply(new TalonFXSConfiguration()
+    .withMotorOutput(new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast)
-        .withInverted(InvertedValue.Clockwise_Positive)));
+        .withInverted(InvertedValue.Clockwise_Positive))
+    .withCurrentLimits(new CurrentLimitsConfigs().withSupplyCurrentLimit(60).withStatorCurrentLimit(60))
+    .withCommutation(new CommutationConfigs().withMotorArrangement(MotorArrangementValue.Minion_JST)));
 
     pivot = new TalonFX(Constants.CAN.intakePivot);
 

@@ -41,12 +41,12 @@ public class ShooterHood extends SubsystemBase {
 
   private double sensorToMechGearRatio = 117.63;
 
-  private double targetAcceleration = 500;
-  private double targetVelocity = 100;
+  private double targetAcceleration = 100;
+  private double targetVelocity = 20;
 
   //Shooter Curves
   private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};           //meters
-  private static final double[] angles = {0.002,0.009033,0.05,0.050781};//,0,0,0};     //rots from position zero
+  private static final double[] angles = {0, 0.010533, 0.0515, 0.052281};//,0,0,0};     //rots from position zero
 
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
