@@ -46,7 +46,7 @@ public class ShooterHood extends SubsystemBase {
 
   //Shooter Curves
   private static final double[] distances = {1,1.5,2,2.5,3,3.5,4};//,0,0,0};           //meters
-  private static final double[] angles = {0.0001,0.00486111111,0.00802777778,0.01433333333,0.02144444444,0.02736111111,0.03405555556};//,0,0,0};     //rots from position zero
+  private static final double[] angles = {0.00308333333,0.01352777778,0.02363888889,0.03336111111,0.04266666667,0.05150000000,0.05983333333};//,0,0,0};     //rots from position zero
 
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
