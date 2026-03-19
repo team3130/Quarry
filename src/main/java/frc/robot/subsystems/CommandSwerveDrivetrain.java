@@ -35,6 +35,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -292,21 +293,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         input = input * Math.abs(input);
         return input * max;
     }
-
+    
     public boolean getHubToggle() {return hubToggle;}
     public void setHubToggle(boolean value) {hubToggle = value;}
 
     public double getDistanceFromHub() {
-      if(DriverStation.getAlliance().isPresent()) {}
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-          Translation2d originToBlueHub = new Translation2d(Units.inchesToMeters(181.56),Units.inchesToMeters(158.32));
-          double distanceBlue = getStatePose().getTranslation().getDistance(originToBlueHub);
-          return distanceBlue;
-      } else {
-          Translation2d originToRedHub = new Translation2d(Units.inchesToMeters(181.56+287),Units.inchesToMeters(158.32));
-          double distanceRed = getStatePose().getTranslation().getDistance(originToRedHub);
-          return distanceRed;
-      }
+        if(DriverStation.getAlliance().isPresent()) {
+            if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+                Translation2d originToBlueHub = new Translation2d(Units.inchesToMeters(181.56), Units.inchesToMeters(158.32));
+                double distanceBlue = getStatePose().getTranslation().minus(originToBlueHub).getNorm();
+                return distanceBlue;
+            } else {
+                Translation2d originToRedHub = new Translation2d(Units.inchesToMeters(181.56+287), Units.inchesToMeters(158.32));
+                double distanceRed = getStatePose().getTranslation().minus(originToRedHub).getNorm();
+                return distanceRed;
+            }
+        } else {
+            return -1;
+        }
     }
 
 

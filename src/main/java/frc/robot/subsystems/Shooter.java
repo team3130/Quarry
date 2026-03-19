@@ -67,8 +67,8 @@ public class Shooter extends SubsystemBase {
 
 
     //New Measurment Arrays
-    private static final double[] distances = {1, 1.5, 2, 2.5, 3.1, 3.6, 4.1};                      //meters
-    private static final double[] velocities = {13.5, 13.68, 13.93, 14.23, 17.57, 17.85, 18.14};    //meters per seconds
+    private static final double[] distances = {1, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
+    private static final double[] velocities = {13.5, 13.68, 13.93, 14.23, 16.9, 17.45, 18.14};    //meters per seconds
 
     private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
        velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
@@ -250,6 +250,10 @@ public class Shooter extends SubsystemBase {
 
   public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.1;}
 
+  public double getDistanceToHub() {
+    return driveTrain.getDistanceFromHub();
+  }
+
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter");
 
@@ -266,6 +270,8 @@ public class Shooter extends SubsystemBase {
 
     builder.addDoubleProperty("Sensor to Mech Gear Ratio", this::getGearRatio, this::setGearRatio);
 
+    //builder.addDoubleProperty("Distance to Hub", this::getDistanceToHub, null);
+
     builder.addDoubleProperty("kV", this::getkV, this::setkV);
     builder.addDoubleProperty("kA", this::getkA, this::setkA);
     builder.addDoubleProperty("kP", this::getkP, this::setkP);
@@ -275,6 +281,7 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    System.out.println(getDistanceToHub());
     // This method will be called once per scheduler run
     //updatePID();
   }
