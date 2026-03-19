@@ -55,6 +55,7 @@ import org.json.simple.parser.ParseException;
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private boolean hubToggle = false;
+    private boolean isShooting = false;
 
     public final MySlewRateLimiter driveLimiter = new MySlewRateLimiter(2, -5, 0);
     public final MySlewRateLimiter thetaLimiter = new MySlewRateLimiter(0);
@@ -300,6 +301,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getAngleSetpoint() {return angleSetpoint;}
     public void setAngleSetpoint(double value) {angleSetpoint = value;}
+
+    public boolean getIsShooting() {return isShooting;}
+    public void setIsShooting(boolean value) {isShooting = value;}
 
     public Translation2d getTranslationToHub() {
         if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}

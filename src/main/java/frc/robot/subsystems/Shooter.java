@@ -178,6 +178,7 @@ public class Shooter extends SubsystemBase {
 
   public void stopShooter() {
     rightShooter.set(0);
+    driveTrain.setIsShooting(false);
   }
 
   public double getkV() {return kV;}
@@ -253,6 +254,7 @@ public class Shooter extends SubsystemBase {
       Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
       double velocityMetersPerSec = 2.22 * velocityVector.getNorm();
       driveTrain.setAngleSetpoint(velocityVector.getAngle().getDegrees());
+      driveTrain.setIsShooting(true);
 
       setTargetVelocity(velocityMetersPerSec);
       double radspersec = velocityMetersPerSec/(radius);

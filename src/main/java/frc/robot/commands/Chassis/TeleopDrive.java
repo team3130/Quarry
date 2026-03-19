@@ -59,7 +59,12 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     if(driveTrain.getHubToggle()) {
-      double targetAngle = driveTrain.getAngleSetpoint();
+      Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
+      Translation2d targetVector = hubVector.minus(robotVector);
+      double targetAngle = targetVector.getAngle().getDegrees();
+      if(driveTrain.getIsShooting()) {
+        targetAngle = driveTrain.getAngleSetpoint();
+      }
       double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
       if(targetAngle - robotAngle > 180) {
         targetAngle -= 360;
