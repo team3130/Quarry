@@ -2,26 +2,25 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.Shooter.PID;
+package frc.robot.commands.Intake.Basic;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class RevToVelocity extends Command {
-  private final Shooter shooter;
-  private final double velocity = 14;
-  /** Creates a new ShootAtVelocity. */
-  public RevToVelocity(Shooter shooter) {
-    this.shooter = shooter;
+public class RunIntakeBasic extends Command {
+  private final Intake intake;
+  /** Creates a new RunIntake. */
+  public RunIntakeBasic(Intake intake) {
+    this.intake = intake;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooter);
+    addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.revAtVelocity(velocity);
+    intake.runIntakeBasic();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -31,7 +30,7 @@ public class RevToVelocity extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.revAtVelocity(0);
+    intake.stopIntake();
   }
 
   // Returns true when the command should end.

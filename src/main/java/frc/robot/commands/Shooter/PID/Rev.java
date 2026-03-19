@@ -21,12 +21,13 @@ public class Rev extends Command {
   @Override
   public void initialize() {
     shooter.updatePID();
-    shooter.rev();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    shooter.rev();
+  }
 
   // Called once the command ends or is interrupted.
   @Override

@@ -8,6 +8,9 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.EventMarker;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,28 +20,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
+import frc.robot.commands.Chassis.HubToggle;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
 import frc.robot.commands.Feeder.Basic.ReverseFeederBasic;
 import frc.robot.commands.Feeder.Basic.RunFeederBasic;
-import frc.robot.commands.Hopper.ReverseHopperHorizontal;
-import frc.robot.commands.Hopper.RunHopperHorizontal;
+import frc.robot.commands.Feeder.PID.RunFeeder;
+import frc.robot.commands.Hopper.Basic.ReverseHopperHorizontal;
+import frc.robot.commands.Hopper.Basic.RunHopperHorizontal;
+import frc.robot.commands.Hopper.PID.RunHopper;
 import frc.robot.commands.Intake.Basic.BasicPivotIn;
 import frc.robot.commands.Intake.Basic.BasicPivotOut;
-import frc.robot.commands.Intake.Basic.ReverseIntake;
-import frc.robot.commands.Intake.Basic.RunIntake;
+import frc.robot.commands.Intake.Basic.ReverseIntakeBasic;
+import frc.robot.commands.Intake.Basic.RunIntakeBasic;
 import frc.robot.commands.Intake.PID.PivotIn;
+import frc.robot.commands.Intake.PID.PivotOut;
+import frc.robot.commands.Intake.PID.RunIntake;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
+import frc.robot.commands.Shooter.PID.AutoRev;
 import frc.robot.commands.Shooter.PID.Rev;
 import frc.robot.commands.Shooter.PID.RevToVelocity;
 import frc.robot.commands.Shooter.PID.RevWithPower;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
+import frc.robot.commands.ShooterHood.PID.AutoAim;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -94,14 +105,34 @@ public class RobotContainer {
     feeder = new Feeder();
     hopper = new Hopper();
     intake = new Intake();
-    shooter = new Shooter();
-    shooterHood = new ShooterHood();
+    shooter = new Shooter(driveTrain);
+    shooterHood = new ShooterHood(driveTrain);
 
     limelight = new Limelight(driveTrain);
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
+
+    NamedCommands.registerCommand("Run Hopper", new RunHopperHorizontal(hopper));
+
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
     NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter));
+    NamedCommands.registerCommand("Shooting Sequence",
+    new ParallelDeadlineGroup(
+      new SequentialCommandGroup(
+        new WaitUntilCommand(shooter::isAtVelocity), 
+        new ParallelCommandGroup(
+          new RunFeederBasic(feeder),
+          new RunHopperHorizontal(hopper)
+      )),
+      new AutoRev(shooter)));
+
+    NamedCommands.registerCommand("Run Intake", new RunIntakeBasic(intake));
+
+    NamedCommands.registerCommand("Pivot Out", new PivotOut(intake));
+    NamedCommands.registerCommand("Pivot In", new PivotIn(intake));
+
+    NamedCommands.registerCommand("Shooter Hood Down", new ShooterHoodDown(shooterHood));
+    NamedCommands.registerCommand("Hood To Setpoint", new HoodToSetpoint(shooterHood));
     
     // Configure the trigger bindings
     configureBindings();
@@ -126,26 +157,35 @@ public class RobotContainer {
     // and Y is defined as to the left according to WPILib convention.
     
     //limelight.setDefaultCommand(new UpdateOdoFromVision(driveTrain, limelight, logger));
-    driveTrain.setDefaultCommand(new TeleopDrive(
-      driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
+    driveTrain.setDefaultCommand(new TeleopDrive(driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
+    shooterHood.setDefaultCommand(
+      new SequentialCommandGroup(
+        new ShooterHoodDown(shooterHood),
+        new AutoAim(shooterHood)));
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
-    operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    operatorController.back().and(operatorController.x()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    operatorController.start().and(operatorController.y()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    operatorController.start().and(operatorController.x()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    //operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    //operatorController.back().and(operatorController.x()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    //operatorController.start().and(operatorController.y()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //operatorController.start().and(operatorController.x()).whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     //operatorController.back().and(operatorController.y()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
     //operatorController.back().and(operatorController.x()).whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     //operatorController.start().and(operatorController.y()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     //operatorController.start().and(operatorController.x()).whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-    driverController.R2().whileTrue(new ParallelDeadlineGroup(
+    driverController.R2().whileTrue(
+    new ParallelDeadlineGroup(
       new SequentialCommandGroup(
-        new WaitCommand(2), 
-        new RunFeederBasic(feeder)), 
-      new RevWithPower(shooter)));
+        new WaitUntilCommand(shooter::isAtVelocity), 
+        new ParallelCommandGroup(
+          new RunFeeder(feeder),
+          new RunHopperHorizontal(hopper)
+      )),
+      new AutoRev(shooter)));
+
+    driverController.axisGreaterThan(PS5Controller.Axis.kRightY.value, 0.7).whileTrue(new HubToggle(driveTrain));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
 
@@ -153,26 +193,42 @@ public class RobotContainer {
     //driverController.L2().whileTrue(new ReverseShooter(shooter));
 
     //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));
-    driverController.povLeft().whileTrue(new ShooterHoodUp(shooterHood));
-    driverController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
+    //driverController.povLeft().whileTrue(new ShooterHoodUp(shooterHood));
+    //driverController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
 
-    driverController.L1().whileTrue(new RunFeederBasic(feeder));
+    //driverController.L1().whileTrue(new RunFeederBasic(feeder));
     //driverController.L2().whileTrue(new ReverseFeederBasic(feeder));
 
-    driverController.square().whileTrue(new RunHopperHorizontal(hopper));
-    driverController.circle().whileTrue(new ReverseIntake(intake));
+    //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
+    //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
 
-    //driverController.povRight().whileTrue(new BasicPivotIn(intake));
-    //driverController.povLeft().whileTrue(new BasicPivotOut(intake));
-
-    driverController.L2().whileTrue(new RunIntake(intake));
-    //driverController.L1().whileTrue(new ReverseIntake(intake));
-
-    driverController.triangle().whileTrue(new BasicPivotIn(intake));
-    driverController.cross().whileTrue(new BasicPivotOut(intake));
+    driverController.povLeft().whileTrue(new PivotIn(intake));
+    driverController.povDown().whileTrue(new BasicPivotIn(intake));
+    driverController.povRight().whileTrue(new PivotOut(intake));
+    driverController.L2().whileTrue(new RunIntakeBasic(intake));
+    driverController.L1().whileTrue(
+      new ParallelCommandGroup(
+        new ReverseHopperHorizontal(hopper),
+        new ReverseIntakeBasic(intake)
+      ));
 
     driverController.options().whileTrue(new BasicClimberUp(climber));
     driverController.create().whileTrue(new BasicClimberDown(climber));
+
+    operatorController.rightTrigger().whileTrue(new Rev(shooter));
+    operatorController.rightBumper().whileTrue(
+      new ParallelCommandGroup(
+        new RunHopper(hopper),
+        new RunFeeder(feeder)
+      ));
+    operatorController.leftTrigger().whileTrue(new RunIntake(intake));
+    operatorController.leftBumper().whileTrue(new ReverseIntakeBasic(intake));
+    operatorController.povLeft().whileTrue(new BasicPivotIn(intake));
+    operatorController.povRight().whileTrue(new BasicPivotOut(intake));
+    operatorController.x().whileTrue(new BasicClimberDown(climber));
+    operatorController.b().whileTrue(new BasicClimberUp(climber));
+    operatorController.povUp().whileTrue(new ShooterHoodUp(shooterHood));
+    operatorController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
@@ -193,15 +249,11 @@ public class RobotContainer {
     SmartDashboard.putData(shooterHood);
   }
 
+  public void hubToggleReset() {driveTrain.setHubToggle(false);}
   public void intakeReset() {intake.setZeroed(false);}
+  public void intakeResetPos() {intake.intakeResetPos();}
   public void hoodReset() {shooterHood.setZeroed(false);}
-  public void limelightReset() {limelight.setRobotHeadingReset(false);}
-  
-  public void hoodtoSetpoint() {
-    CommandScheduler.getInstance().schedule(new SequentialCommandGroup(
-      new ShooterHoodDown(shooterHood),
-      new HoodToSetpoint(shooterHood)));
-  }
+  public void hoodDown() {CommandScheduler.getInstance().schedule(new ShooterHoodDown(shooterHood));}
 
   public void updateOdoFromVision() {
     limelight.updateOdo();
@@ -211,9 +263,11 @@ public class RobotContainer {
   }
 
   public void setDisabledDeviations() {
+    limelight.setRobotHeadingReset(false);
     limelight.disabledDeviations();
   }
   public void setEnabledDeviations() {
+    limelight.setRobotHeadingReset(true);
     limelight.enabledDeviations();
   }
 

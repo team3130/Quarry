@@ -9,7 +9,7 @@ import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class HoodToSetpoint extends Command {
-  private final double angle = 0.05;
+  private final double angle = 0.03;
   private final ShooterHood shooterHood;
   /** Creates a new HoodToSetpoint. */
   public HoodToSetpoint(ShooterHood shooterHood) {

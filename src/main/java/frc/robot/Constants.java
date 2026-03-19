@@ -46,18 +46,18 @@ public final class Constants {
     public static final int bottomHooks = 0;
     public static final int topHooks = 1;
 
-    public static final int climberLimit = 3;
+    public static final int climberLimit = 4;
     
-    public static final int intakeLimit = 4;
+    public static final int intakeLimit = 3;
 
     public static final int shooterHoodLimit = 2;
     //DIO ports and pwm ports
   }
 
   public static class Swerve {
-    public static double[] translationPID = {5, 0, 0};
+    public static double[] translationPID = {10, 0, 0};
     public static double[] rotationPID = {5, 0, 0};
-    public static double maxSpeed = 4; // NOT kSpeedAt12Volts
+    public static double maxSpeed = 4.5; // NOT kSpeedAt12Volts
     public static double maxSpeedPartiallyExtended = 1.5;
     public static double maxSpeedFullExtended = 1;
     public static double maxAccelerationFromRest = 7.875; //in m/s^2 gotten from assumed mass of 70 kg
