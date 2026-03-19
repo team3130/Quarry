@@ -69,8 +69,8 @@ public class Shooter extends SubsystemBase {
 
 
     //New Measurment Arrays
-    private static final double[] distances = {1,1.5,2,2.5,3,3.5,4};//,0,0,0};  //meters
-    private static final double[] velocities = {12.18,15.94,17.15,17.35,17.57,17.85,18.14};//,0,0,0};    //meters per seconds
+    private static final double[] distances = {1, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
+    private static final double[] velocities = {13.5, 13.68, 13.93, 14.23, 16.9, 17.45, 18.14};    //meters per seconds
 
     private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
        velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
@@ -234,13 +234,13 @@ public class Shooter extends SubsystemBase {
     return metersPerSecSquared;
   }
 
-    public double velocityLinearizer(double speed) {return speed*speed;}
+  public double velocityLinearizer(double speed) {return speed*speed;}
 
-    public double getInterPolVel() {
-        double velmps = tableVelLin.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
-        setTargetVelocity(velmps);
-        return Math.sqrt(velmps);
-    }
+  public double getInterPolVel() {
+    double velmps = tableVelLin.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
+    setTargetVelocity(velmps);
+    return Math.sqrt(velmps);
+  }
 
     // Interpolation Request for Velocity
     public double interpolTargetSpeed() {
@@ -265,7 +265,11 @@ public class Shooter extends SubsystemBase {
   public double getGearRatio() {return sensorToMechGearRatio;}
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
 
-  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.3;}
+  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.1;}
+
+  public double getDistanceToHub() {
+    return driveTrain.getDistanceFromHub();
+  }
 
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter");
@@ -282,6 +286,8 @@ public class Shooter extends SubsystemBase {
 
     builder.addDoubleProperty("Sensor to Mech Gear Ratio", this::getGearRatio, this::setGearRatio);
 
+    //builder.addDoubleProperty("Distance to Hub", this::getDistanceToHub, null);
+
     builder.addDoubleProperty("kV", this::getkV, this::setkV);
     builder.addDoubleProperty("kA", this::getkA, this::setkA);
     builder.addDoubleProperty("kP", this::getkP, this::setkP);
@@ -291,6 +297,7 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    System.out.println(getDistanceToHub());
     // This method will be called once per scheduler run
     //updatePID();
   }
