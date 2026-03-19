@@ -298,7 +298,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void setHubToggle(boolean value) {hubToggle = value;}
 
     public double getAngleSetpoint() {return angleSetpoint;}
-    public void setAngleSetpoint(double angleSetpoint) {this.angleSetpoint = angleSetpoint;}
+    public void setAngleSetpoint(double value) {angleSetpoint = value;}
 
     public Translation2d getTranslationToHub() {
         if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}
