@@ -150,7 +150,7 @@ public class Shooter extends SubsystemBase {
   public void revAtVelocity(double velocityMetersPerSec) {
     Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
     ballVelocityVector = ballVelocityVector.times(0.45 * velocityMetersPerSec/ballVelocityVector.getNorm());
-      ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.autoAimValue() + 9)));
+    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.getAutoAimValue() + 9)));
     Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
     Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
     double newVelocityMetersPerSec = velocityVector.getNorm();
@@ -249,11 +249,14 @@ public class Shooter extends SubsystemBase {
       double velmps = tableVel.get(distance);//Change tableVel to tableVelLin for linearized velocity.
       Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
       ballVelocityVector = ballVelocityVector.times(0.45 * velmps/ballVelocityVector.getNorm());
-      ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.autoAimValue() + 9)));
+      Translation2d ballHorizontalVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(81 - 360 * shooterHood.getAutoAimValue())));
+      Translation2d ballVerticalVelocityVector = ballVelocityVector.times(Math.sin(Math.toRadians(81 - 360 * shooterHood.getAutoAimValue())));
       Translation2d robotVelocityVector = new Translation2d(driveTrain.getFieldRelativeSpeeds().vxMetersPerSecond, driveTrain.getFieldRelativeSpeeds().vyMetersPerSecond);
-      Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
-      double velocityMetersPerSec = 2.22 * velocityVector.getNorm();
+      Translation2d velocityVector = ballHorizontalVelocityVector.minus(robotVelocityVector);
+      double velocityMetersPerSec = 2.22 * (Math.hypot(velocityVector.getNorm(), ballVerticalVelocityVector.getNorm()));
       driveTrain.setAngleSetpoint(velocityVector.getAngle().getDegrees());
+      double angleDegrees = Math.atan(ballVerticalVelocityVector.getNorm()/velocityVector.getNorm());
+      shooterHood.setAutoAimValue(Math.max((81 - angleDegrees)/360, 0.0001));
       driveTrain.setIsShooting(true);
 
       setTargetVelocity(velocityMetersPerSec);

@@ -44,6 +44,8 @@ public class ShooterHood extends SubsystemBase {
   private double targetAcceleration = 100;
   private double targetVelocity = 20;
 
+  private double autoAimValue = 0;
+
   //Shooter Curves
   private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.9, 4.4};                              //meters
   private static final double[] angles = 
@@ -86,7 +88,7 @@ public class ShooterHood extends SubsystemBase {
   }
 
   public void autoAim() {
-    hood.setControl(voltRequest.withPosition(autoAimValue()));
+    hood.setControl(voltRequest.withPosition(getAutoAimValue()));
   }
 
   public void goToAngle(double setpoint) {
@@ -148,8 +150,11 @@ public class ShooterHood extends SubsystemBase {
   public void setZeroed(boolean value) {isZeroed = value;}
 
     //Interpolation Request for Angle
-  public double autoAimValue() {
+  public double getAutoAimValue() {
     return tableAngle.get(drivetrain.getDistanceFromHub());
+  }
+  public void setAutoAimValue(double value) {
+    autoAimValue = value;
   }
 
   public void initSendable(SendableBuilder builder) {

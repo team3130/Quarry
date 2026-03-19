@@ -36,7 +36,6 @@ import frc.robot.commands.Hopper.Basic.RunHopperHorizontal;
 import frc.robot.commands.Hopper.PID.RunHopper;
 import frc.robot.commands.Intake.Basic.BasicPivotIn;
 import frc.robot.commands.Intake.Basic.BasicPivotOut;
-import frc.robot.commands.Intake.Basic.intakeReverseShake;
 import frc.robot.commands.Intake.Basic.ReverseIntakeBasic;
 import frc.robot.commands.Intake.Basic.RunIntakeBasic;
 import frc.robot.commands.Intake.PID.PivotIn;
