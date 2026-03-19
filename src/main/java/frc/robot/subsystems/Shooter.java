@@ -13,6 +13,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -67,8 +68,8 @@ public class Shooter extends SubsystemBase {
 
 
     //New Measurment Arrays
-    private static final double[] distances = {1, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
-    private static final double[] velocities = {13.5, 13.68, 13.93, 14.23, 16.9, 17.45, 18.14};    //meters per seconds
+    private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
+    private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9};    //meters per seconds
 
     private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
        velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
