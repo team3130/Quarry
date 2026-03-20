@@ -303,7 +303,6 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    System.out.println(getDistanceToHub());
     // This method will be called once per scheduler run
     //updatePID();
   }
