@@ -150,8 +150,11 @@ public class ShooterHood extends SubsystemBase {
   public void setZeroed(boolean value) {isZeroed = value;}
 
     //Interpolation Request for Angle
-  public double getAutoAimValue() {
+  public double autoAimValue() {
     return tableAngle.get(drivetrain.getDistanceFromHub());
+  }
+  public double getAutoAimValue() {
+    return autoAimValue;
   }
   public void setAutoAimValue(double value) {
     autoAimValue = value;
