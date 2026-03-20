@@ -253,11 +253,12 @@ public class Shooter extends SubsystemBase {
       Translation2d ballHorizontalVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(81 - 360 * shooterHood.autoAimValue())));
       Translation2d ballVerticalVelocityVector = ballVelocityVector.times(Math.sin(Math.toRadians(81 - 360 * shooterHood.autoAimValue())));
       Translation2d robotVelocityVector = new Translation2d(driveTrain.getFieldRelativeSpeeds().vxMetersPerSecond, driveTrain.getFieldRelativeSpeeds().vyMetersPerSecond);
-      Translation2d velocityVector = ballHorizontalVelocityVector.minus(robotVelocityVector);
+      Translation2d velocityVector = ballHorizontalVelocityVector.plus(robotVelocityVector);
       double velocityMetersPerSec = 2 * (Math.hypot(velocityVector.getNorm(), ballVerticalVelocityVector.getNorm()));
       driveTrain.setAngleSetpoint(velocityVector.getAngle().getDegrees());
-      double angleDegrees = Math.atan(ballVerticalVelocityVector.getNorm()/velocityVector.getNorm());
-      shooterHood.setAutoAimValue(Math.max((81 - angleDegrees)/360, 0.0001));
+      double angleDegrees = Math.toDegrees(Math.atan(ballVerticalVelocityVector.getNorm()/velocityVector.getNorm()));
+      System.out.println("Angle: " + angleDegrees);
+      shooterHood.setAutoAimValue((81 - angleDegrees)/360);
       driveTrain.setIsShooting(true);
 
       setTargetVelocity(velocityMetersPerSec);
