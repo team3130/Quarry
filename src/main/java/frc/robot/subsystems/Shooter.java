@@ -247,25 +247,41 @@ public class Shooter extends SubsystemBase {
     // Interpolation Request for Velocity
     public double interpolTargetSpeed() {
       double distance = driveTrain.getDistanceFromHub();
-      double velmps = tableVel.get(distance);//Change tableVel to tableVelLin for linearized velocity.
-      Translation2d hubVector = driveTrain.getTranslationToHub();
-      Translation2d ballVelocityVector = hubVector.times(0.5 * velmps/hubVector.getNorm());
-      Translation2d ballHorizontalVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(81 - 360 * shooterHood.autoAimValue())));
-      Translation2d ballVerticalVelocityVector = ballVelocityVector.times(Math.sin(Math.toRadians(81 - 360 * shooterHood.autoAimValue())));
-      Translation2d robotVelocityVector = new Translation2d(driveTrain.getFieldRelativeSpeeds().vxMetersPerSecond, driveTrain.getFieldRelativeSpeeds().vyMetersPerSecond);
-      Translation2d velocityVector = ballHorizontalVelocityVector.plus(robotVelocityVector);
-      double velocityMetersPerSec = 2 * (Math.hypot(velocityVector.getNorm(), ballVerticalVelocityVector.getNorm()));
-      driveTrain.setAngleSetpoint(velocityVector.getAngle().getDegrees());
-      double angleDegrees = Math.toDegrees(Math.atan(ballVerticalVelocityVector.getNorm()/velocityVector.getNorm()));
-      System.out.println("Angle: " + angleDegrees);
-      shooterHood.setAutoAimValue((81 - angleDegrees)/360);
-      driveTrain.setIsShooting(true);
+      double velmps = tableVel.get(distance); 
+      
+      // 1. Get the direction to the hub (Must point AT the hub)
+      Translation2d toHubDir = driveTrain.getTranslationToHub();
+      
+      // 2. Calculate the "Static" components (what the ball does if robot is still)
+      double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.autoAimValue()));
+      double ballVelHorizontalMag = velmps * Math.cos(hoodAngleRads) * 0.5;
+      double ballVelVerticalMag = velmps * Math.sin(hoodAngleRads) * 0.5;
+      
+      // 3. Create the Horizontal Ball Velocity Vector (Field Relative)
+      Translation2d ballHorizontalVec = new Translation2d(ballVelHorizontalMag, toHubDir.getAngle());
 
-      setTargetVelocity(velocityMetersPerSec);
-      double radspersec = velocityMetersPerSec/(radius);
-      double rotspersec = Units.radiansToRotations(radspersec);
-      return rotspersec;
-    }
+      // 4. Subtract Robot Velocity (Field Relative) - NO MULTIPLIER
+      Translation2d robotFieldVel = new Translation2d(
+          driveTrain.getFieldRelativeSpeeds().vxMetersPerSecond, 
+          driveTrain.getFieldRelativeSpeeds().vyMetersPerSecond
+      );
+      // The "Compensated" horizontal vector
+      Translation2d compensatedHorizontalVec = ballHorizontalVec.minus(robotFieldVel);
+
+      // 5. UPDATE SETPOINT: This is the angle the ROBOT must face to cancel drift
+      driveTrain.setAngleSetpoint(compensatedHorizontalVec.getAngle().getDegrees());
+
+      // 6. Calculate New Total Magnitude (3D hypotenuse)
+      double finalTotalVelMps = 2 * Math.hypot(compensatedHorizontalVec.getNorm(), ballVelVerticalMag);
+      
+      // 7. Update Hood Angle (The tilt changes because horizontal velocity changed)
+      double newHoodAngleDegrees = Math.toDegrees(Math.atan2(ballVelVerticalMag, compensatedHorizontalVec.getNorm()));
+      shooterHood.setAutoAimValue((81 - newHoodAngleDegrees) / 360.0);
+
+      setTargetVelocity(finalTotalVelMps);
+      driveTrain.setIsShooting(true);
+      return Units.radiansToRotations(finalTotalVelMps / radius);
+  }
 
   public double getStatorCurrent() {return rightShooter.getStatorCurrent().getValueAsDouble();}
 

@@ -59,19 +59,19 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     if(driveTrain.getHubToggle()) {
-      Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
-      Translation2d targetVector = hubVector.minus(robotVector);
-      double targetAngle = targetVector.getAngle().getDegrees();
-      if(driveTrain.getIsShooting()) {
-        targetAngle = driveTrain.getAngleSetpoint();
+      double targetAngle;
+      if (driveTrain.getIsShooting()) {
+          targetAngle = driveTrain.getAngleSetpoint(); 
+      } else {
+          Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
+          targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
       }
-      double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
+        double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
       if(targetAngle - robotAngle > 180) {
         targetAngle -= 360;
       } else if(targetAngle - robotAngle < -180) {
         targetAngle += 360;
       }
-      System.out.println("Target Angle: " + targetAngle);
       double angleInput = pidController.calculate(robotAngle, targetAngle);
       driveTrain.setControl(drive
                 .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
@@ -80,6 +80,10 @@ public class TeleopDrive extends Command {
       } else {
       pidController.reset();
       ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
+      Translation2d robotFieldVel = new Translation2d(driveTrain.getState().Speeds.vxMetersPerSecond, driveTrain.getState().Speeds.vyMetersPerSecond);
+      if(robotFieldVel.getNorm() > 3) {
+        System.out.println("Robot: " + robotFieldVel.getX() + " " + robotFieldVel.getY());
+      }
       driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)
