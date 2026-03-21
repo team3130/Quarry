@@ -257,7 +257,7 @@ public class Shooter extends SubsystemBase {
       ).rotateBy(driveTrain.getStatePose().getRotation());
 
       // 3. Distance Calculation
-      Translation2d relativeHubDistance = toHubDir.plus(robotFieldVel.times(1.4));
+      Translation2d relativeHubDistance = toHubDir.minus(robotFieldVel.times(1.4));
 
       // 4. Calculate New Magnitude
       double finalTotalVelMps = tableVel.get(relativeHubDistance.getNorm());
