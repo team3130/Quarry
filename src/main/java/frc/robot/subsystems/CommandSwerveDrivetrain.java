@@ -60,6 +60,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public final MySlewRateLimiter driveLimiter = new MySlewRateLimiter(2, -5, 0);
     public final MySlewRateLimiter thetaLimiter = new MySlewRateLimiter(0);
     private boolean isAngleReal = false;
+    private boolean accurateShot = false;
     private double angleSetpoint = 0;
     private final double deadband = 0.05 * Constants.Swerve.maxSpeed;
     private RobotConfig config;
@@ -301,6 +302,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getAngleSetpoint() {return angleSetpoint;}
     public void setAngleSetpoint(double value) {angleSetpoint = value;}
+
+    public boolean getAccurateShot() {return accurateShot;}
+    public void setAccurateShot(boolean value) {accurateShot = value;}
 
     public boolean getIsShooting() {return isShooting;}
     public void setIsShooting(boolean value) {isShooting = value;}

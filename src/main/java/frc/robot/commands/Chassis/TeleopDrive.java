@@ -72,6 +72,11 @@ public class TeleopDrive extends Command {
       } else if(targetAngle - robotAngle < -180) {
         targetAngle += 360;
       }
+      if(Math.abs(robotAngle - targetAngle) < 3) {
+        driveTrain.setAccurateShot(true);
+      } else {
+        driveTrain.setAccurateShot(false);
+      }
       double angleInput = pidController.calculate(robotAngle, targetAngle);
       driveTrain.setControl(drive
                 .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
