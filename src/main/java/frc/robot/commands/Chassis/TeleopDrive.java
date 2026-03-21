@@ -80,10 +80,6 @@ public class TeleopDrive extends Command {
       } else {
       pidController.reset();
       ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
-      Translation2d robotFieldVel = new Translation2d(driveTrain.getState().Speeds.vxMetersPerSecond, driveTrain.getState().Speeds.vyMetersPerSecond);
-      if(robotFieldVel.getNorm() > 3) {
-        System.out.println("Robot: " + robotFieldVel.getX() + " " + robotFieldVel.getY());
-      }
       driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)

@@ -67,7 +67,7 @@ public class Shooter extends SubsystemBase {
     private final CommandSwerveDrivetrain driveTrain;
     private final ShooterHood shooterHood;
     private final double radius = Units.inchesToMeters(2);
-
+    private final double frictionCoef = 0.4;
 
     //New Measurment Arrays
     private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
@@ -254,17 +254,17 @@ public class Shooter extends SubsystemBase {
       
       // 2. Calculate the "Static" components (what the ball does if robot is still)
       double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.autoAimValue()));
-      double ballVelHorizontalMag = velmps * Math.cos(hoodAngleRads) * 0.5;
-      double ballVelVerticalMag = velmps * Math.sin(hoodAngleRads) * 0.5;
+      double ballVelHorizontalMag = velmps * Math.cos(hoodAngleRads) * frictionCoef;
+      double ballVelVerticalMag = velmps * Math.sin(hoodAngleRads) * frictionCoef;
       
       // 3. Create the Horizontal Ball Velocity Vector (Field Relative)
       Translation2d ballHorizontalVec = new Translation2d(ballVelHorizontalMag, toHubDir.getAngle());
 
       // 4. Subtract Robot Velocity (Field Relative) - NO MULTIPLIER
       Translation2d robotFieldVel = new Translation2d(
-          driveTrain.getFieldRelativeSpeeds().vxMetersPerSecond, 
-          driveTrain.getFieldRelativeSpeeds().vyMetersPerSecond
-      );
+          driveTrain.getSpeeds().vxMetersPerSecond, 
+          driveTrain.getSpeeds().vyMetersPerSecond
+      ).rotateBy(driveTrain.getStatePose().getRotation());
       // The "Compensated" horizontal vector
       Translation2d compensatedHorizontalVec = ballHorizontalVec.minus(robotFieldVel);
 
@@ -272,7 +272,7 @@ public class Shooter extends SubsystemBase {
       driveTrain.setAngleSetpoint(compensatedHorizontalVec.getAngle().getDegrees());
 
       // 6. Calculate New Total Magnitude (3D hypotenuse)
-      double finalTotalVelMps = 2 * Math.hypot(compensatedHorizontalVec.getNorm(), ballVelVerticalMag);
+      double finalTotalVelMps = Math.hypot(compensatedHorizontalVec.getNorm(), ballVelVerticalMag) / frictionCoef;
       
       // 7. Update Hood Angle (The tilt changes because horizontal velocity changed)
       double newHoodAngleDegrees = Math.toDegrees(Math.atan2(ballVelVerticalMag, compensatedHorizontalVec.getNorm()));

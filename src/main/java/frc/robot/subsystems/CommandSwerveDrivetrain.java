@@ -464,7 +464,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return this.getKinematics().toChassisSpeeds(this.getState().ModuleStates);
     }
-    public ChassisSpeeds getFieldRelativeSpeeds() {
+    public ChassisSpeeds getSpeeds() {
         return this.getState().Speeds;
     }
 
