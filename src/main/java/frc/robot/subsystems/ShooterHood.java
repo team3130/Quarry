@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -25,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterHood extends SubsystemBase {
-  private final CommandSwerveDrivetrain drivetrain;
+  private final CommandSwerveDrivetrain driveTrain;
   private final TalonFX hood;
 
   private final DigitalInput limit;
@@ -53,7 +54,7 @@ public class ShooterHood extends SubsystemBase {
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
   public ShooterHood(CommandSwerveDrivetrain drivetrain) {
-    this.drivetrain = drivetrain;
+    this.driveTrain = drivetrain;
     hood = new TalonFX(Constants.CAN.shooterHood);
     limit = new DigitalInput(Constants.IDs.shooterHoodLimit);
 
@@ -87,7 +88,7 @@ public class ShooterHood extends SubsystemBase {
   }
 
   public void autoAim() {
-    hood.setControl(voltRequest.withPosition(getAutoAimValue()));
+    hood.setControl(voltRequest.withPosition(autoAimValue()));
   }
 
   public void goToAngle(double setpoint) {
@@ -150,13 +151,20 @@ public class ShooterHood extends SubsystemBase {
 
     //Interpolation Request for Angle
   public double autoAimValue() {
-    return tableAngle.get(drivetrain.getDistanceFromHub());
-  }
-  public double getAutoAimValue() {
-    return autoAimValue;
-  }
-  public void setAutoAimValue(double value) {
-    autoAimValue = value;
+      // 1. Get the direction to the hub (Must point AT the hub)
+      Translation2d toHubDir = driveTrain.getTranslationToHub();
+
+      // 2. Robot Velocity (Field Relative) - Radial
+      Translation2d robotFieldVel = new Translation2d(
+          driveTrain.getSpeeds().vxMetersPerSecond, 
+          driveTrain.getSpeeds().vyMetersPerSecond
+      ).rotateBy(driveTrain.getStatePose().getRotation());
+
+      // 3. Distance Calculation
+      Translation2d relativeHubDistance = toHubDir.plus(robotFieldVel.times(1.4));
+
+      // 4. Calculate New Magnitude
+      return tableAngle.get(relativeHubDistance.getNorm());
   }
 
   public void initSendable(SendableBuilder builder) {

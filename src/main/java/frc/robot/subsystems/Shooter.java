@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import javax.management.relation.RelationException;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -67,7 +69,6 @@ public class Shooter extends SubsystemBase {
     private final CommandSwerveDrivetrain driveTrain;
     private final ShooterHood shooterHood;
     private final double radius = Units.inchesToMeters(2);
-    private final double frictionCoef = 0.4;
 
     //New Measurment Arrays
     private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
@@ -150,7 +151,7 @@ public class Shooter extends SubsystemBase {
 
   public void revAtVelocity(double velocityMetersPerSec) {
     Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
-    ballVelocityVector = ballVelocityVector.times(0.45 * velocityMetersPerSec/ballVelocityVector.getNorm());
+    ballVelocityVector = ballVelocityVector.times(1/ballVelocityVector.getNorm());
     ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.autoAimValue() + 9)));
     Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
     Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
@@ -245,38 +246,24 @@ public class Shooter extends SubsystemBase {
   }
 
     // Interpolation Request for Velocity
-    public double interpolTargetSpeed() {
-      double distance = driveTrain.getDistanceFromHub();
-      double velmps = tableVel.get(distance); 
-      
+    public double interpolTargetSpeed() {      
       // 1. Get the direction to the hub (Must point AT the hub)
       Translation2d toHubDir = driveTrain.getTranslationToHub();
-      
-      // 2. Calculate the "Static" components (what the ball does if robot is still)
-      double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.autoAimValue()));
-      double ballVelHorizontalMag = velmps * Math.cos(hoodAngleRads) * frictionCoef;
-      double ballVelVerticalMag = velmps * Math.sin(hoodAngleRads) * frictionCoef;
-      
-      // 3. Create the Horizontal Ball Velocity Vector (Field Relative)
-      Translation2d ballHorizontalVec = new Translation2d(ballVelHorizontalMag, toHubDir.getAngle());
 
-      // 4. Subtract Robot Velocity (Field Relative) - NO MULTIPLIER
+      // 2. Robot Velocity (Field Relative) - Radial
       Translation2d robotFieldVel = new Translation2d(
           driveTrain.getSpeeds().vxMetersPerSecond, 
           driveTrain.getSpeeds().vyMetersPerSecond
       ).rotateBy(driveTrain.getStatePose().getRotation());
-      // The "Compensated" horizontal vector
-      Translation2d compensatedHorizontalVec = ballHorizontalVec.minus(robotFieldVel);
 
-      // 5. UPDATE SETPOINT: This is the angle the ROBOT must face to cancel drift
-      driveTrain.setAngleSetpoint(compensatedHorizontalVec.getAngle().getDegrees());
+      // 3. Distance Calculation
+      Translation2d relativeHubDistance = toHubDir.plus(robotFieldVel.times(1.4));
 
-      // 6. Calculate New Total Magnitude (3D hypotenuse)
-      double finalTotalVelMps = Math.hypot(compensatedHorizontalVec.getNorm(), ballVelVerticalMag) / frictionCoef;
-      
-      // 7. Update Hood Angle (The tilt changes because horizontal velocity changed)
-      double newHoodAngleDegrees = Math.toDegrees(Math.atan2(ballVelVerticalMag, compensatedHorizontalVec.getNorm()));
-      shooterHood.setAutoAimValue((81 - newHoodAngleDegrees) / 360.0);
+      // 4. Calculate New Magnitude
+      double finalTotalVelMps = tableVel.get(relativeHubDistance.getNorm());
+
+      //5. Set Angle of Robot
+      driveTrain.setAngleSetpoint(relativeHubDistance.getAngle().getDegrees());
 
       setTargetVelocity(finalTotalVelMps);
       driveTrain.setIsShooting(true);
