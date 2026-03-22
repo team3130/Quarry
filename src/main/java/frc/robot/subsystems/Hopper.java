@@ -20,7 +20,7 @@ import frc.robot.Constants;
 
 public class Hopper extends SubsystemBase {
   private final TalonFX hopper;
-  private double horizontalSpeed = 0.3;
+  private double horizontalSpeed = 0.6;
 
   private final MotionMagicVelocityVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
