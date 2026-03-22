@@ -70,13 +70,15 @@ public class TeleopDrive extends Command {
       }
       double angleInput = pidController.calculate(robotAngle, targetAngle);
 
+      var chassisState = driveTrain.getState(); // Get Speeds and Pose
       Translation2d robotFieldVel = new Translation2d(
-          driveTrain.getState().Speeds.vxMetersPerSecond, 
-          driveTrain.getState().Speeds.vyMetersPerSecond
-      ).rotateBy(driveTrain.getStatePose().getRotation());
+          chassisState.Speeds.vxMetersPerSecond, 
+          chassisState.Speeds.vyMetersPerSecond
+      ).rotateBy(chassisState.Pose.getRotation()); // Field Relative Robot Velocity
+      // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
       Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+      // Angle correct the opposite direction of movement using w = -v/R
       double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
-      System.out.println(unitTangent.getX() + " " + unitTangent.getY());
 
       driveTrain.setControl(drive
                 .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
