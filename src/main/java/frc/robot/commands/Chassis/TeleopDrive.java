@@ -8,6 +8,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -68,10 +69,19 @@ public class TeleopDrive extends Command {
         targetAngle += 360;
       }
       double angleInput = pidController.calculate(robotAngle, targetAngle);
+
+      Translation2d robotFieldVel = new Translation2d(
+          driveTrain.getState().Speeds.vxMetersPerSecond, 
+          driveTrain.getState().Speeds.vyMetersPerSecond
+      ).rotateBy(driveTrain.getStatePose().getRotation());
+      Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+      double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
+      System.out.println(unitTangent.getX() + " " + unitTangent.getY());
+
       driveTrain.setControl(drive
                 .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
                 .withVelocityY(driveTrain.applySingleDeadband(-controller.getLeftX(), maxSpeed))
-                .withRotationalRate(angleInput));
+                .withRotationalRate(angleInput + angleOutput));
       } else {
       pidController.reset();
       ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
