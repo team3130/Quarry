@@ -60,18 +60,22 @@ public class TeleopDrive extends Command {
   public void execute() {
     if(driveTrain.getHubToggle()) {
       double targetAngle;
+      // If shooting correct for movement, otherwise just target hub regardless of where you are
       if (driveTrain.getIsShooting()) {
           targetAngle = driveTrain.getAngleSetpoint(); 
       } else {
           Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
           targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
       }
-        double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
+      // Odometry reading of robot angle, field relative
+      double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
+      // Keep angles in the range (-180, 180]
       if(targetAngle - robotAngle > 180) {
         targetAngle -= 360;
       } else if(targetAngle - robotAngle < -180) {
         targetAngle += 360;
       }
+      // Robot angle is within 3 degrees of target angle
       if(Math.abs(robotAngle - targetAngle) < 3) {
         driveTrain.setAccurateShot(true);
       } else {

@@ -30,6 +30,7 @@ public class ShooterHood extends SubsystemBase {
 
   private final DigitalInput limit;
   private boolean isZeroed = false;
+  private boolean atPosition = false;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
@@ -88,6 +89,12 @@ public class ShooterHood extends SubsystemBase {
 
   public void autoAim() {
     hood.setControl(voltRequest.withPosition(getAutoAimValue()));
+    // Checking if within 0.002 rotations of target
+    if(Math.abs(getPosition() - getAutoAimValue()) < 0.002) {
+      atPosition = true;
+    } else {
+      atPosition = false;
+    }
   }
 
   public void goToAngle(double setpoint) {
@@ -124,6 +131,9 @@ public class ShooterHood extends SubsystemBase {
   public double getPosition() {return hood.getPosition().getValueAsDouble();}
   public double getVelocity() {return hood.getVelocity().getValueAsDouble();}
   public double getAcceleration() {return hood.getAcceleration().getValueAsDouble();}
+
+  public boolean getAtPosition() {return atPosition;}
+  public void setAtPosition(boolean value) {atPosition = value;}
 
   public double getTargetAcceleration() {return targetAcceleration;}
   public void setTargetAcceleration(double value) {targetAcceleration = value;}
