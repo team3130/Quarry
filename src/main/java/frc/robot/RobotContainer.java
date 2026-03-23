@@ -177,7 +177,7 @@ public class RobotContainer {
     driverController.R2().whileTrue(
     new ParallelDeadlineGroup(
       new SequentialCommandGroup(
-        new WaitUntilCommand(shooter::isAtVelocity), 
+        new ParallelCommandGroup(new WaitUntilCommand(shooter::isAtVelocity), new WaitUntilCommand(shooterHood::getAtPosition), new WaitUntilCommand(driveTrain::getFacingTarget)), 
         new ParallelCommandGroup(
           new RunFeeder(feeder),
           new RunHopperHorizontal(hopper)

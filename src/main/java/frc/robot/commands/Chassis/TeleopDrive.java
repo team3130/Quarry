@@ -77,9 +77,9 @@ public class TeleopDrive extends Command {
       }
       // Robot angle is within 3 degrees of target angle
       if(Math.abs(robotAngle - targetAngle) < 3) {
-        driveTrain.setAccurateShot(true);
+        driveTrain.setFacingTarget(true);
       } else {
-        driveTrain.setAccurateShot(false);
+        driveTrain.setFacingTarget(false);
       }
       double angleInput = pidController.calculate(robotAngle, targetAngle);
       driveTrain.setControl(drive

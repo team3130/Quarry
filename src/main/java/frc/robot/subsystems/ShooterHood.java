@@ -89,12 +89,6 @@ public class ShooterHood extends SubsystemBase {
 
   public void autoAim() {
     hood.setControl(voltRequest.withPosition(getAutoAimValue()));
-    // Checking if within 0.002 rotations of target
-    if(Math.abs(getPosition() - getAutoAimValue()) < 0.002) {
-      atPosition = true;
-    } else {
-      atPosition = false;
-    }
   }
 
   public void goToAngle(double setpoint) {
@@ -176,6 +170,7 @@ public class ShooterHood extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Reached", this::limitReached, null);
     builder.addBooleanProperty("Is Zeroed", this::isZeroed, this::setZeroed);
+    builder.addBooleanProperty("Is At Position", this::getAtPosition, this::setAtPosition);
 
     builder.addDoubleProperty("Velocity (rot/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (rot/s^2)", this::getAcceleration, null);
@@ -200,6 +195,12 @@ public class ShooterHood extends SubsystemBase {
     if(limitReached() && !isZeroed && DriverStation.isEnabled()) {
       hood.setPosition(0);
       setZeroed(true);
+    }
+    // Checking if within 0.002 rotations of target
+    if(Math.abs(getPosition() - getAutoAimValue()) < 0.002) {
+      atPosition = true;
+    } else {
+      atPosition = false;
     }
     // This method will be called once per scheduler run
   }
