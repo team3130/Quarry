@@ -244,7 +244,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     thetaLimiter.updateValues(limit, -limit);
                     var theta = thetaLimiter.angleCalculate(vector.getAngle().getRadians());
                     Translation2d newVector = new Translation2d(mag, new Rotation2d(theta));
-                    return new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation);
+                    return ChassisSpeeds.discretize(new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation), 0.02);
                 }
             }
             //here we continue if we are decelerating, either small mag or big turn.
@@ -256,12 +256,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             if(newMag < 0.001){ // we have stopped moving
                 isAngleReal = false;
             }
-            return new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation);
+            return ChassisSpeeds.discretize(new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation), 0.02);
         }
         else { //if angle is not real, then we were standing still 20 ms ago
             if(vector.getNorm() < 0.001){ //if the norm is still tiny, then keep idling
                 driveLimiter.reset(0);
-                return new ChassisSpeeds(0,0, rotation);
+                return ChassisSpeeds.discretize(new ChassisSpeeds(0, 0, rotation), 0.02);
             }
             else { //if the norm is significant, start driving
                 isAngleReal = true;
@@ -269,7 +269,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 driveLimiter.setPositiveRateLimit(driveLimiter.getLinearPositiveRateLimit(driveLimiter.lastValue()));
                 var mag = driveLimiter.calculate(vector.getNorm());
                 Translation2d newVector = new Translation2d(mag, vector.getAngle());
-                return new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation);
+                return ChassisSpeeds.discretize(new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation), 0.02);
             }
         }
     }
