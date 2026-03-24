@@ -59,6 +59,7 @@ public class TeleopDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
     if(driveTrain.getHubToggle()) {
       Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
       Translation2d targetVector = hubVector.minus(robotVector);
@@ -100,12 +101,11 @@ public class TeleopDrive extends Command {
       double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
 
       driveTrain.setControl(drive
-                .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
-                .withVelocityY(driveTrain.applySingleDeadband(-controller.getLeftX(), maxSpeed))
+                .withVelocityX(targetSpeeds.vxMetersPerSecond)
+                .withVelocityY(targetSpeeds.vyMetersPerSecond)
                 .withRotationalRate(angleInput + angleOutput));
       } else {
       pidController.reset();
-      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
       driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)
