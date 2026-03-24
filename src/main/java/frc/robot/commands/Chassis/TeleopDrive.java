@@ -61,10 +61,11 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     if(driveTrain.getHubToggle()) {
-      Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
+      var chassisState = driveTrain.getState(); // Get Speeds and Pose
+      Translation2d robotVector = chassisState.Pose.getTranslation();
       Translation2d targetVector = hubVector.minus(robotVector);
       double targetAngle = targetVector.getAngle().getDegrees();
-      double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
+      double robotAngle = chassisState.Pose.getRotation().getDegrees();
       if(targetAngle - robotAngle > 180) {
         targetAngle -= 360;
       } else if(targetAngle - robotAngle < -180) {
@@ -85,14 +86,13 @@ public class TeleopDrive extends Command {
         targetAngle += 360;
       }
       // Robot angle is within 3 degrees of target angle
-      if(Math.abs(robotAngle - targetAngle) < 3) {
+      if(Math.abs(robotAngle - targetAngle) < 3 && chassisState.Speeds.omegaRadiansPerSecond < 0.1) {
         driveTrain.setFacingTarget(true);
       } else {
         driveTrain.setFacingTarget(false);
       }
       double angleInput = pidController.calculate(robotAngle, targetAngle);
 
-      var chassisState = driveTrain.getState(); // Get Speeds and Pose
       Translation2d robotFieldVel = new Translation2d(
           chassisState.Speeds.vxMetersPerSecond, 
           chassisState.Speeds.vyMetersPerSecond
