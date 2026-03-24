@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -59,7 +60,6 @@ public class TeleopDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
     if(driveTrain.getHubToggle()) {
       Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
       Translation2d targetVector = hubVector.minus(robotVector);
@@ -100,12 +100,18 @@ public class TeleopDrive extends Command {
       // Angle correct the opposite direction of movement using w = -v/R
       double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
 
+      driveTrain.driveLimiter.setPositiveLimitYIntersect(3.5);
+      driveTrain.driveLimiter.setNegativeRateLimit(-3.5);
+      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
+      driveTrain.driveLimiter.setPositiveLimitYIntersect(Constants.Swerve.maxAccelerationFromRest);
+      driveTrain.driveLimiter.setNegativeRateLimit(-5);
       driveTrain.setControl(drive
                 .withVelocityX(targetSpeeds.vxMetersPerSecond)
                 .withVelocityY(targetSpeeds.vyMetersPerSecond)
                 .withRotationalRate(angleInput + angleOutput));
       } else {
       pidController.reset();
+      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
       driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)
