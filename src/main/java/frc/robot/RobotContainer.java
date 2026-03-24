@@ -30,14 +30,17 @@ import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
 import frc.robot.commands.Feeder.Basic.ReverseFeederBasic;
 import frc.robot.commands.Feeder.Basic.RunFeederBasic;
-import frc.robot.commands.Hopper.ReverseHopperHorizontal;
-import frc.robot.commands.Hopper.RunHopperHorizontal;
+import frc.robot.commands.Feeder.PID.RunFeeder;
+import frc.robot.commands.Hopper.Basic.ReverseHopperHorizontal;
+import frc.robot.commands.Hopper.Basic.RunHopperHorizontal;
+import frc.robot.commands.Hopper.PID.RunHopper;
 import frc.robot.commands.Intake.Basic.BasicPivotIn;
 import frc.robot.commands.Intake.Basic.BasicPivotOut;
-import frc.robot.commands.Intake.Basic.ReverseIntake;
-import frc.robot.commands.Intake.Basic.RunIntake;
+import frc.robot.commands.Intake.Basic.ReverseIntakeBasic;
+import frc.robot.commands.Intake.Basic.RunIntakeBasic;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
+import frc.robot.commands.Intake.PID.RunIntake;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.Shooter.PID.AutoRev;
@@ -122,9 +125,10 @@ public class RobotContainer {
       )),
       new AutoRev(shooter)));
 
-    NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
+    NamedCommands.registerCommand("Run Intake", new RunIntakeBasic(intake));
 
     NamedCommands.registerCommand("Pivot Out", new PivotOut(intake));
+    NamedCommands.registerCommand("Pivot In", new PivotIn(intake));
 
     NamedCommands.registerCommand("Shooter Hood Down", new ShooterHoodDown(shooterHood));
     NamedCommands.registerCommand("Hood To Setpoint", new HoodToSetpoint(shooterHood));
@@ -175,7 +179,7 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new WaitUntilCommand(shooter::isAtVelocity), 
         new ParallelCommandGroup(
-          new RunFeederBasic(feeder),
+          new RunFeeder(feeder),
           new RunHopperHorizontal(hopper)
       )),
       new AutoRev(shooter)));
@@ -200,11 +204,11 @@ public class RobotContainer {
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().whileTrue(new PivotOut(intake));
-    driverController.L2().whileTrue(new RunIntake(intake));
+    driverController.L2().whileTrue(new RunIntakeBasic(intake));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(
         new ReverseHopperHorizontal(hopper),
-        new ReverseIntake(intake)
+        new ReverseIntakeBasic(intake)
       ));
 
     driverController.options().whileTrue(new BasicClimberUp(climber));
@@ -213,11 +217,11 @@ public class RobotContainer {
     operatorController.rightTrigger().whileTrue(new Rev(shooter));
     operatorController.rightBumper().whileTrue(
       new ParallelCommandGroup(
-        new RunHopperHorizontal(hopper),
-        new RunFeederBasic(feeder)
+        new RunHopper(hopper),
+        new RunFeeder(feeder)
       ));
     operatorController.leftTrigger().whileTrue(new RunIntake(intake));
-    operatorController.leftBumper().whileTrue(new ReverseIntake(intake));
+    operatorController.leftBumper().whileTrue(new ReverseIntakeBasic(intake));
     operatorController.povLeft().whileTrue(new BasicPivotIn(intake));
     operatorController.povRight().whileTrue(new BasicPivotOut(intake));
     operatorController.x().whileTrue(new BasicClimberDown(climber));
