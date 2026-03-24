@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,15 +31,11 @@ import frc.robot.subsystems.Limelight;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class YawCalibration extends Command {
   private Limelight limelight;
-  private CommandSwerveDrivetrain driveTrain;
   private String limelightName = "limelight-left";
   private ArrayList<double[]> input = new ArrayList<>();
   /** Creates a new YawCalibration. */
-  public YawCalibration(CommandSwerveDrivetrain driveTrain, Limelight limelight) {
-      this.driveTrain = driveTrain;
-      AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+  public YawCalibration(Limelight limelight) {
       this.limelight = limelight;
-      addRequirements(driveTrain);
       Rotation3d rotation = new Rotation3d(Math.PI, 0, 0);
       if(limelightName.equals("limelight-left")) {
         rotation = rotation.rotateBy(new Rotation3d(0, 0, -Math.PI/6));

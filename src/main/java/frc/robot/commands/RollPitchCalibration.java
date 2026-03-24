@@ -18,15 +18,13 @@ import java.util.List;
 import java.util.Optional;
 
 public class RollPitchCalibration extends Command {
-    private final CommandSwerveDrivetrain drivetrain;
     private final Limelight limelight;
 
     private ArrayList<double[]> input = new ArrayList<>();
     private String limelightName = "limelight-left";
     private double fiducialID = 19;
 
-    public RollPitchCalibration(CommandSwerveDrivetrain drivetrain, Limelight limelight) {
-        this.drivetrain = drivetrain;
+    public RollPitchCalibration(Limelight limelight) {
         this.limelight = limelight;
     }
 
