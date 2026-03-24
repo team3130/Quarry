@@ -67,7 +67,7 @@ public class Shooter extends SubsystemBase {
     private final CommandSwerveDrivetrain driveTrain;
     private final ShooterHood shooterHood;
     private final double radius = Units.inchesToMeters(2);
-    private final double frictionCoef = 0.4;
+    private final double frictionCoef = 0.62;
 
     //New Measurment Arrays
     private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters

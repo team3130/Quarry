@@ -8,6 +8,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -59,16 +60,21 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     if(driveTrain.getHubToggle()) {
-      double targetAngle;
+      Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
+      Translation2d targetVector = hubVector.minus(robotVector);
+      double targetAngle = targetVector.getAngle().getDegrees();
+      double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
+      if(targetAngle - robotAngle > 180) {
+        targetAngle -= 360;
+      } else if(targetAngle - robotAngle < -180) {
+        targetAngle += 360;
+      }
       // If shooting correct for movement, otherwise just target hub regardless of where you are
       if (driveTrain.getIsShooting()) {
           targetAngle = driveTrain.getAngleSetpoint(); 
       } else {
-          Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
           targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
       }
-      // Odometry reading of robot angle, field relative
-      double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
       // Keep angles in the range (-180, 180]
       if(targetAngle - robotAngle > 180) {
         targetAngle -= 360;
@@ -82,10 +88,21 @@ public class TeleopDrive extends Command {
         driveTrain.setFacingTarget(false);
       }
       double angleInput = pidController.calculate(robotAngle, targetAngle);
+
+      var chassisState = driveTrain.getState(); // Get Speeds and Pose
+      Translation2d robotFieldVel = new Translation2d(
+          chassisState.Speeds.vxMetersPerSecond, 
+          chassisState.Speeds.vyMetersPerSecond
+      ).rotateBy(chassisState.Pose.getRotation()); // Field Relative Robot Velocity
+      // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
+      Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+      // Angle correct the opposite direction of movement using w = -v/R
+      double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
+
       driveTrain.setControl(drive
                 .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
                 .withVelocityY(driveTrain.applySingleDeadband(-controller.getLeftX(), maxSpeed))
-                .withRotationalRate(angleInput));
+                .withRotationalRate(angleInput + angleOutput));
       } else {
       pidController.reset();
       ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
