@@ -73,6 +73,8 @@ public class TeleopDrive extends Command {
       // If shooting correct for movement, otherwise just target hub regardless of where you are
       if (driveTrain.getIsShooting()) {
           targetAngle = driveTrain.getAngleSetpoint(); 
+          driveTrain.driveLimiter.setMaxAccel(3);
+          driveTrain.driveLimiter.setNegativeRateLimit(-3);
       } else {
           targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
       }
@@ -100,10 +102,8 @@ public class TeleopDrive extends Command {
       // Angle correct the opposite direction of movement using w = -v/R
       double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
 
-      driveTrain.driveLimiter.setPositiveLimitYIntersect(3.5);
-      driveTrain.driveLimiter.setNegativeRateLimit(-3.5);
       ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
-      driveTrain.driveLimiter.setPositiveLimitYIntersect(Constants.Swerve.maxAccelerationFromRest);
+      driveTrain.driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
       driveTrain.driveLimiter.setNegativeRateLimit(-5);
       driveTrain.setControl(drive
                 .withVelocityX(targetSpeeds.vxMetersPerSecond)
