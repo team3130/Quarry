@@ -459,15 +459,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public double getHubToggleVelo(Translation2d hubVector) {
-    Translation2d robotVector = getState().Pose.getTranslation();
-      Translation2d targetVector = hubVector.minus(robotVector);
-      double targetAngle = targetVector.getAngle().getDegrees();
-      double robotAngle = getState().Pose.getRotation().getDegrees();
-      if(targetAngle - robotAngle > 180) {
-        targetAngle -= 360;
-      } else if(targetAngle - robotAngle < -180) {
-        targetAngle += 360;
-      }
-      return angularPIDController.calculate(robotAngle, targetAngle);
+        angularPIDController.enableContinuousInput(-180, 180);
+        Translation2d robotVector = getState().Pose.getTranslation();
+        Translation2d targetVector = hubVector.minus(robotVector);
+        double targetAngle = targetVector.getAngle().getDegrees();
+        double robotAngle = getState().Pose.getRotation().getDegrees();
+        if(targetAngle - robotAngle > 180) {
+            targetAngle -= 360;
+        } else if(targetAngle - robotAngle < -180) {
+            targetAngle += 360;
+        }
+        return angularPIDController.calculate(robotAngle, targetAngle);
     }
 }

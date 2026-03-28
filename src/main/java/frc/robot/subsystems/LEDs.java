@@ -18,25 +18,30 @@ import frc.robot.RobotContainer;
 import static edu.wpi.first.units.Units.*;
 
 public class LEDs extends SubsystemBase{
-  private AddressableLED leftLED;
-  private AddressableLEDBuffer leftLEDBuffer;
-  private final int leftLEDLength = 69; //should be the correct length as of 3/26/26
-  private final int leftPwmPort = 9;
+  private AddressableLED LED;
+  private AddressableLEDBuffer LEDBuffer;
+  private AddressableLEDBufferView leftLEDBufferView;
+  private AddressableLEDBufferView rightLEDBufferView;
+  private final int leftLEDLength = 36;   //should be the correct length as of 3/27/26
+  private final int rightLEDLength = 37;  //should be the correct length as of 3/27/26
+  private final int pwmPort = 9;
 
   public LEDs() {
       //set pwmPort
-      leftLED = new AddressableLED(leftPwmPort);
+      LED = new AddressableLED(pwmPort);
 
       //set strip length
-      leftLEDBuffer = new AddressableLEDBuffer(leftLEDLength);
-      leftLED.setLength(leftLEDBuffer.getLength());
+      LEDBuffer = new AddressableLEDBuffer(leftLEDLength + rightLEDLength);
+      leftLEDBufferView = LEDBuffer.createView(0, leftLEDLength);
+      rightLEDBufferView = LEDBuffer.createView(leftLEDLength, rightLEDLength).reversed();
+      LED.setLength(LEDBuffer.getLength());
 
       //start LEDs
-      leftLED.start();
+      LED.start();
     }
 
   //LEDs per Meter
-  Distance kLedSpacing = Meters.of((double) 1 / leftLEDLength);
+  Distance kLedSpacing = Meters.of((double) 1 / (leftLEDLength + rightLEDLength));
 
   //create color palate
   //Solid colors
@@ -70,8 +75,10 @@ public class LEDs extends SubsystemBase{
 
   @Override
   public void periodic() {
-    yellowChase(startingPercent, endingPercent).applyTo(leftLEDBuffer);
-    leftLED.setData(leftLEDBuffer);
+    //yellowChase(startingPercent, endingPercent).applyTo(leftLEDBufferView);
+    //yellowChase(startingPercent, endingPercent).applyTo(rightLEDBufferView);
+    manualYellow.applyTo(LEDBuffer);
+    LED.setData(LEDBuffer);
 
     startingPercent += 0.005;
     endingPercent += 0.005;
