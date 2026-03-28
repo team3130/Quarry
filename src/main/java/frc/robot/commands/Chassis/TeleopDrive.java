@@ -63,7 +63,11 @@ public class TeleopDrive extends Command {
   public void execute() {
     ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
     if(Math.abs(controller.getRightY()) > 0.7) {
-      targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
+      if(driveTrain.getStatePose().getX() > 182.11 && driveTrain.getStatePose().getX() < 469.11) { //If the robot is in the neutral Zone shuttle
+        targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocityWhileShuttling();
+      } else { //Else it must be in the alliance zone so toggle hub
+        targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
+      }
     } else {
       driveTrain.driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
       driveTrain.driveLimiter.setNegativeRateLimit(-5);
