@@ -5,14 +5,20 @@
 package frc.robot.commands.Shooter.PID;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoRev extends Command {
   private final Shooter shooter;
+  private final CommandSwerveDrivetrain drivetrain;
+  private final ShooterHood shooterHood;
   /** Creates a new Shoot. */
-  public AutoRev(Shooter shooter) {
+  public AutoRev(Shooter shooter, CommandSwerveDrivetrain drivetrain, ShooterHood shooterHood) {
     this.shooter = shooter;
+    this.drivetrain = drivetrain;
+    this.shooterHood = shooterHood;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
   }
@@ -26,7 +32,7 @@ public class AutoRev extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.autoRev();
+    shooter.autoRev(drivetrain, shooterHood);
   }
 
   // Called once the command ends or is interrupted.

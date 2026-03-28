@@ -30,16 +30,25 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.PowerAccount;
+import frc.robot.PowerBank;
+import frc.robot.SlewRateLimiter;
 
 public class Shooter extends SubsystemBase {
+  private boolean isShooting = false;
+
   private final TalonFX leftShooter;
   private final TalonFX rightShooter;
 
   private final MotionMagicVelocityVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
+
+  private final SlewRateLimiter slewRateLimiter;
+  private final PowerAccount shooterAccount;
 
   private final Slot0Configs config;
   private double kV = 0.11636;
@@ -64,26 +73,22 @@ public class Shooter extends SubsystemBase {
 
 
   //Shooter Curves
-    private final CommandSwerveDrivetrain driveTrain;
-    private final ShooterHood shooterHood;
     private final double radius = Units.inchesToMeters(2);
     private final double frictionCoef = 0.62;
 
-    //New Measurment Arrays
-    private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
-    private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9};    //meters per seconds
+  //New Measurment Arrays
+  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
+  private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9};    //meters per seconds
 
-    private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
-       velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
+  private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
+      velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
 
-    //Interpolation Objects
-    InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
-    InterpolatingDoubleTreeMap tableVelLin = new InterpolatingDoubleTreeMap();
+  //Interpolation Objects
+  InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
+  InterpolatingDoubleTreeMap tableVelLin = new InterpolatingDoubleTreeMap();
 
   /** Creates a new Shooter. */
-  public Shooter(CommandSwerveDrivetrain drivetrain, ShooterHood shooterHood) {
-    this.driveTrain = drivetrain;
-    this.shooterHood = shooterHood;
+  public Shooter() {
     rightShooter = new TalonFX(Constants.CAN.shooterRight);
     leftShooter = new TalonFX(Constants.CAN.shooterLeft);
 
@@ -107,6 +112,9 @@ public class Shooter extends SubsystemBase {
     rightShooter.getConfigurator().apply(motorConfig);
 
     voltRequest = new MotionMagicVelocityVoltage(0);
+
+    slewRateLimiter = new SlewRateLimiter(100, -100, 0, 0.00007, 100);
+    shooterAccount = PowerBank.getInstance().openAccount("shooter", 1);
 
     //SysID
     m_sysIdRoutine = new SysIdRoutine(
@@ -148,10 +156,10 @@ public class Shooter extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
-  public void revAtVelocity(double velocityMetersPerSec) {
+  public void revAtVelocity(double velocityMetersPerSec, CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
     Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
     ballVelocityVector = ballVelocityVector.times(0.45 * velocityMetersPerSec/ballVelocityVector.getNorm());
-    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.autoAimValue() + 9)));
+    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.getTableAutoAimValue(driveTrain.getDistanceFromHub()) + 9)));
     Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
     Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
     double newVelocityMetersPerSec = velocityVector.getNorm();
@@ -161,12 +169,21 @@ public class Shooter extends SubsystemBase {
     rightShooter.setControl(voltRequest.withVelocity(rotsPerSec));
   }
 
-  public void autoRev() {
-    rightShooter.setControl(voltRequest.withVelocity(interpolTargetSpeed()));
+  public void autoRev(CommandSwerveDrivetrain drivetrain, ShooterHood shooterHood) {
+    rightShooter.setControl(voltRequest.withVelocity(interpolTargetSpeed(drivetrain, shooterHood)));
   }
 
   public void rev() {
     rightShooter.setControl(voltRequest.withVelocity(targetVelocityRotations));
+  }
+
+  public void revWithGivenPower(boolean forward) {
+    int sign = forward ? 1 : -1;
+    double powerReq = slewRateLimiter.getPowerFromAcceleration(sign*accelerationRotations, slewRateLimiter.lastValue());
+    shooterAccount.setMaxRequest(powerReq);
+    double rotAccel = slewRateLimiter.getAccelerationFromPower(shooterAccount.getAllowance(), slewRateLimiter.lastValue());
+    double newRotVel = slewRateLimiter.calculate(sign*rotAccel);
+    rightShooter.setControl(voltRequest.withVelocity(newRotVel/(2 * Math.PI)));
   }
 
   public void runShooter() {
@@ -179,7 +196,7 @@ public class Shooter extends SubsystemBase {
 
   public void stopShooter() {
     rightShooter.set(0);
-    driveTrain.setIsShooting(false);
+    shooterAccount.setMaxRequest(0);
   }
 
   public double getkV() {return kV;}
@@ -238,14 +255,14 @@ public class Shooter extends SubsystemBase {
 
   public double velocityLinearizer(double speed) {return speed*speed;}
 
-  public double getInterPolVel() {
-    double velmps = tableVelLin.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
+  public double getInterPolVel(double distance) {
+    double velmps = tableVelLin.get(distance);//Change tableVel to tableVelLin for linearized velocity.
     setTargetVelocity(velmps);
     return Math.sqrt(velmps);
   }
 
     // Interpolation Request for Velocity
-    public double interpolTargetSpeed() {
+    public double interpolTargetSpeed(CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
       double distance = driveTrain.getDistanceFromHub();
       double velmps = tableVel.get(distance); 
       
@@ -253,7 +270,7 @@ public class Shooter extends SubsystemBase {
       Translation2d toHubDir = driveTrain.getTranslationToHub();
       
       // 2. Calculate the "Static" components (what the ball does if robot is still)
-      double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.autoAimValue()));
+      double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.getTableAutoAimValue(distance)));
       double ballVelHorizontalMag = velmps * Math.cos(hoodAngleRads) * frictionCoef;
       double ballVelVerticalMag = velmps * Math.sin(hoodAngleRads) * frictionCoef;
       
@@ -279,7 +296,7 @@ public class Shooter extends SubsystemBase {
       shooterHood.setAutoAimValue((81 - newHoodAngleDegrees) / 360.0);
 
       setTargetVelocity(finalTotalVelMps);
-      driveTrain.setIsShooting(true);
+      //driveTrain.setIsShooting(true);
       return Units.radiansToRotations(finalTotalVelMps / radius);
   }
 
@@ -290,12 +307,14 @@ public class Shooter extends SubsystemBase {
 
   public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.1;}
 
-  public double getDistanceToHub() {
-    return driveTrain.getDistanceFromHub();
-  }
+  public boolean getIsShooting() {return isShooting;}
+  public void setIsShooting(boolean value) {isShooting = value;}
 
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter");
+
+    builder.addBooleanProperty("Is Shooting", this::getIsShooting, this::setIsShooting);
+
     builder.addDoubleProperty("Velocity (m/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (m/s^2)", this::getAcceleration, null);
 

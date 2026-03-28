@@ -23,6 +23,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -55,13 +56,13 @@ import org.json.simple.parser.ParseException;
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private boolean hubToggle = false;
-    private boolean isShooting = false;
+    private PIDController angularPIDController = new PIDController(0.05, 0.01, 0);
+    private boolean isFacingHub = false;
+    private double angleSetpoint = 0;
 
     public final MySlewRateLimiter driveLimiter = new MySlewRateLimiter(2, -5, 0);
     public final MySlewRateLimiter thetaLimiter = new MySlewRateLimiter(0);
     private boolean isAngleReal = false;
-    private boolean isFacingTarget = false;
-    private double angleSetpoint = 0;
     private final double deadband = 0.05 * Constants.Swerve.maxSpeed;
     private RobotConfig config;
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds().withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
@@ -297,17 +298,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return input * max;
     }
     
-    public boolean getHubToggle() {return hubToggle;}
-    public void setHubToggle(boolean value) {hubToggle = value;}
-
     public double getAngleSetpoint() {return angleSetpoint;}
     public void setAngleSetpoint(double value) {angleSetpoint = value;}
 
-    public boolean getFacingTarget() {return isFacingTarget;}
-    public void setFacingTarget(boolean value) {isFacingTarget = value;}
-
-    public boolean getIsShooting() {return isShooting;}
-    public void setIsShooting(boolean value) {isShooting = value;}
+    public boolean getHubToggle() {return hubToggle;}
+    public void setHubToggle(boolean value) {hubToggle = value;}
 
     public Translation2d getTranslationToHub() {
         if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}
@@ -471,4 +466,51 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public ChassisSpeeds getSpeeds() {
         return this.getState().Speeds;
     }
+
+    public double[] targetAnglesAndSpeeds(Shooter shooter, Translation2d hubVector, CommandPS5Controller controller) {
+      Translation2d robotVector = getState().Pose.getTranslation();
+      Translation2d targetVector = hubVector.minus(robotVector);
+      double targetAngle = targetVector.getAngle().getDegrees();
+      double robotAngle = getState().Pose.getRotation().getDegrees();
+      // If shooting correct for movement, otherwise just target hub regardless of where you are
+      if (shooter.getIsShooting()) {
+          targetAngle = getAngleSetpoint(); 
+          driveLimiter.setMaxAccel(3);
+          driveLimiter.setNegativeRateLimit(-3);
+      } else {
+          targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
+      }
+      // Keep angles in the range (-180, 180]
+      if(targetAngle - robotAngle > 180) {
+        targetAngle -= 360;
+      } else if(targetAngle - robotAngle < -180) {
+        targetAngle += 360;
+      }
+      // Robot angle is within 3 degrees of target angle
+      if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.1) {
+        setFacingHub(true);
+      } else {
+        setFacingHub(false);
+      }
+      double angleInput = angularPIDController.calculate(robotAngle, targetAngle);
+
+      Translation2d robotFieldVel = new Translation2d(
+          getState().Speeds.vxMetersPerSecond, 
+          getState().Speeds.vyMetersPerSecond
+      ).rotateBy(getState().Pose.getRotation()); // Field Relative Robot Velocity
+      // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
+      Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+      // Angle correct the opposite direction of movement using w = -v/R
+      double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
+
+      ChassisSpeeds targetSpeeds = accelLimitVectorDrive(getHIDspeedsMPS(controller));
+      driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
+      driveLimiter.setNegativeRateLimit(-5);
+
+      double[] data = {angleInput, angleOutput, targetSpeeds.vxMetersPerSecond, targetSpeeds.vyMetersPerSecond, targetSpeeds.omegaRadiansPerSecond};
+      return data;
+    }
+
+    public boolean getFacingHub() {return isFacingHub;}
+    public void setFacingHub(boolean value) {isFacingHub = value;}
 }

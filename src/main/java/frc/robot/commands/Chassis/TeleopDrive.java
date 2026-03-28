@@ -16,31 +16,32 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.robot.AccelLimiter;
 import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TeleopDrive extends Command {
   private final CommandSwerveDrivetrain driveTrain;
+  private final Shooter shooter;
+  private final ShooterHood shooterHood;
   private final CommandPS5Controller controller;
-  private final double maxSpeed;
-  private final double maxAngularRate;
+  private final AccelLimiter accelLimiter;
   private final SwerveRequest.FieldCentric drive;
 
   private Translation2d hubVector = new Translation2d(0, 0);
-  private final PIDController pidController;
+
   /** Creates a new TeleopDrive. */
-  public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, 
-                    double maxSpeed, double maxAngularRate, 
-                    SwerveRequest.FieldCentric drive) {
+  public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, SwerveRequest.FieldCentric drive,
+  Shooter shooter, ShooterHood shooterHood) {
     this.driveTrain = driveTrain;
+    this.shooter = shooter;
+    this.shooterHood = shooterHood;
     this.controller = controller;
-    this.maxSpeed = maxSpeed;
-    this.maxAngularRate = maxAngularRate;
     this.drive = drive;
-    pidController = new PIDController(0.05, 0.01, 0);
-    pidController.enableContinuousInput(-180, 180);
-    SmartDashboard.putData(pidController);
+    accelLimiter = new AccelLimiter(15, -15, 0, 1000);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveTrain);
   }
@@ -61,56 +62,12 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     if(driveTrain.getHubToggle()) {
-      var chassisState = driveTrain.getState(); // Get Speeds and Pose
-      Translation2d robotVector = chassisState.Pose.getTranslation();
-      Translation2d targetVector = hubVector.minus(robotVector);
-      double targetAngle = targetVector.getAngle().getDegrees();
-      double robotAngle = chassisState.Pose.getRotation().getDegrees();
-      if(targetAngle - robotAngle > 180) {
-        targetAngle -= 360;
-      } else if(targetAngle - robotAngle < -180) {
-        targetAngle += 360;
-      }
-      // If shooting correct for movement, otherwise just target hub regardless of where you are
-      if (driveTrain.getIsShooting()) {
-          targetAngle = driveTrain.getAngleSetpoint(); 
-          driveTrain.driveLimiter.setMaxAccel(3);
-          driveTrain.driveLimiter.setNegativeRateLimit(-3);
-      } else {
-          targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
-      }
-      // Keep angles in the range (-180, 180]
-      if(targetAngle - robotAngle > 180) {
-        targetAngle -= 360;
-      } else if(targetAngle - robotAngle < -180) {
-        targetAngle += 360;
-      }
-      // Robot angle is within 3 degrees of target angle
-      if(Math.abs(robotAngle - targetAngle) < 3 && chassisState.Speeds.omegaRadiansPerSecond < 0.1) {
-        driveTrain.setFacingTarget(true);
-      } else {
-        driveTrain.setFacingTarget(false);
-      }
-      double angleInput = pidController.calculate(robotAngle, targetAngle);
-
-      Translation2d robotFieldVel = new Translation2d(
-          chassisState.Speeds.vxMetersPerSecond, 
-          chassisState.Speeds.vyMetersPerSecond
-      ).rotateBy(chassisState.Pose.getRotation()); // Field Relative Robot Velocity
-      // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
-      Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
-      // Angle correct the opposite direction of movement using w = -v/R
-      double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
-
-      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
-      driveTrain.driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
-      driveTrain.driveLimiter.setNegativeRateLimit(-5);
+      double[] data = driveTrain.targetAnglesAndSpeeds(shooter, hubVector, controller);
       driveTrain.setControl(drive
-                .withVelocityX(targetSpeeds.vxMetersPerSecond)
-                .withVelocityY(targetSpeeds.vyMetersPerSecond)
-                .withRotationalRate(angleInput + angleOutput));
-      } else {
-      pidController.reset();
+                .withVelocityX(data[2])
+                .withVelocityY(data[3])
+                .withRotationalRate(data[0] + data[1]));
+    } else {
       ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
       driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)

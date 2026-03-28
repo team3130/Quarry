@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
-import frc.robot.commands.Chassis.HubToggle;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
@@ -46,6 +45,7 @@ import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.Shooter.PID.AutoRev;
 import frc.robot.commands.Shooter.PID.Rev;
 import frc.robot.commands.Shooter.PID.RevToVelocity;
+import frc.robot.commands.Shooter.PID.RevWithPower;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
 import frc.robot.commands.ShooterHood.PID.AutoAim;
@@ -97,6 +97,7 @@ public class RobotContainer {
   private final Shooter shooter;
   private final ShooterHood shooterHood;
   private final Limelight limelight;
+  private final LEDs leds;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -104,25 +105,25 @@ public class RobotContainer {
     feeder = new Feeder();
     hopper = new Hopper();
     intake = new Intake();
-    shooterHood = new ShooterHood(driveTrain);
-    shooter = new Shooter(driveTrain, shooterHood);
-    limelight = new Limelight(driveTrain);
+    shooterHood = new ShooterHood();
+    shooter = new Shooter();
+    limelight = new Limelight();
+    leds = new LEDs();
+
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
 
-    NamedCommands.registerCommand("Run Hopper", new RunHopperHorizontal(hopper));
+    NamedCommands.registerCommand("Run Hopper", new RunHopperHorizontal(hopper, shooter, shooterHood, driveTrain));
 
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
-    NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter));
+    NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter, driveTrain, shooterHood));
     NamedCommands.registerCommand("Shooting Sequence",
     new ParallelDeadlineGroup(
-      new SequentialCommandGroup(
-        new WaitUntilCommand(shooter::isAtVelocity), 
-        new ParallelCommandGroup(
-          new RunFeederBasic(feeder),
-          new RunHopperHorizontal(hopper)
-      )),
-      new AutoRev(shooter)));
+      new ParallelCommandGroup(
+        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
+        new RunHopperHorizontal(hopper, shooter, shooterHood, driveTrain)
+      ),
+      new AutoRev(shooter, driveTrain, shooterHood)));
 
     NamedCommands.registerCommand("Run Intake", new RunIntakeBasic(intake));
 
@@ -155,11 +156,11 @@ public class RobotContainer {
     // and Y is defined as to the left according to WPILib convention.
     
     //limelight.setDefaultCommand(new UpdateOdoFromVision(driveTrain, limelight, logger));
-    driveTrain.setDefaultCommand(new TeleopDrive(driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
+    driveTrain.setDefaultCommand(new TeleopDrive(driveTrain, driverController, drive, shooter, shooterHood));
     shooterHood.setDefaultCommand(
       new SequentialCommandGroup(
         new ShooterHoodDown(shooterHood),
-        new AutoAim(shooterHood)));
+        new AutoAim(shooterHood, driveTrain)));
 
 
         // Run SysId routines when holding back/start and X/Y.
@@ -176,15 +177,11 @@ public class RobotContainer {
 
     driverController.R2().whileTrue(
     new ParallelDeadlineGroup(
-      new SequentialCommandGroup(
-        new ParallelCommandGroup(new WaitUntilCommand(shooter::isAtVelocity), new WaitUntilCommand(shooterHood::getAtPosition), new WaitUntilCommand(driveTrain::getFacingTarget)), 
-        new ParallelCommandGroup(
-          new RunFeeder(feeder),
-          new RunHopperHorizontal(hopper)
-      )),
-      new AutoRev(shooter)));
-
-    driverController.axisGreaterThan(PS5Controller.Axis.kRightY.value, 0.7).whileTrue(new HubToggle(driveTrain));
+      new ParallelCommandGroup(
+        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
+        new RunHopperHorizontal(hopper, shooter, shooterHood, driveTrain)
+      ),
+      new AutoRev(shooter, driveTrain, shooterHood)));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
 
@@ -238,7 +235,7 @@ public class RobotContainer {
     operatorController.rightBumper().whileTrue(
       new ParallelCommandGroup(
         new RunHopper(hopper),
-        new RunFeeder(feeder)
+        new RunFeeder(feeder, shooter, shooterHood, driveTrain)
       ));
     operatorController.leftTrigger().whileTrue(new RunIntake(intake));
     operatorController.leftBumper().whileTrue(new ReverseIntakeBasic(intake));
@@ -275,19 +272,19 @@ public class RobotContainer {
   public void hoodDown() {CommandScheduler.getInstance().schedule(new ShooterHoodDown(shooterHood));}
 
   public void updateOdoFromVision() {
-    limelight.updateOdo();
+    limelight.updateOdo(driveTrain);
   }
   public void updateDisabledOdoFromVision() {
-    limelight.updateDisabledOdo();
+    limelight.updateDisabledOdo(driveTrain);
   }
 
   public void setDisabledDeviations() {
     limelight.setRobotHeadingReset(false);
-    limelight.disabledDeviations();
+    limelight.disabledDeviations(driveTrain);
   }
   public void setEnabledDeviations() {
     limelight.setRobotHeadingReset(true);
-    limelight.enabledDeviations();
+    limelight.enabledDeviations(driveTrain);
   }
 
   public Command pick() {
