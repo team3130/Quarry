@@ -463,7 +463,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.getState().Speeds;
     }
 
-    public double[] targetAnglesAndSpeeds(Shooter shooter, Translation2d hubVector, CommandPS5Controller controller) {
+    public double getRotationalVelocity(Shooter shooter, Translation2d hubVector, CommandPS5Controller controller) {
       Translation2d robotVector = getState().Pose.getTranslation();
       Translation2d targetVector = hubVector.minus(robotVector);
       double targetAngle = targetVector.getAngle().getDegrees();
@@ -476,13 +476,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       } else {
           targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
       }
-      // Keep angles in the range (-180, 180]
+      // Keep angles in the range (-180, 180)
       if(targetAngle - robotAngle > 180) {
         targetAngle -= 360;
       } else if(targetAngle - robotAngle < -180) {
         targetAngle += 360;
       }
-      // Robot angle is within 3 degrees of target angle
+      // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.1 rad/s
       if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.1) {
         setFacingHub(true);
       } else {
@@ -499,12 +499,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       // Angle correct the opposite direction of movement using w = -v/R
       double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
 
-      ChassisSpeeds targetSpeeds = accelLimitVectorDrive(getHIDspeedsMPS(controller));
       driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
       driveLimiter.setNegativeRateLimit(-5);
 
-      double[] data = {angleInput, angleOutput, targetSpeeds.vxMetersPerSecond, targetSpeeds.vyMetersPerSecond, targetSpeeds.omegaRadiansPerSecond};
-      return data;
+      return angleInput + angleOutput;
     }
 
     public boolean getFacingHub() {return isFacingHub;}

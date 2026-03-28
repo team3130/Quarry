@@ -26,6 +26,7 @@ public class AutoRev extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    shooter.setIsShooting(true);
     //shooter.updatePID();
   }
 
@@ -38,6 +39,7 @@ public class AutoRev extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    shooter.setIsShooting(false);
     shooter.stopShooter();
   }
 

@@ -61,19 +61,14 @@ public class TeleopDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
     if(Math.abs(controller.getRightY()) > 0.7) {
-      double[] data = driveTrain.targetAnglesAndSpeeds(shooter, hubVector, controller);
-      driveTrain.setControl(drive
-                .withVelocityX(data[2])
-                .withVelocityY(data[3])
-                .withRotationalRate(data[0] + data[1]));
-    } else {
-      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
-      driveTrain.setControl(drive
+      targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
+    }
+    driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)
       .withRotationalRate(targetSpeeds.omegaRadiansPerSecond));
-    }
   }
 
   // Called once the command ends or is interrupted.
