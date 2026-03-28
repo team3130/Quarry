@@ -26,6 +26,7 @@ public class RollPitchCalibration extends Command {
 
     public RollPitchCalibration(Limelight limelight) {
         this.limelight = limelight;
+        addRequirements(limelight);
     }
 
     @Override
@@ -51,7 +52,7 @@ public class RollPitchCalibration extends Command {
     @Override
     public void end(boolean interrupted) {
         if (input.isEmpty()) {
-            System.out.println("Calibration failed: No samples.");
+            System.out.println("Roll/Pitch Calibration failed: No samples.");
             return;
         }
 

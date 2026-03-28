@@ -67,7 +67,7 @@ public class YawCalibration extends Command {
   @Override
   public void end(boolean interrupted) {
  if (input.isEmpty()) {
-            System.out.println("Calibration failed: No samples.");
+            System.out.println("Yaw Calibration failed: No samples.");
             return;
         }
 

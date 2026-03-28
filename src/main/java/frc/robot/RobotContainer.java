@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
+import frc.robot.commands.RollPitchCalibration;
+import frc.robot.commands.YawCalibration;
+import frc.robot.commands.Chassis.DriveDistancePID;
 import frc.robot.commands.Chassis.HubToggle;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
@@ -161,7 +164,7 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new ShooterHoodDown(shooterHood),
         new AutoAim(shooterHood)));
-
+    limelight.setDefaultCommand(new RollPitchCalibration(limelight));
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
     //operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
@@ -282,6 +285,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return new ParallelDeadlineGroup(new DriveDistancePID(driveTrain, drive), new YawCalibration(limelight));
   }
 }
