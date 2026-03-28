@@ -24,8 +24,8 @@ public class LEDs extends SubsystemBase{
   private AddressableLEDBuffer LEDBuffer;
   private AddressableLEDBufferView leftLEDBufferView;
   private AddressableLEDBufferView rightLEDBufferView;
-  private final int leftLEDLength = 36;   //should be the correct length as of 3/27/26
-  private final int rightLEDLength = 37;  //should be the correct length as of 3/27/26
+  private final int leftLEDLength = 35;   //should be the correct length as of 3/27/26
+  private final int rightLEDLength = 36;  //should be the correct length as of 3/27/26
   private final int pwmPort = 9;
 
   //LEDs per Meter
@@ -84,9 +84,9 @@ public class LEDs extends SubsystemBase{
 
   @Override
   public void periodic() {
-    //yellowChase(startingPercent, endingPercent).applyTo(leftLEDBufferView);
-    //yellowChase(startingPercent, endingPercent).applyTo(rightLEDBufferView);
-    manualYellow.applyTo(LEDBuffer);
+    yellowChase(startingPercent, endingPercent).applyTo(leftLEDBufferView);
+    yellowChase(startingPercent, endingPercent).applyTo(rightLEDBufferView);
+    //manualYellow.applyTo(LEDBuffer);
     LED.setData(LEDBuffer);
 
     startingPercent += 0.005;
