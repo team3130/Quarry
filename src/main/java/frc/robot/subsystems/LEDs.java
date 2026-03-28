@@ -18,6 +18,8 @@ import frc.robot.RobotContainer;
 import static edu.wpi.first.units.Units.*;
 
 public class LEDs extends SubsystemBase{
+  private final Shooter shooter;
+
   private AddressableLED LED;
   private AddressableLEDBuffer LEDBuffer;
   private AddressableLEDBufferView leftLEDBufferView;
@@ -25,20 +27,6 @@ public class LEDs extends SubsystemBase{
   private final int leftLEDLength = 36;   //should be the correct length as of 3/27/26
   private final int rightLEDLength = 37;  //should be the correct length as of 3/27/26
   private final int pwmPort = 9;
-
-  public LEDs() {
-      //set pwmPort
-      LED = new AddressableLED(pwmPort);
-
-      //set strip length
-      LEDBuffer = new AddressableLEDBuffer(leftLEDLength + rightLEDLength);
-      leftLEDBufferView = LEDBuffer.createView(0, leftLEDLength);
-      rightLEDBufferView = LEDBuffer.createView(leftLEDLength, rightLEDLength).reversed();
-      LED.setLength(LEDBuffer.getLength());
-
-      //start LEDs
-      LED.start();
-    }
 
   //LEDs per Meter
   Distance kLedSpacing = Meters.of((double) 1 / (leftLEDLength + rightLEDLength));
@@ -64,9 +52,30 @@ public class LEDs extends SubsystemBase{
   LEDPattern scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(0.5), kLedSpacing);
   LEDPattern redAndBlue = LEDPattern.steps(Map.of(0, Color.kRed, 0.5, Color.kBlue));
   LEDPattern timeProgress = LEDPattern.progressMaskLayer(() -> DriverStation.getMatchTime() / 135);
+  LEDPattern shooterProgress;
 
   double startingPercent = 0;
   double endingPercent = 0.25;
+
+    public LEDs(Shooter shooter) {
+    this.shooter = shooter;
+
+    //set pwmPort
+    LED = new AddressableLED(pwmPort);
+
+    //set strip length
+    LEDBuffer = new AddressableLEDBuffer(leftLEDLength + rightLEDLength);
+    leftLEDBufferView = LEDBuffer.createView(0, leftLEDLength);
+    rightLEDBufferView = LEDBuffer.createView(leftLEDLength, rightLEDLength).reversed();
+    LED.setLength(LEDBuffer.getLength());
+
+    shooterProgress = LEDPattern.progressMaskLayer(() -> shooter.getVelocity()/shooter.getTargetVelocity());
+
+    //start LEDs
+    LED.start();
+  }
+
+
   public LEDPattern yellowChase(double startingPercent, double endingPercent) {
     startingPercent = startingPercent % 1;
     endingPercent = endingPercent % 1;

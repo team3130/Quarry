@@ -108,7 +108,7 @@ public class RobotContainer {
     shooterHood = new ShooterHood();
     shooter = new Shooter();
     limelight = new Limelight();
-    leds = new LEDs();
+    leds = new LEDs(shooter);
 
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
@@ -265,7 +265,6 @@ public class RobotContainer {
     SmartDashboard.putData(shooterHood);
   }
 
-  public void hubToggleReset() {driveTrain.setHubToggle(false);}
   public void intakeReset() {intake.setZeroed(false);}
   public void intakeResetPos() {intake.intakeResetPos();}
   public void hoodReset() {shooterHood.setZeroed(false);}
