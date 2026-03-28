@@ -23,6 +23,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -55,6 +56,7 @@ import org.json.simple.parser.ParseException;
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private boolean hubToggle = false;
+    PIDController angularPIDController = new PIDController(0.05, 0.01, 0);
 
     public final MySlewRateLimiter driveLimiter = new MySlewRateLimiter(2, -5, 0);
     public final MySlewRateLimiter thetaLimiter = new MySlewRateLimiter(0);
@@ -454,5 +456,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return this.getKinematics().toChassisSpeeds(this.getState().ModuleStates);
+    }
+
+    public double getHubToggleVelo(Translation2d hubVector) {
+    Translation2d robotVector = getState().Pose.getTranslation();
+      Translation2d targetVector = hubVector.minus(robotVector);
+      double targetAngle = targetVector.getAngle().getDegrees();
+      double robotAngle = getState().Pose.getRotation().getDegrees();
+      if(targetAngle - robotAngle > 180) {
+        targetAngle -= 360;
+      } else if(targetAngle - robotAngle < -180) {
+        targetAngle += 360;
+      }
+      return angularPIDController.calculate(robotAngle, targetAngle);
     }
 }

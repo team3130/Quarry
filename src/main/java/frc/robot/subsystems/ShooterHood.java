@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterHood extends SubsystemBase {
-  private final CommandSwerveDrivetrain drivetrain;
   private final TalonFX hood;
 
   private final DigitalInput limit;
@@ -51,8 +50,7 @@ public class ShooterHood extends SubsystemBase {
 
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
-  public ShooterHood(CommandSwerveDrivetrain drivetrain) {
-    this.drivetrain = drivetrain;
+  public ShooterHood() {
     hood = new TalonFX(Constants.CAN.shooterHood);
     limit = new DigitalInput(Constants.IDs.shooterHoodLimit);
 
@@ -85,8 +83,8 @@ public class ShooterHood extends SubsystemBase {
     tableAngle.put(distances[6], angles[6]);
   }
 
-  public void autoAim() {
-    hood.setControl(voltRequest.withPosition(autoAimValue()));
+  public void autoAim(double distanceToHub) {
+    hood.setControl(voltRequest.withPosition(distanceToHub));
   }
 
   public void goToAngle(double setpoint) {
@@ -148,8 +146,8 @@ public class ShooterHood extends SubsystemBase {
   public void setZeroed(boolean value) {isZeroed = value;}
 
     //Interpolation Request for Angle
-  public double autoAimValue() {
-    return tableAngle.get(drivetrain.getDistanceFromHub());
+  public double autoAimValue(double distanceToHub) {
+    return tableAngle.get(distanceToHub);
   }
 
   public void initSendable(SendableBuilder builder) {

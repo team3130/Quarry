@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
-import frc.robot.commands.Chassis.HubToggle;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
@@ -98,6 +97,7 @@ public class RobotContainer {
   private final Shooter shooter;
   private final ShooterHood shooterHood;
   private final Limelight limelight;
+  private final LEDs leds;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -105,10 +105,11 @@ public class RobotContainer {
     feeder = new Feeder();
     hopper = new Hopper();
     intake = new Intake();
-    shooter = new Shooter(driveTrain);
-    shooterHood = new ShooterHood(driveTrain);
+    shooter = new Shooter();
+    shooterHood = new ShooterHood();
+    limelight = new Limelight();
+    leds = new LEDs();
 
-    limelight = new Limelight(driveTrain);
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));
 
@@ -124,7 +125,7 @@ public class RobotContainer {
           new RunFeederBasic(feeder),
           new RunHopperHorizontal(hopper)
       )),
-      new AutoRev(shooter)));
+      new AutoRev(shooter, driveTrain)));
 
     NamedCommands.registerCommand("Run Intake", new RunIntakeBasic(intake));
 
@@ -157,11 +158,11 @@ public class RobotContainer {
     // and Y is defined as to the left according to WPILib convention.
     
     //limelight.setDefaultCommand(new UpdateOdoFromVision(driveTrain, limelight, logger));
-    driveTrain.setDefaultCommand(new TeleopDrive(driveTrain, driverController, Constants.Swerve.maxSpeed, Constants.Swerve.maxAngularRate, drive));
+    driveTrain.setDefaultCommand(new TeleopDrive(driveTrain, driverController, drive));
     shooterHood.setDefaultCommand(
       new SequentialCommandGroup(
         new ShooterHoodDown(shooterHood),
-        new AutoAim(shooterHood)));
+        new AutoAim(shooterHood, driveTrain)));
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
@@ -183,9 +184,7 @@ public class RobotContainer {
           new RunFeeder(feeder),
           new RunHopperHorizontal(hopper)
       )),
-      new AutoRev(shooter)));
-
-    driverController.axisGreaterThan(PS5Controller.Axis.kRightY.value, 0.7).whileTrue(new HubToggle(driveTrain));
+      new AutoRev(shooter, driveTrain)));
 
     //driverController.povLeft().whileTrue(new Rev(shooter));
 
@@ -256,19 +255,19 @@ public class RobotContainer {
   public void hoodDown() {CommandScheduler.getInstance().schedule(new ShooterHoodDown(shooterHood));}
 
   public void updateOdoFromVision() {
-    limelight.updateOdo();
+    limelight.updateOdo(driveTrain);
   }
   public void updateDisabledOdoFromVision() {
-    limelight.updateDisabledOdo();
+    limelight.updateDisabledOdo(driveTrain);
   }
 
   public void setDisabledDeviations() {
     limelight.setRobotHeadingReset(false);
-    limelight.disabledDeviations();
+    limelight.disabledDeviations(driveTrain);
   }
   public void setEnabledDeviations() {
     limelight.setRobotHeadingReset(true);
-    limelight.enabledDeviations();
+    limelight.enabledDeviations(driveTrain);
   }
 
   public Command pick() {

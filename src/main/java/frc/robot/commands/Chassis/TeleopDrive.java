@@ -24,24 +24,16 @@ public class TeleopDrive extends Command {
   private final CommandSwerveDrivetrain driveTrain;
   private final CommandPS5Controller controller;
   private final AccelLimiter accelLimiter;
-  private final double maxSpeed;
-  private final double maxAngularRate;
   private final SwerveRequest.FieldCentric drive;
 
   private Translation2d hubVector = new Translation2d(0, 0);
-  private final PIDController pidController;
+
   /** Creates a new TeleopDrive. */
-  public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, 
-                    double maxSpeed, double maxAngularRate, 
-                    SwerveRequest.FieldCentric drive) {
+  public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, SwerveRequest.FieldCentric drive) {
     this.driveTrain = driveTrain;
     this.controller = controller;
-    this.maxSpeed = maxSpeed;
-    this.maxAngularRate = maxAngularRate;
     this.drive = drive;
     accelLimiter = new AccelLimiter(15, -15, 0, 1000);
-    pidController = new PIDController(0.05, 0.01, 0);
-    SmartDashboard.putData(pidController);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveTrain);
   }
@@ -61,32 +53,15 @@ public class TeleopDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(driveTrain.getHubToggle()) {
-      Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
-      Translation2d targetVector = hubVector.minus(robotVector);
-      double targetAngle = targetVector.getAngle().getDegrees();
-      double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
-      if(targetAngle - robotAngle > 180) {
-        targetAngle -= 360;
-      } else if(targetAngle - robotAngle < -180) {
-        targetAngle += 360;
-      }
-      double angleInput = pidController.calculate(robotAngle, targetAngle);
-      driveTrain.setControl(drive
-                .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
-                .withVelocityY(driveTrain.applySingleDeadband(-controller.getLeftX(), maxSpeed))
-                .withRotationalRate(angleInput));
-      } else {
-      pidController.reset();
-      ChassisSpeeds speeds = driveTrain.getHIDspeedsMPS(controller);
-      ChassisSpeeds limitedSpeeds = accelLimiter.accelLimitVectorDrive(speeds);
-      //System.out.println(limitedSpeeds.vxMetersPerSecond);
-      //System.out.println(limitedSpeeds.vyMetersPerSecond);
-      driveTrain.setControl(drive
+    ChassisSpeeds speeds = driveTrain.getHIDspeedsMPS(controller);
+    if(Math.abs(controller.getRightY()) > 0.7) {
+      speeds.omegaRadiansPerSecond = driveTrain.getHubToggleVelo(hubVector);
+    }
+    ChassisSpeeds limitedSpeeds = accelLimiter.accelLimitVectorDrive(speeds);
+    driveTrain.setControl(drive
       .withVelocityX(limitedSpeeds.vxMetersPerSecond)
       .withVelocityY(limitedSpeeds.vyMetersPerSecond)
       .withRotationalRate(limitedSpeeds.omegaRadiansPerSecond));
-    }
   }
 
   // Called once the command ends or is interrupted.

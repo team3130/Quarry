@@ -69,24 +69,22 @@ public class Shooter extends SubsystemBase {
 
 
   //Shooter Curves
-    private final CommandSwerveDrivetrain driveTrain;
-    private final double radius = Units.inchesToMeters(2);
+  private final double radius = Units.inchesToMeters(2);
 
 
-    //New Measurment Arrays
-    private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
-    private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9};    //meters per seconds
+  //New Measurment Arrays
+  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
+  private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9};    //meters per seconds
 
-    private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
-       velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
+  private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
+      velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
 
-    //Interpolation Objects
-    InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
-    InterpolatingDoubleTreeMap tableVelLin = new InterpolatingDoubleTreeMap();
+  //Interpolation Objects
+  InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
+  InterpolatingDoubleTreeMap tableVelLin = new InterpolatingDoubleTreeMap();
 
   /** Creates a new Shooter. */
-  public Shooter(CommandSwerveDrivetrain drivetrain) {
-    this.driveTrain = drivetrain;
+  public Shooter() {
     rightShooter = new TalonFX(Constants.CAN.shooterRight);
     leftShooter = new TalonFX(Constants.CAN.shooterLeft);
 
@@ -162,8 +160,8 @@ public class Shooter extends SubsystemBase {
     rightShooter.setControl(voltRequest.withVelocity(rotsPerSec));
   }
 
-  public void autoRev() {
-    rightShooter.setControl(voltRequest.withVelocity(interpolTargetSpeed()));
+  public void autoRev(double distanceToHub) {
+    rightShooter.setControl(voltRequest.withVelocity(interpolTargetSpeed(distanceToHub)));
   }
 
   public void rev() {
@@ -248,15 +246,15 @@ public class Shooter extends SubsystemBase {
 
   public double velocityLinearizer(double speed) {return speed*speed;}
 
-  public double getInterPolVel() {
-    double velmps = tableVelLin.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
+  public double getInterPolVel(double distance) {
+    double velmps = tableVelLin.get(distance);//Change tableVel to tableVelLin for linearized velocity.
     setTargetVelocity(velmps);
     return Math.sqrt(velmps);
   }
 
   // Interpolation Request for Velocity
-  public double interpolTargetSpeed() {
-    double velmps = tableVel.get(driveTrain.getDistanceFromHub());//Change tableVel to tableVelLin for linearized velocity.
+  public double interpolTargetSpeed(double distance) {
+    double velmps = tableVel.get(distance);//Change tableVel to tableVelLin for linearized velocity.
     setTargetVelocity(velmps);
     double radspersec = velmps/(radius);
     double rotspersec = Units.radiansToRotations(radspersec);
@@ -269,10 +267,6 @@ public class Shooter extends SubsystemBase {
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
 
   public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.1;}
-
-  public double getDistanceToHub() {
-    return driveTrain.getDistanceFromHub();
-  }
 
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter");
