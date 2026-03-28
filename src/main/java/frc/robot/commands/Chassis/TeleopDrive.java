@@ -67,6 +67,7 @@ public class TeleopDrive extends Command {
     } else {
       driveTrain.driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
       driveTrain.driveLimiter.setNegativeRateLimit(-5);
+      driveTrain.setFacingHub(false);
     }
     driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)

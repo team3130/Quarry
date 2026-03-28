@@ -482,8 +482,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       } else if(targetAngle - robotAngle < -180) {
         targetAngle += 360;
       }
-      // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.1 rad/s
-      if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.1) {
+      // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
+      if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.2) {
         setFacingHub(true);
       } else {
         setFacingHub(false);
