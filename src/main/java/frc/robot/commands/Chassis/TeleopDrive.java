@@ -74,6 +74,11 @@ public class TeleopDrive extends Command {
       .withVelocityY(targetSpeeds.vyMetersPerSecond)
       .withRotationalRate(targetSpeeds.omegaRadiansPerSecond));
     }
+    ChassisSpeeds limitedSpeeds = accelLimiter.accelLimitVectorDrive(speeds);
+    driveTrain.setControl(drive
+      .withVelocityX(limitedSpeeds.vxMetersPerSecond)
+      .withVelocityY(limitedSpeeds.vyMetersPerSecond)
+      .withRotationalRate(limitedSpeeds.omegaRadiansPerSecond));
   }
 
   // Called once the command ends or is interrupted.
