@@ -66,6 +66,7 @@ public class Shooter extends SubsystemBase {
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(2));
 
   private double speed = 0.7;
+  
 
   //SysID
   private final VoltageOut m_voltReq = new VoltageOut(0.0);
@@ -261,13 +262,15 @@ public class Shooter extends SubsystemBase {
     return Math.sqrt(velmps);
   }
 
+
   // Interpolation Request for Velocity
   public double interpolTargetSpeed(CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
-    double distance = driveTrain.getDistanceFromHub();
+    
+    double distance = driveTrain.getDistanceForAutoAim();
     double velmps = tableVel.get(distance); 
       
     // 1. Get the direction to the hub (Must point AT the hub)
-    Translation2d toHubDir = driveTrain.getTranslationToHub();
+    Translation2d toHubDir = driveTrain.getTranslationForAutoAim();
       
     // 2. Calculate the "Static" components (what the ball does if robot is still)
     double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.getTableAutoAimValue(distance)));

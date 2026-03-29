@@ -339,6 +339,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         
     }
 
+    public Translation2d getTranslationForAutoAim() {
+        if(getStatePose().getX() > 182.11 && getStatePose().getX() < 469.11) {
+        return getTranslationToShuttle();
+        } else {
+        return getTranslationToHub();
+        }
+    }
+
     public double getDistanceToShuttle() {
       return getTranslationToShuttle().getNorm();
     }
@@ -346,6 +354,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public double getDistanceFromHub() {
       return getTranslationToHub().getNorm();
     }
+
+    public double getDistanceForAutoAim() {
+    if(getStatePose().getX() > 182.11 && getStatePose().getX() < 469.11) {
+      return getDistanceToShuttle();
+    } else {
+      return getDistanceFromHub();
+    }
+}
 
 
     /**
