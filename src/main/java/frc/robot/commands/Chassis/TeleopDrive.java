@@ -32,6 +32,8 @@ public class TeleopDrive extends Command {
   private final SwerveRequest.FieldCentric drive;
 
   private Translation2d hubVector = new Translation2d(0, 0);
+  private Translation2d upShuttleVector = new Translation2d(0,0);
+  private Translation2d downShuttleVector = new Translation2d(0,0);
 
   /** Creates a new TeleopDrive. */
   public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, SwerveRequest.FieldCentric drive,
@@ -56,6 +58,16 @@ public class TeleopDrive extends Command {
         hubVector = new Translation2d(Units.inchesToMeters(181.56 + 287),Units.inchesToMeters(158.32));
       }
     }
+
+    if(DriverStation.getAlliance().isPresent()) {
+      if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+        upShuttleVector = new Translation2d(Units.inchesToMeters(181.56+39.37),Units.inchesToMeters(158.84+90.95));
+        downShuttleVector = new Translation2d(Units.inchesToMeters(181.56+39.37),Units.inchesToMeters(158.84-90.95));
+      } else {
+        upShuttleVector = new Translation2d(Units.inchesToMeters(181.56+287-39.37),Units.inchesToMeters(158.84+90.95));
+        downShuttleVector = new Translation2d(Units.inchesToMeters(181.56+287-39.37),Units.inchesToMeters(158.84-90.95));
+      }
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -64,7 +76,7 @@ public class TeleopDrive extends Command {
     ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
     if(Math.abs(controller.getRightY()) > 0.7) {
       if(driveTrain.getStatePose().getX() > 182.11 && driveTrain.getStatePose().getX() < 469.11) { //If the robot is in the neutral Zone shuttle
-        targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocityWhileShuttling();
+        targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocityWhileShuttlingNotHub(shooter, upShuttleVector, downShuttleVector, controller);
       } else { //Else it must be in the alliance zone so toggle hub
         targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
       }

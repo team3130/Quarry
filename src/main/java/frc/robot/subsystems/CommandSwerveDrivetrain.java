@@ -545,17 +545,81 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-    public double getRotationalVelocityWhileShuttlingNotHub() {
-        double robotAngle = getState().Pose.getRotation().getDegrees();
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
-            
-            double targetAngle = 0;
+    public double getRotationalVelocityWhileShuttlingNotHub(Shooter shooter, Translation2d upShuttleVector, Translation2d downShuttleVector, CommandPS5Controller controller) {
+        if(getStatePose().getY() >= 158.84){
+            Translation2d robotVector = getState().Pose.getTranslation();
+            Translation2d targetVector = upShuttleVector.minus(robotVector);
+            double targetAngle = targetVector.getAngle().getDegrees();
+            double robotAngle = robotVector.getAngle().getDegrees();
+            // If shooting correct for movement, otherwise just target shuttlespot regardless of where you are
+            if (shooter.getIsShooting()) {
+                targetAngle = getAngleSetpoint(); 
+                driveLimiter.setMaxAccel(3);
+                driveLimiter.setNegativeRateLimit(-3);
+            } else {
+                targetAngle = upShuttleVector.minus(robotVector).getAngle().getDegrees();
+            }
+            // Keep angles in the range (-180, 180)
+            if(targetAngle - robotAngle > 180) {
+                targetAngle -= 360;
+            } else if(targetAngle - robotAngle < -180) {
+                targetAngle += 360;
+            }
+            // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
+            if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.2) {
+                //setFacingHub(true);
+            } else {
+                //setFacingHub(false);
+            }
             double angleInput = angularPIDController.calculate(robotAngle, targetAngle);
-            return angleInput;
-        } else{
-            double targetAngle = 180;
+
+            Translation2d robotFieldVel = new Translation2d(
+                getState().Speeds.vxMetersPerSecond, 
+                getState().Speeds.vyMetersPerSecond
+            ).rotateBy(getState().Pose.getRotation()); // Field Relative Robot Velocity
+            // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
+            Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+            // Angle correct the opposite direction of movement using w = -v/R
+            double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
+            return angleInput+angleOutput;
+        } if (getStatePose().getY() < 158.84) {//If robot is below the hub on the map
+            Translation2d robotVector = getState().Pose.getTranslation();
+            Translation2d targetVector = downShuttleVector.minus(robotVector);
+            double targetAngle = targetVector.getAngle().getDegrees();
+            double robotAngle = robotVector.getAngle().getDegrees();
+            // If shooting correct for movement, otherwise just target shuttlespot regardless of where you are
+            if (shooter.getIsShooting()) {
+                targetAngle = getAngleSetpoint(); 
+                driveLimiter.setMaxAccel(3);
+                driveLimiter.setNegativeRateLimit(-3);
+            } else {
+                targetAngle = downShuttleVector.minus(robotVector).getAngle().getDegrees();
+            }
+            // Keep angles in the range (-180, 180)
+            if(targetAngle - robotAngle > 180) {
+                targetAngle -= 360;
+            } else if(targetAngle - robotAngle < -180) {
+                targetAngle += 360;
+            }
+            // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
+            if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.2) {
+                //setFacingHub(true);
+            } else {
+                //setFacingHub(false);
+            }
             double angleInput = angularPIDController.calculate(robotAngle, targetAngle);
-            return angleInput;
+
+            Translation2d robotFieldVel = new Translation2d(
+                getState().Speeds.vxMetersPerSecond, 
+                getState().Speeds.vyMetersPerSecond
+            ).rotateBy(getState().Pose.getRotation()); // Field Relative Robot Velocity
+            // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
+            Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+            // Angle correct the opposite direction of movement using w = -v/R
+            double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
+            return angleInput+angleOutput;
+        } else { //If robot is out of field
+            return 0;
         }
     }
 
