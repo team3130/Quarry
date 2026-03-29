@@ -315,7 +315,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Translation2d getTranslationToShuttle() {
         if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}
-        if(getStatePose().getY() >= 158.84) {//if the robot is above the hub then this is the translation
+        if(getStatePose().getY() >= Units.inchesToMeters(158.84)) {//if the robot is above the hub then this is the translation
             if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
                 Translation2d originToShuttleUpBlue = new Translation2d(Units.inchesToMeters(181.56+39.37),Units.inchesToMeters(158.84+90.95));
                 Translation2d blue = getStatePose().getTranslation().minus(originToShuttleUpBlue).unaryMinus();
@@ -340,7 +340,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public Translation2d getTranslationForAutoAim() {
-        if(getStatePose().getX() > 182.11 && getStatePose().getX() < 469.11) {
+        if(getStatePose().getX() > Units.inchesToMeters(182.11) && getStatePose().getX() < Units.inchesToMeters(469.11)) {
         return getTranslationToShuttle();
         } else {
         return getTranslationToHub();
@@ -356,7 +356,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public double getDistanceForAutoAim() {
-    if(getStatePose().getX() > 182.11 && getStatePose().getX() < 469.11) {
+    if(getStatePose().getX() > Units.inchesToMeters(182.11) && getStatePose().getX() < Units.inchesToMeters(469.11)) {
       return getDistanceToShuttle();
     } else {
       return getDistanceFromHub();
@@ -548,6 +548,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       return angleInput + angleOutput;
     }
 
+    //Old shuttling command, not needed so can be deleted if Umar really wants.
     public double getRotationalVelocityWhileShuttling() {
         double robotAngle = getState().Pose.getRotation().getDegrees();
         if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
@@ -562,7 +563,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public double getRotationalVelocityWhileShuttlingNotHub(Shooter shooter, Translation2d upShuttleVector, Translation2d downShuttleVector, CommandPS5Controller controller) {
-        if(getStatePose().getY() >= 158.84){
+        if(getStatePose().getY() >= Units.inchesToMeters(158.84)){
             Translation2d robotVector = getState().Pose.getTranslation();
             Translation2d targetVector = upShuttleVector.minus(robotVector);
             double targetAngle = targetVector.getAngle().getDegrees();
@@ -598,7 +599,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             // Angle correct the opposite direction of movement using w = -v/R
             double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
             return angleInput+angleOutput;
-        } if (getStatePose().getY() < 158.84) {//If robot is below the hub on the map
+        } if (getStatePose().getY() < Units.inchesToMeters(158.84)) {//If robot is below the hub on the map
             Translation2d robotVector = getState().Pose.getTranslation();
             Translation2d targetVector = downShuttleVector.minus(robotVector);
             double targetAngle = targetVector.getAngle().getDegrees();
