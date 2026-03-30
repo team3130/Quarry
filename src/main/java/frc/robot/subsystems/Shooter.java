@@ -160,7 +160,7 @@ public class Shooter extends SubsystemBase {
   public void revAtVelocity(double velocityMetersPerSec, CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
     Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
     ballVelocityVector = ballVelocityVector.times(0.45 * velocityMetersPerSec/ballVelocityVector.getNorm());
-    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.getTableAutoAimValue(driveTrain.getDistanceFromHub()) + 9)));
+    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.getTableAutoAimValue(driveTrain.getDistanceForAutoAim()) + 9)));
     Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
     Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
     double newVelocityMetersPerSec = velocityVector.getNorm();
