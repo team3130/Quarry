@@ -20,6 +20,7 @@ public class RunIntakeBasic extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    intake.setIsIntaking(true);
     intake.runIntakeBasic();
   }
 
@@ -30,6 +31,7 @@ public class RunIntakeBasic extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    intake.setIsIntaking(false);
     intake.stopIntake();
   }
 

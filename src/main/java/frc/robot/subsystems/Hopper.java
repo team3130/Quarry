@@ -20,7 +20,7 @@ import frc.robot.Constants;
 
 public class Hopper extends SubsystemBase {
   private final TalonFX hopper;
-  private double horizontalSpeed = 0.6;
+  private double horizontalSpeed = 1;
 
   private final MotionMagicVelocityVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
@@ -32,7 +32,7 @@ public class Hopper extends SubsystemBase {
   private double kI = 0;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 1;
+  private double sensorToMechGearRatio = 3;
   private double targetVelocity = 20;
   private double targetAcceleration = 100;
   /** Creates a new Hopper. */
@@ -49,7 +49,7 @@ public class Hopper extends SubsystemBase {
     motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast)
-        .withInverted(InvertedValue.Clockwise_Positive);
+        .withInverted(InvertedValue.CounterClockwise_Positive);
     motorConfig.MotionMagic = new MotionMagicConfigs().withMotionMagicAcceleration(targetAcceleration);
     motorConfig.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(sensorToMechGearRatio);
     motorConfig.Slot0 = config;

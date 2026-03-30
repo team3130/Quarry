@@ -108,7 +108,7 @@ public class RobotContainer {
     shooterHood = new ShooterHood();
     shooter = new Shooter();
     limelight = new Limelight();
-    leds = new LEDs(shooter);
+    leds = new LEDs(shooter, intake);
 
 
     NamedCommands.registerCommand("Run Feeder Basic", new RunFeederBasic(feeder));

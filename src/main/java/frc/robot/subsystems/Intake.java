@@ -33,6 +33,7 @@ public class Intake extends SubsystemBase {
 
   private final DigitalInput limitSwitch;
   private boolean isZeroed = false;
+  private boolean isIntaking = false;
   
   private double intakeSpeed = 0.9;
 
@@ -256,11 +257,15 @@ public class Intake extends SubsystemBase {
 
   public void intakeResetPos() {pivot.setPosition(0);}
 
+  public boolean getIsIntaking() {return isIntaking;}
+  public void setIsIntaking(boolean value) {isIntaking = value;}
+
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Intake");
 
     builder.addBooleanProperty("is Zeroed", this::isZeroed, this::setZeroed);
     builder.addBooleanProperty("Limit Reached", this::atLimit, null);
+    builder.addBooleanProperty("Is Intaking", this::getIsIntaking, this::setIsIntaking);
 
     builder.addDoubleProperty("Position (rot)", this::getPosition, null);
     builder.addDoubleProperty("Velocity (rot/s)", this::getVelocity, null);

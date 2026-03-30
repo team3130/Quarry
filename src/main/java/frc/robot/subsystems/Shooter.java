@@ -305,7 +305,7 @@ public class Shooter extends SubsystemBase {
   public double getGearRatio() {return sensorToMechGearRatio;}
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
 
-  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.1;}
+  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.3;}
 
   public boolean getIsShooting() {return isShooting;}
   public void setIsShooting(boolean value) {isShooting = value;}
