@@ -470,11 +470,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       double robotAngle = getState().Pose.getRotation().getDegrees();
       // If shooting correct for movement, otherwise just target hub regardless of where you are
       if (shooter.getIsShooting()) {
-          targetAngle = getAngleSetpoint(); 
-          driveLimiter.setMaxAccel(3);
-          driveLimiter.setNegativeRateLimit(-3);
+        targetAngle = getAngleSetpoint(); 
+        driveLimiter.setMaxAccel(3);
+        driveLimiter.setNegativeRateLimit(-3);
       } else {
-          targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
+        targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
       }
       // Keep angles in the range (-180, 180)
       if(targetAngle - robotAngle > 180) {
@@ -482,8 +482,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       } else if(targetAngle - robotAngle < -180) {
         targetAngle += 360;
       }
-      // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.1 rad/s
-      if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.1) {
+      // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
+      if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.2) {
         setFacingHub(true);
       } else {
         setFacingHub(false);
@@ -498,9 +498,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
       // Angle correct the opposite direction of movement using w = -v/R
       double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
-
-      driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
-      driveLimiter.setNegativeRateLimit(-5);
 
       return angleInput + angleOutput;
     }
