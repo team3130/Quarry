@@ -26,14 +26,14 @@ public class Hopper extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kV = 0.12;
+  private double kV = 1;
   private double kA = 0;
   private double kP = 0;
   private double kI = 0;
   private double kD = 0;
 
   private double sensorToMechGearRatio = 3;
-  private double targetVelocity = 20;
+  private double targetVelocity = 25;
   private double targetAcceleration = 100;
   /** Creates a new Hopper. */
   public Hopper() {
@@ -49,7 +49,7 @@ public class Hopper extends SubsystemBase {
     motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast)
-        .withInverted(InvertedValue.CounterClockwise_Positive);
+        .withInverted(InvertedValue.Clockwise_Positive);
     motorConfig.MotionMagic = new MotionMagicConfigs().withMotionMagicAcceleration(targetAcceleration);
     motorConfig.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(sensorToMechGearRatio);
     motorConfig.Slot0 = config;

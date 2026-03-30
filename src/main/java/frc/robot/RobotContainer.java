@@ -221,7 +221,8 @@ public class RobotContainer {
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().whileTrue(new PivotOut(intake));
-    driverController.L2().whileTrue(new RunIntakeBasic(intake));
+    driverController.L2().whileTrue(new RunIntake(intake));
+    driverController.circle().whileTrue(new RunHopper(hopper));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(
         new ReverseHopperHorizontal(hopper),

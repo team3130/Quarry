@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
   private final TalonFXConfiguration motorConfigBars;
 
   private final Slot0Configs configBars;
-  private double kVBars = 0;
+  private double kVBars = 10;
   private double kABars = 0;
   private double kPBars = 0;
   private double kIBars = 0;
@@ -61,7 +61,7 @@ public class Intake extends SubsystemBase {
   private double sensorToMechGearRatioBars = 1;
 
   private double targetAccelerationBars = 100;
-  private double targetVelocityBars = 20;
+  private double targetVelocityBars = 50;
   
 
   private double sensorToMechGearRatio = 200;
