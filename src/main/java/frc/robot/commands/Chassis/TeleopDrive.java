@@ -61,11 +61,11 @@ public class TeleopDrive extends Command {
 
     if(DriverStation.getAlliance().isPresent()) {
       if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-        upShuttleVector = new Translation2d(Units.inchesToMeters(181.56+39.37),Units.inchesToMeters(158.84+90.95));
-        downShuttleVector = new Translation2d(Units.inchesToMeters(181.56+39.37),Units.inchesToMeters(158.84-90.95));
+        upShuttleVector = new Translation2d(Units.inchesToMeters(181.56-39.37),Units.inchesToMeters(158.84+90.95));
+        downShuttleVector = new Translation2d(Units.inchesToMeters(181.56-39.37),Units.inchesToMeters(158.84-90.95));
       } else {
-        upShuttleVector = new Translation2d(Units.inchesToMeters(181.56+287-39.37),Units.inchesToMeters(158.84+90.95));
-        downShuttleVector = new Translation2d(Units.inchesToMeters(181.56+287-39.37),Units.inchesToMeters(158.84-90.95));
+        upShuttleVector = new Translation2d(Units.inchesToMeters(181.56+287+39.37),Units.inchesToMeters(158.84+90.95));
+        downShuttleVector = new Translation2d(Units.inchesToMeters(181.56+287+39.37),Units.inchesToMeters(158.84-90.95));
       }
     }
   }

@@ -317,21 +317,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}
         if(getStatePose().getY() >= Units.inchesToMeters(158.84)) {//if the robot is above the hub then this is the translation
             if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-                Translation2d originToShuttleUpBlue = new Translation2d(Units.inchesToMeters(181.56+39.37),Units.inchesToMeters(158.84+90.95));
+                Translation2d originToShuttleUpBlue = new Translation2d(Units.inchesToMeters(181.56-39.37),Units.inchesToMeters(158.84+90.95));
                 Translation2d blue = getStatePose().getTranslation().minus(originToShuttleUpBlue).unaryMinus();
                 return blue;
             } else {
-                Translation2d originToShuttleUpRed = new Translation2d(Units.inchesToMeters(181.56+287-39.37),Units.inchesToMeters(158.84+90.95));
+                Translation2d originToShuttleUpRed = new Translation2d(Units.inchesToMeters(181.56+287+39.37),Units.inchesToMeters(158.84+90.95));
                 Translation2d red = getStatePose().getTranslation().minus(originToShuttleUpRed).unaryMinus();
                 return red;
             }
         } else {//If not above, then below so get below translation
             if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-                Translation2d originToShuttleDownBlue = new Translation2d(Units.inchesToMeters(181.56+39.37),Units.inchesToMeters(158.84-90.95));
+                Translation2d originToShuttleDownBlue = new Translation2d(Units.inchesToMeters(181.56-39.37),Units.inchesToMeters(158.84-90.95));
                 Translation2d blue = getStatePose().getTranslation().minus(originToShuttleDownBlue).unaryMinus();
                 return blue;
             } else {
-                Translation2d originToShuttleDownRed = new Translation2d(Units.inchesToMeters(181.56+287-39.37),Units.inchesToMeters(158.84-90.95));
+                Translation2d originToShuttleDownRed = new Translation2d(Units.inchesToMeters(181.56+287+39.37),Units.inchesToMeters(158.84-90.95));
                 Translation2d red = getStatePose().getTranslation().minus(originToShuttleDownRed).unaryMinus();
                 return red;
             }
