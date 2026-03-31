@@ -35,7 +35,7 @@ public class ShooterHood extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kP = 500;
+  private double kP = 250;
   private double kI = 0;
   private double kD = 0;
 

@@ -29,7 +29,7 @@ public class RunFeeder extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    feeder.updatePID();
+    //feeder.updatePID();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

@@ -27,8 +27,8 @@ public class LEDs extends SubsystemBase{
   private AddressableLEDBuffer LEDBuffer;
   private AddressableLEDBufferView leftLEDBufferView;
   private AddressableLEDBufferView rightLEDBufferView;
-  private final int leftLEDLength = 35;   //should be the correct length as of 3/27/26
-  private final int rightLEDLength = 36;  //should be the correct length as of 3/27/26
+  private final int leftLEDLength = 21;   //should be the correct length as of 3/27/26
+  private final int rightLEDLength = 21;  //should be the correct length as of 3/27/26
   private final int pwmPort = 9;
 
   //LEDs per Meter

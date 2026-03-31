@@ -65,7 +65,7 @@ public class Shooter extends SubsystemBase {
   private double targetVelocityMetersPerSec = 16;
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(2));
 
-  private double speed = 0.7;
+  private double speed = 0.62;
 
   //SysID
   private final VoltageOut m_voltReq = new VoltageOut(0.0);
@@ -74,7 +74,7 @@ public class Shooter extends SubsystemBase {
 
   //Shooter Curves
     private final double radius = Units.inchesToMeters(2);
-    private final double frictionCoef = 0.62;
+    private final double frictionCoef = 0.65;
 
   //New Measurment Arrays
   private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters

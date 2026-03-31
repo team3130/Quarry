@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
   private final TalonFXConfiguration motorConfigBars;
 
   private final Slot0Configs configBars;
-  private double kVBars = 10;
+  private double kVBars = 40;
   private double kABars = 0;
   private double kPBars = 0;
   private double kIBars = 0;
@@ -60,8 +60,8 @@ public class Intake extends SubsystemBase {
 
   private double sensorToMechGearRatioBars = 1;
 
-  private double targetAccelerationBars = 100;
-  private double targetVelocityBars = 50;
+  private double targetAccelerationBars = 1000;
+  private double targetVelocityBars = 200;
   
 
   private double sensorToMechGearRatio = 200;
@@ -70,8 +70,9 @@ public class Intake extends SubsystemBase {
   private double targetAcceleration = 1;
   private double targetVelocity = 0.5;
 
-  private double outPos = 0.234;
+  private double outPos = 0.23;
   private double inPos = 0;
+  private double halfPos = 0.115;
   public Intake() {
     limitSwitch = new DigitalInput(Constants.IDs.intakeLimit);
 
@@ -140,6 +141,9 @@ public class Intake extends SubsystemBase {
   }
   public void intakeIn() {
     pivot.setControl(voltRequest.withPosition(inPos));
+  }
+  public void intakeHalf() {
+    pivot.setControl(voltRequest.withPosition(halfPos));
   }
 
   public void basicPivotUp() {pivot.set(-0.2);}

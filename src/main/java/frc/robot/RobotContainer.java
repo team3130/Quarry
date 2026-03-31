@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
+import frc.robot.commands.Chassis.AutoHubToggle;
 import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.commands.Climber.Basic.BasicClimberDown;
 import frc.robot.commands.Climber.Basic.BasicClimberUp;
@@ -37,6 +38,7 @@ import frc.robot.commands.Intake.Basic.BasicPivotIn;
 import frc.robot.commands.Intake.Basic.BasicPivotOut;
 import frc.robot.commands.Intake.Basic.ReverseIntakeBasic;
 import frc.robot.commands.Intake.Basic.RunIntakeBasic;
+import frc.robot.commands.Intake.PID.PivotHalf;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
 import frc.robot.commands.Intake.PID.RunIntake;
@@ -121,7 +123,7 @@ public class RobotContainer {
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
-        new RunHopperHorizontal(hopper, shooter, shooterHood, driveTrain)
+        new RunHopper(hopper)
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
@@ -132,6 +134,8 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Shooter Hood Down", new ShooterHoodDown(shooterHood));
     NamedCommands.registerCommand("Hood To Setpoint", new HoodToSetpoint(shooterHood));
+
+    NamedCommands.registerCommand("Hub Toggle", new AutoHubToggle(driveTrain, driverController, drive, shooter, shooterHood));
     
     // Configure the trigger bindings
     configureBindings();
@@ -179,7 +183,11 @@ public class RobotContainer {
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
-        new RunHopperHorizontal(hopper, shooter, shooterHood, driveTrain)
+        new RunHopper(hopper)
+        //new SequentialCommandGroup(
+          //new WaitCommand(3),
+          //new PivotHalf(intake)
+        //)
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
