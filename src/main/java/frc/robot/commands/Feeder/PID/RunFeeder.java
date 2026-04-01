@@ -35,14 +35,11 @@ public class RunFeeder extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    /* 
-    if(shooter.isAtVelocity() && shooterHood.getAtPosition() && drivetrain.getFacingHub()) {
+    if(shooter.isAtVelocity()) {
       feeder.runFeeder();
     } else {
       feeder.stopFeeder();
     }
-      */
-    feeder.runFeeder();
   }
 
   // Called once the command ends or is interrupted.

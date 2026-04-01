@@ -24,17 +24,18 @@ public class PivotHalf extends Command {
   @Override
   public void initialize() {
     timer.reset();
+    timer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.get() > 3) {
+    if(timer.get() > 2) {
       timer.restart();
-    } else if(timer.get() > 1.5) {
-      intake.intakeHalf(); 
+    } else if(timer.get() > 1) {
+      intake.intakeOut(); 
     } else {
-      intake.intakeOut();
+      intake.intakeHalf();
     }
   }
 

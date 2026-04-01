@@ -123,7 +123,7 @@ public class RobotContainer {
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
-        new RunHopper(hopper)
+        new RunHopper(hopper, shooter, shooterHood, driveTrain)
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
@@ -183,11 +183,11 @@ public class RobotContainer {
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
-        new RunHopper(hopper)
-        //new SequentialCommandGroup(
-          //new WaitCommand(3),
-          //new PivotHalf(intake)
-        //)
+        new RunHopper(hopper, shooter, shooterHood, driveTrain),
+        new SequentialCommandGroup(
+          new WaitCommand(2),
+          new PivotHalf(intake)
+        )
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
@@ -230,7 +230,7 @@ public class RobotContainer {
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().whileTrue(new PivotOut(intake));
     driverController.L2().whileTrue(new RunIntake(intake));
-    driverController.circle().whileTrue(new RunHopper(hopper));
+    driverController.circle().whileTrue(new RunHopper(hopper, shooter, shooterHood, driveTrain));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(
         new ReverseHopperHorizontal(hopper),
@@ -243,7 +243,7 @@ public class RobotContainer {
     operatorController.rightTrigger().whileTrue(new Rev(shooter));
     operatorController.rightBumper().whileTrue(
       new ParallelCommandGroup(
-        new RunHopper(hopper),
+        new RunHopper(hopper, shooter, shooterHood, driveTrain),
         new RunFeeder(feeder, shooter, shooterHood, driveTrain)
       ));
     operatorController.leftTrigger().whileTrue(new RunIntake(intake));

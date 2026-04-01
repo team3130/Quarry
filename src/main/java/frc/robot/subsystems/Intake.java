@@ -54,14 +54,14 @@ public class Intake extends SubsystemBase {
   private final Slot0Configs configBars;
   private double kVBars = 40;
   private double kABars = 0;
-  private double kPBars = 0;
+  private double kPBars = 0.01;
   private double kIBars = 0;
   private double kDBars = 0;
 
-  private double sensorToMechGearRatioBars = 1;
+  private double sensorToMechGearRatioBars = 2;
 
   private double targetAccelerationBars = 1000;
-  private double targetVelocityBars = 200;
+  private double targetVelocityBars = 50;
   
 
   private double sensorToMechGearRatio = 200;
@@ -72,7 +72,7 @@ public class Intake extends SubsystemBase {
 
   private double outPos = 0.23;
   private double inPos = 0;
-  private double halfPos = 0.115;
+  private double halfPos = 0.2;
   public Intake() {
     limitSwitch = new DigitalInput(Constants.IDs.intakeLimit);
 
@@ -243,7 +243,7 @@ public class Intake extends SubsystemBase {
   public void setTargetVelocityBars(double value) {targetVelocityBars = value;}
 
   public double getProfileVelocityBars() {
-    return intake.getClosedLoopReferenceSlope().getValueAsDouble();
+    return intake.getClosedLoopReference().getValueAsDouble();
   }
   public double getProfileAccelerationBars() {
     return intake.getClosedLoopReferenceSlope().getValueAsDouble();
@@ -278,7 +278,7 @@ public class Intake extends SubsystemBase {
     builder.addDoubleProperty("Target Acceleration (rot/s^2)", this::getTargetAcceleration, this::setTargetAcceleration);
     builder.addDoubleProperty("Target Velocity (rot/s)", this::getTargetVelocity, this::setTargetVelocity);
 
-    builder.addDoubleProperty("Profile Velocity (rot/s)", this::getProfileVelocity, null);
+    builder.addDoubleProperty("Profile Velocity (rps)", this::getProfileVelocity, null);
     builder.addDoubleProperty("Profile Position (rot)", this::getProfilePosition, null);
 
     builder.addDoubleProperty("Stator Current (A)", this::getStatorCurrent, null);
@@ -291,14 +291,14 @@ public class Intake extends SubsystemBase {
     builder.addDoubleProperty("kI", this::getkI, this::setkI);
     builder.addDoubleProperty("kD", this::getkD, this::setkD);
 
-    builder.addDoubleProperty("Intake Velocity (rot/s)", this::getVelocityBars, null);
-    builder.addDoubleProperty("Intake Acceleration (rot/s^2)", this::getAccelerationBars, null);
+    builder.addDoubleProperty("Intake Velocity (rps)", this::getVelocityBars, null);
+    builder.addDoubleProperty("Intake Acceleration (rps^2)", this::getAccelerationBars, null);
 
-    builder.addDoubleProperty("Intake Target Acceleration (rot/s^2)", this::getTargetAccelerationBars, this::setTargetAccelerationBars);
-    builder.addDoubleProperty("Intake Target Velocity (rot/s)", this::getTargetVelocityBars, this::setTargetVelocityBars);
+    builder.addDoubleProperty("Intake Target Acceleration (rps^2)", this::getTargetAccelerationBars, this::setTargetAccelerationBars);
+    builder.addDoubleProperty("Intake Target Velocity (rps)", this::getTargetVelocityBars, this::setTargetVelocityBars);
 
-    builder.addDoubleProperty("Intake Profile Velocity (rot/s)", this::getProfileVelocityBars, null);
-    builder.addDoubleProperty("Intake Profile Acceleration (rot/s^2)", this::getProfileAccelerationBars, null);
+    builder.addDoubleProperty("Intake Profile Velocity (rps)", this::getProfileVelocityBars, null);
+    builder.addDoubleProperty("Intake Profile Acceleration (rps^2)", this::getProfileAccelerationBars, null);
 
     builder.addDoubleProperty("Intake Stator Current (A)", this::getStatorCurrentBars, null);
 
