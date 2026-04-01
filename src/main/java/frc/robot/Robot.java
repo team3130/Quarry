@@ -54,7 +54,6 @@ public class Robot extends TimedRobot {
     m_robotContainer.setDisabledDeviations();
     m_robotContainer.hoodReset();
     m_robotContainer.intakeReset();
-    m_robotContainer.hubToggleReset();
   }
 
   @Override

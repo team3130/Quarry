@@ -22,6 +22,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
@@ -29,6 +30,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -37,6 +39,8 @@ import frc.robot.PowerBank;
 import frc.robot.SlewRateLimiter;
 
 public class Shooter extends SubsystemBase {
+  private boolean isShooting = false;
+
   private final TalonFX leftShooter;
   private final TalonFX rightShooter;
 
@@ -61,7 +65,7 @@ public class Shooter extends SubsystemBase {
   private double targetVelocityMetersPerSec = 16;
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(2));
 
-  private double speed = 0.7;
+  private double speed = 0.62;
 
   //SysID
   private final VoltageOut m_voltReq = new VoltageOut(0.0);
@@ -69,8 +73,8 @@ public class Shooter extends SubsystemBase {
 
 
   //Shooter Curves
-  private final double radius = Units.inchesToMeters(2);
-
+    private final double radius = Units.inchesToMeters(2);
+    private final double frictionCoef = 0.65;
 
   //New Measurment Arrays
   private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
@@ -152,16 +156,21 @@ public class Shooter extends SubsystemBase {
     return m_sysIdRoutine.dynamic(direction);
   }
 
+  public void revAtVelocity(double velocityMetersPerSec, CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
+    Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
+    ballVelocityVector = ballVelocityVector.times(0.45 * velocityMetersPerSec/ballVelocityVector.getNorm());
+    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.getTableAutoAimValue(driveTrain.getDistanceFromHub()) + 9)));
+    Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
+    Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
+    double newVelocityMetersPerSec = velocityVector.getNorm();
 
-
-  public void revAtVelocity(double velocityMetersPerSec) {
-    double radsPerSec = velocityMetersPerSec / Units.inchesToMeters(2);
+    double radsPerSec = newVelocityMetersPerSec / Units.inchesToMeters(2);
     double rotsPerSec = Units.radiansToRotations(radsPerSec);
     rightShooter.setControl(voltRequest.withVelocity(rotsPerSec));
   }
 
-  public void autoRev(double distanceToHub) {
-    rightShooter.setControl(voltRequest.withVelocity(interpolTargetSpeed(distanceToHub)));
+  public void autoRev(CommandSwerveDrivetrain drivetrain, ShooterHood shooterHood) {
+    rightShooter.setControl(voltRequest.withVelocity(interpolTargetSpeed(drivetrain, shooterHood)));
   }
 
   public void rev() {
@@ -253,12 +262,42 @@ public class Shooter extends SubsystemBase {
   }
 
   // Interpolation Request for Velocity
-  public double interpolTargetSpeed(double distance) {
-    double velmps = tableVel.get(distance);//Change tableVel to tableVelLin for linearized velocity.
-    setTargetVelocity(velmps);
-    double radspersec = velmps/(radius);
-    double rotspersec = Units.radiansToRotations(radspersec);
-    return rotspersec;
+  public double interpolTargetSpeed(CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
+    double distance = driveTrain.getDistanceFromHub();
+    double velmps = tableVel.get(distance); 
+      
+    // 1. Get the direction to the hub (Must point AT the hub)
+    Translation2d toHubDir = driveTrain.getTranslationToHub();
+      
+    // 2. Calculate the "Static" components (what the ball does if robot is still)
+    double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.getTableAutoAimValue(distance)));
+    double ballVelHorizontalMag = velmps * Math.cos(hoodAngleRads) * frictionCoef;
+    double ballVelVerticalMag = velmps * Math.sin(hoodAngleRads) * frictionCoef;
+      
+    // 3. Create the Horizontal Ball Velocity Vector (Field Relative)
+    Translation2d ballHorizontalVec = new Translation2d(ballVelHorizontalMag, toHubDir.getAngle());
+
+    // 4. Subtract Robot Velocity (Field Relative) - NO MULTIPLIER
+    Translation2d robotFieldVel = new Translation2d(
+      driveTrain.getSpeeds().vxMetersPerSecond, 
+      driveTrain.getSpeeds().vyMetersPerSecond
+    ).rotateBy(driveTrain.getStatePose().getRotation());
+    // The "Compensated" horizontal vector
+    Translation2d compensatedHorizontalVec = ballHorizontalVec.minus(robotFieldVel);
+
+    // 5. UPDATE SETPOINT: This is the angle the ROBOT must face to cancel drift
+    driveTrain.setAngleSetpoint(compensatedHorizontalVec.getAngle().getDegrees());
+
+    // 6. Calculate New Total Magnitude (3D hypotenuse)
+    double finalTotalVelMps = Math.hypot(compensatedHorizontalVec.getNorm(), ballVelVerticalMag) / frictionCoef;
+      
+    // 7. Update Hood Angle (The tilt changes because horizontal velocity changed)
+    double newHoodAngleDegrees = Math.toDegrees(Math.atan2(ballVelVerticalMag, compensatedHorizontalVec.getNorm()));
+    shooterHood.setAutoAimValue((81 - newHoodAngleDegrees) / 360.0);
+
+    setTargetVelocity(finalTotalVelMps);
+    //driveTrain.setIsShooting(true);
+    return Units.radiansToRotations(finalTotalVelMps / radius);
   }
 
   public double getStatorCurrent() {return rightShooter.getStatorCurrent().getValueAsDouble();}
@@ -266,10 +305,15 @@ public class Shooter extends SubsystemBase {
   public double getGearRatio() {return sensorToMechGearRatio;}
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
 
-  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.1;}
+  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.3;}
+
+  public boolean getIsShooting() {return isShooting;}
+  public void setIsShooting(boolean value) {isShooting = value;}
 
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Shooter");
+
+    builder.addBooleanProperty("Is Shooting", this::getIsShooting, this::setIsShooting);
 
     builder.addDoubleProperty("Velocity (m/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (m/s^2)", this::getAcceleration, null);

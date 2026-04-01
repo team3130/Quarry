@@ -29,20 +29,22 @@ public class ShooterHood extends SubsystemBase {
 
   private final DigitalInput limit;
   private boolean isZeroed = false;
+  private boolean atPosition = false;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kP = 100;
+  private double kP = 250;
   private double kI = 0;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 117.63;
-  private double targetAcceleration = 100;
-  private double targetVelocity = 20;
+  private double sensorToMechGearRatio = 13.07;
+  private double targetAcceleration = 500;
+  private double targetVelocity = 200;
 
-  
+  private double autoAimValue = 0;
+
   //Shooter Curves
   private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.75, 4.15};                              //meters
   private static final double[] angles = 
@@ -83,8 +85,8 @@ public class ShooterHood extends SubsystemBase {
     tableAngle.put(distances[6], angles[6]);
   }
 
-  public void autoAim(double distanceToHub) {
-    hood.setControl(voltRequest.withPosition(distanceToHub));
+  public void autoAim(double distance) {
+    hood.setControl(voltRequest.withPosition(getTableAutoAimValue(distance)));
   }
 
   public void goToAngle(double setpoint) {
@@ -122,6 +124,9 @@ public class ShooterHood extends SubsystemBase {
   public double getVelocity() {return hood.getVelocity().getValueAsDouble();}
   public double getAcceleration() {return hood.getAcceleration().getValueAsDouble();}
 
+  public boolean getAtPosition() {return atPosition;}
+  public void setAtPosition(boolean value) {atPosition = value;}
+
   public double getTargetAcceleration() {return targetAcceleration;}
   public void setTargetAcceleration(double value) {targetAcceleration = value;}
 
@@ -146,8 +151,14 @@ public class ShooterHood extends SubsystemBase {
   public void setZeroed(boolean value) {isZeroed = value;}
 
     //Interpolation Request for Angle
-  public double autoAimValue(double distanceToHub) {
+  public double getTableAutoAimValue(double distanceToHub) {
     return tableAngle.get(distanceToHub);
+  }
+  public double getAutoAimValue() {
+    return autoAimValue;
+  }
+  public void setAutoAimValue(double value) {
+    autoAimValue = value;
   }
 
   public void initSendable(SendableBuilder builder) {
@@ -157,6 +168,7 @@ public class ShooterHood extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Reached", this::limitReached, null);
     builder.addBooleanProperty("Is Zeroed", this::isZeroed, this::setZeroed);
+    builder.addBooleanProperty("Is At Position", this::getAtPosition, this::setAtPosition);
 
     builder.addDoubleProperty("Velocity (rot/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (rot/s^2)", this::getAcceleration, null);
@@ -181,6 +193,12 @@ public class ShooterHood extends SubsystemBase {
     if(limitReached() && !isZeroed && DriverStation.isEnabled()) {
       hood.setPosition(0);
       setZeroed(true);
+    }
+    // Checking if within 0.002 rotations of target
+    if(Math.abs(getPosition() - getAutoAimValue()) < 0.002) {
+      atPosition = true;
+    } else {
+      atPosition = false;
     }
     // This method will be called once per scheduler run
   }

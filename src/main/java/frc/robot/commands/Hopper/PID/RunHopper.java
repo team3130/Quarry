@@ -5,14 +5,23 @@
 package frc.robot.commands.Hopper.PID;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RunHopper extends Command {
   private final Hopper hopper;
+  private final Shooter shooter;
+  private final ShooterHood shooterHood;
+  private final CommandSwerveDrivetrain drivetrain;
   /** Creates a new RunFeeder. */
-  public RunHopper(Hopper hopper) {
+  public RunHopper(Hopper hopper, Shooter shooter, ShooterHood shooterHood, CommandSwerveDrivetrain drivetrain) {
     this.hopper = hopper;
+    this.shooter = shooter;
+    this.shooterHood = shooterHood;
+    this.drivetrain = drivetrain;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(hopper);
   }
@@ -21,12 +30,17 @@ public class RunHopper extends Command {
   @Override
   public void initialize() {
     hopper.updatePID();
-    hopper.runHopper();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    if(shooter.isAtVelocity()) {
+      hopper.runHopper();
+    } else {
+      hopper.stopHopperHorizontal();
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override

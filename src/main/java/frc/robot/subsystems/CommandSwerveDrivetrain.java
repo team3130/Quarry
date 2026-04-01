@@ -55,8 +55,9 @@ import org.json.simple.parser.ParseException;
  * Subsystem so it can easily be used in command-based projects.
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
-    private boolean hubToggle = false;
-    PIDController angularPIDController = new PIDController(0.05, 0.01, 0);
+    private PIDController angularPIDController = new PIDController(0.05, 0.01, 0);
+    private boolean isFacingHub = false;
+    private double angleSetpoint = 0;
 
     public final MySlewRateLimiter driveLimiter = new MySlewRateLimiter(2, -5, 0);
     public final MySlewRateLimiter thetaLimiter = new MySlewRateLimiter(0);
@@ -243,7 +244,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     thetaLimiter.updateValues(limit, -limit);
                     var theta = thetaLimiter.angleCalculate(vector.getAngle().getRadians());
                     Translation2d newVector = new Translation2d(mag, new Rotation2d(theta));
-                    return new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation);
+                    return ChassisSpeeds.discretize(new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation), 0.02);
                 }
             }
             //here we continue if we are decelerating, either small mag or big turn.
@@ -255,12 +256,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             if(newMag < 0.001){ // we have stopped moving
                 isAngleReal = false;
             }
-            return new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation);
+            return ChassisSpeeds.discretize(new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation), 0.02);
         }
         else { //if angle is not real, then we were standing still 20 ms ago
             if(vector.getNorm() < 0.001){ //if the norm is still tiny, then keep idling
                 driveLimiter.reset(0);
-                return new ChassisSpeeds(0,0, rotation);
+                return ChassisSpeeds.discretize(new ChassisSpeeds(0, 0, rotation), 0.02);
             }
             else { //if the norm is significant, start driving
                 isAngleReal = true;
@@ -268,7 +269,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 driveLimiter.setPositiveRateLimit(driveLimiter.getLinearPositiveRateLimit(driveLimiter.lastValue()));
                 var mag = driveLimiter.calculate(vector.getNorm());
                 Translation2d newVector = new Translation2d(mag, vector.getAngle());
-                return new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation);
+                return ChassisSpeeds.discretize(new ChassisSpeeds(newVector.getX(), newVector.getY(), rotation), 0.02);
             }
         }
     }
@@ -284,8 +285,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         xAxis = MathUtil.applyDeadband(xAxis, Constants.Swerve.kDeadband);
         yAxis = MathUtil.applyDeadband(yAxis, Constants.Swerve.kDeadband);
         rotation = MathUtil.applyDeadband(rotation, Constants.Swerve.kDeadband);
-        xAxis *= Math.abs(xAxis) * Constants.Swerve.maxSpeed;
-        yAxis *= Math.abs(yAxis) * Constants.Swerve.maxSpeed;
+        double maxSpeed = 0;
+        if(Math.abs(driverController.getRightY()) > 0.7) {
+            maxSpeed = 1;
+        } else {
+            maxSpeed = Constants.Swerve.maxSpeed;
+        }
+        xAxis *= Math.abs(xAxis) * maxSpeed;
+        yAxis *= Math.abs(yAxis) * maxSpeed;
         rotation *= Math.abs(rotation) * Constants.Swerve.maxAngularRate;
         return new ChassisSpeeds(xAxis, yAxis, rotation);
     }
@@ -296,23 +303,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return input * max;
     }
     
-    public boolean getHubToggle() {return hubToggle;}
-    public void setHubToggle(boolean value) {hubToggle = value;}
+    public double getAngleSetpoint() {return angleSetpoint;}
+    public void setAngleSetpoint(double value) {angleSetpoint = value;}
+
+    public Translation2d getTranslationToHub() {
+        if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+          Translation2d originToBlueHub = new Translation2d(Units.inchesToMeters(181.56),Units.inchesToMeters(158.32));
+          Translation2d blue = getStatePose().getTranslation().minus(originToBlueHub).unaryMinus();
+          return blue;
+      } else {
+          Translation2d originToRedHub = new Translation2d(Units.inchesToMeters(181.56+287),Units.inchesToMeters(158.32));
+          Translation2d red = getStatePose().getTranslation().minus(originToRedHub).unaryMinus();
+          return red;
+      }
+    }
 
     public double getDistanceFromHub() {
-        if(DriverStation.getAlliance().isPresent()) {
-            if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-                Translation2d originToBlueHub = new Translation2d(Units.inchesToMeters(181.56), Units.inchesToMeters(158.32));
-                double distanceBlue = getStatePose().getTranslation().minus(originToBlueHub).getNorm();
-                return distanceBlue;
-            } else {
-                Translation2d originToRedHub = new Translation2d(Units.inchesToMeters(181.56+287), Units.inchesToMeters(158.32));
-                double distanceRed = getStatePose().getTranslation().minus(originToRedHub).getNorm();
-                return distanceRed;
-            }
-        } else {
-            return -1;
-        }
+      return getTranslationToHub().getNorm();
     }
 
 
@@ -457,18 +465,49 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return this.getKinematics().toChassisSpeeds(this.getState().ModuleStates);
     }
-
-    public double getHubToggleVelo(Translation2d hubVector) {
-        angularPIDController.enableContinuousInput(-180, 180);
-        Translation2d robotVector = getState().Pose.getTranslation();
-        Translation2d targetVector = hubVector.minus(robotVector);
-        double targetAngle = targetVector.getAngle().getDegrees();
-        double robotAngle = getState().Pose.getRotation().getDegrees();
-        if(targetAngle - robotAngle > 180) {
-            targetAngle -= 360;
-        } else if(targetAngle - robotAngle < -180) {
-            targetAngle += 360;
-        }
-        return angularPIDController.calculate(robotAngle, targetAngle);
+    public ChassisSpeeds getSpeeds() {
+        return this.getState().Speeds;
     }
+
+    public double getRotationalVelocity(Shooter shooter, Translation2d hubVector, CommandPS5Controller controller) {
+      Translation2d robotVector = getState().Pose.getTranslation();
+      Translation2d targetVector = hubVector.minus(robotVector);
+      double targetAngle = targetVector.getAngle().getDegrees();
+      double robotAngle = getState().Pose.getRotation().getDegrees();
+      // If shooting correct for movement, otherwise just target hub regardless of where you are
+      if (shooter.getIsShooting()) {
+        targetAngle = getAngleSetpoint(); 
+        driveLimiter.setMaxAccel(3);
+        driveLimiter.setNegativeRateLimit(-3);
+      } else {
+        targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
+      }
+      // Keep angles in the range (-180, 180)
+      if(targetAngle - robotAngle > 180) {
+        targetAngle -= 360;
+      } else if(targetAngle - robotAngle < -180) {
+        targetAngle += 360;
+      }
+      // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
+      if(Math.abs(robotAngle - targetAngle) < 5 && getState().Speeds.omegaRadiansPerSecond < 1) {
+        setFacingHub(true);
+      } else {
+        setFacingHub(false);
+      }
+      double angleInput = angularPIDController.calculate(robotAngle, targetAngle);
+
+      Translation2d robotFieldVel = new Translation2d(
+          getState().Speeds.vxMetersPerSecond, 
+          getState().Speeds.vyMetersPerSecond
+      ).rotateBy(getState().Pose.getRotation()); // Field Relative Robot Velocity
+      // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
+      Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+      // Angle correct the opposite direction of movement using w = -v/R
+      double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
+
+      return angleInput + angleOutput;
+    }
+
+    public boolean getFacingHub() {return isFacingHub;}
+    public void setFacingHub(boolean value) {isFacingHub = value;}
 }

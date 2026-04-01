@@ -23,7 +23,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class TeleopDrive extends Command {
+public class AutoHubToggle extends Command {
   private final CommandSwerveDrivetrain driveTrain;
   private final Shooter shooter;
   private final ShooterHood shooterHood;
@@ -34,7 +34,7 @@ public class TeleopDrive extends Command {
   private Translation2d hubVector = new Translation2d(0, 0);
 
   /** Creates a new TeleopDrive. */
-  public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, SwerveRequest.FieldCentric drive,
+  public AutoHubToggle(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, SwerveRequest.FieldCentric drive,
   Shooter shooter, ShooterHood shooterHood) {
     this.driveTrain = driveTrain;
     this.shooter = shooter;
@@ -62,13 +62,7 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
-    if(Math.abs(controller.getRightY()) > 0.7) {
-      targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
-    } else {
-      driveTrain.driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
-      driveTrain.driveLimiter.setNegativeRateLimit(-5);
-      driveTrain.setFacingHub(false);
-    }
+    targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
     driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)
