@@ -19,6 +19,7 @@ public class RunIntake extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    intake.setIsIntaking(true);
     intake.updatePIDBars();
     intake.runIntake();
   }
@@ -30,6 +31,7 @@ public class RunIntake extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    intake.setIsIntaking(false);
     intake.stopIntake();
   }
 

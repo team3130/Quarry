@@ -285,8 +285,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         xAxis = MathUtil.applyDeadband(xAxis, Constants.Swerve.kDeadband);
         yAxis = MathUtil.applyDeadband(yAxis, Constants.Swerve.kDeadband);
         rotation = MathUtil.applyDeadband(rotation, Constants.Swerve.kDeadband);
-        xAxis *= Math.abs(xAxis) * Constants.Swerve.maxSpeed;
-        yAxis *= Math.abs(yAxis) * Constants.Swerve.maxSpeed;
+        double maxSpeed = 0;
+        if(Math.abs(driverController.getRightY()) > 0.7) {
+            maxSpeed = 1;
+        } else {
+            maxSpeed = Constants.Swerve.maxSpeed;
+        }
+        xAxis *= Math.abs(xAxis) * maxSpeed;
+        yAxis *= Math.abs(yAxis) * maxSpeed;
         rotation *= Math.abs(rotation) * Constants.Swerve.maxAngularRate;
         return new ChassisSpeeds(xAxis, yAxis, rotation);
     }
@@ -521,7 +527,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             targetAngle += 360;
         }
         // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
-        if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 0.2) {
+        if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 1) {
             setFacingHub(true);
         } else {
             setFacingHub(false);
