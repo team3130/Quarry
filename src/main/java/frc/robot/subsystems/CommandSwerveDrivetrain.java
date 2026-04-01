@@ -286,7 +286,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         yAxis = MathUtil.applyDeadband(yAxis, Constants.Swerve.kDeadband);
         rotation = MathUtil.applyDeadband(rotation, Constants.Swerve.kDeadband);
         double maxSpeed = 0;
-        if(Math.abs(driverController.getRightY()) > 0.7) {
+        if(Math.abs(driverController.getRightY()) > 0.7 && getStatePose().getX() > Units.inchesToMeters(182.11) && getStatePose().getX() < Units.inchesToMeters(469.11)) {
             maxSpeed = 1;
         } else {
             maxSpeed = Constants.Swerve.maxSpeed;
