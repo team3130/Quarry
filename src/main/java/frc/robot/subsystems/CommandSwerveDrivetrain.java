@@ -317,6 +317,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       return getTranslationToHub().getNorm();
     }
 
+    public double newTargetHubDistance() {
+        Translation2d toHubDir = getTranslationToHub();
+        double deltaTime = 1.4;
+        Translation2d robotFieldVel = new Translation2d(
+            getSpeeds().vxMetersPerSecond, 
+            getSpeeds().vyMetersPerSecond
+        );
+        return toHubDir.minus(robotFieldVel.times(deltaTime)).getNorm();
+    }
+
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -466,7 +476,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public double getRotationalVelocity(Shooter shooter, Translation2d hubVector, CommandPS5Controller controller) {
       Translation2d robotVector = getState().Pose.getTranslation();
       Translation2d targetVector = hubVector.minus(robotVector);
-      double targetAngle = targetVector.getAngle().getDegrees();
+      double targetAngle = getAngleSetpoint();
       double robotAngle = getState().Pose.getRotation().getDegrees();
       // If shooting correct for movement, otherwise just target hub regardless of where you are
       if (shooter.getIsShooting()) {

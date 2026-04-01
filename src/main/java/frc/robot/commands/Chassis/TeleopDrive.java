@@ -62,7 +62,7 @@ public class TeleopDrive extends Command {
   @Override
   public void execute() {
     ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
-    if(Math.abs(controller.getRightY()) > 0.7) {
+    if(controller.circle().getAsBoolean()) {
       targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
     } else {
       driveTrain.driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);

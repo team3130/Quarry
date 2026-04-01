@@ -85,8 +85,8 @@ public class ShooterHood extends SubsystemBase {
     tableAngle.put(distances[6], angles[6]);
   }
 
-  public void autoAim(double distance) {
-    hood.setControl(voltRequest.withPosition(getTableAutoAimValue(distance)));
+  public void autoAim(CommandSwerveDrivetrain drivetrain) {
+    hood.setControl(voltRequest.withPosition(getTableAutoAimValue(drivetrain.newTargetHubDistance())));
   }
 
   public void goToAngle(double setpoint) {
@@ -151,8 +151,8 @@ public class ShooterHood extends SubsystemBase {
   public void setZeroed(boolean value) {isZeroed = value;}
 
     //Interpolation Request for Angle
-  public double getTableAutoAimValue(double distanceToHub) {
-    return tableAngle.get(distanceToHub);
+  public double getTableAutoAimValue(double distance) {
+    return tableAngle.get(distance);
   }
   public double getAutoAimValue() {
     return autoAimValue;

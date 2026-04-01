@@ -33,7 +33,7 @@ public class AutoRev extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.autoRev(drivetrain, shooterHood);
+    shooter.autoRev(drivetrain);
   }
 
   // Called once the command ends or is interrupted.
