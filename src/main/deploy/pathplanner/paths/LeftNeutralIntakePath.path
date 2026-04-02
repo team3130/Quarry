@@ -207,7 +207,18 @@
       }
     }
   ],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.625,
+        "y": 4.0
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 7.5,
+      "maxWaypointRelativePos": 8.0,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [
     {
       "name": "Run Intake Event",
@@ -231,7 +242,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -34.59228868750995
+    "rotation": -33.5
   },
   "reversed": false,
   "folder": null,
