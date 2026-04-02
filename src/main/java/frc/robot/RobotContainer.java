@@ -123,11 +123,15 @@ public class RobotContainer {
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
-        new RunHopper(hopper, shooter, shooterHood, driveTrain)
+        new RunHopper(hopper, shooter, shooterHood, driveTrain),
+        new SequentialCommandGroup(
+          new WaitCommand(2),
+          new PivotHalf(intake)
+        )
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
-    NamedCommands.registerCommand("Run Intake", new RunIntakeBasic(intake));
+    NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
 
     NamedCommands.registerCommand("Pivot Out", new PivotOut(intake));
     NamedCommands.registerCommand("Pivot In", new PivotIn(intake));
