@@ -46,10 +46,10 @@ public class Limelight extends SubsystemBase {
     if(robotHeadingReset) {
       LimelightHelpers.PoseEstimate leftPose = getRobotPose(limelightLeftName, driveTrain);
       LimelightHelpers.PoseEstimate rightPose = getRobotPose(limelightRightName, driveTrain);
-      if(leftPose != null && leftPose.tagCount > 0) {
+      if(leftPose != null && leftPose.tagCount > 1) {
         driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
       }
-      if(rightPose != null && rightPose.tagCount > 0) {
+      if(rightPose != null && rightPose.tagCount > 1) {
         driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
       }
     }
@@ -59,11 +59,11 @@ public class Limelight extends SubsystemBase {
     if(!robotHeadingReset) {
       LimelightHelpers.PoseEstimate leftPose = getMT1RobotPose(limelightLeftName);
       LimelightHelpers.PoseEstimate rightPose = getMT1RobotPose(limelightRightName);
-      if(leftPose != null && leftPose.tagCount > 0) {
+      if(leftPose != null && leftPose.tagCount > 1) {
         driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
         driveTrain.resetRotation(leftPose.pose.getRotation());
       }
-      if(rightPose != null && rightPose.tagCount > 0) {
+      if(rightPose != null && rightPose.tagCount > 1) {
         driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
         driveTrain.resetRotation(rightPose.pose.getRotation());
       }

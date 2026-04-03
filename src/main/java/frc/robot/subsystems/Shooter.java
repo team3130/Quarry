@@ -77,11 +77,12 @@ public class Shooter extends SubsystemBase {
     private final double frictionCoef = 0.65;
 
   //New Measurment Arrays
-  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
+  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};               //meters
   private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9};    //meters per seconds
 
   private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
-      velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
+      velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3]), velocityLinearizer(velocities[4]),
+      velocityLinearizer(velocities[5]), velocityLinearizer(velocities[6])};
 
   //Interpolation Objects
   InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
@@ -145,6 +146,9 @@ public class Shooter extends SubsystemBase {
     tableVelLin.put(distances[1], linearizeVel[1]);
     tableVelLin.put(distances[2], linearizeVel[2]);
     tableVelLin.put(distances[3], linearizeVel[3]);
+    tableVelLin.put(distances[4], linearizeVel[4]);
+    tableVelLin.put(distances[5], linearizeVel[5]);
+    tableVelLin.put(distances[6], linearizeVel[6]);
   }
 
   //SysID
@@ -305,7 +309,7 @@ public class Shooter extends SubsystemBase {
   public double getGearRatio() {return sensorToMechGearRatio;}
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
 
-  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.3;}
+  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 1;}
 
   public boolean getIsShooting() {return isShooting;}
   public void setIsShooting(boolean value) {isShooting = value;}

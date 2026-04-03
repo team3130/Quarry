@@ -42,6 +42,8 @@ import frc.robot.commands.Intake.PID.PivotHalf;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
 import frc.robot.commands.Intake.PID.RunIntake;
+import frc.robot.commands.Intake.PID.RunIntakeAtVelocity;
+import frc.robot.commands.Intake.PID.RunIntakeRange;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.Shooter.PID.AutoRev;
@@ -119,6 +121,17 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Run Shooter", new RunShooter(shooter));
     NamedCommands.registerCommand("Rev Velocity", new RevToVelocity(shooter, driveTrain, shooterHood));
+    NamedCommands.registerCommand("Preload Shooting Sequence", 
+    new ParallelDeadlineGroup(
+      new ParallelCommandGroup(
+        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
+        new RunHopper(hopper, shooter, shooterHood, driveTrain),
+        new ParallelCommandGroup(
+          new PivotHalf(intake),
+          new RunIntakeAtVelocity(intake)
+        )
+      ),
+      new AutoRev(shooter, driveTrain, shooterHood)));
     NamedCommands.registerCommand("Shooting Sequence",
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(
@@ -126,7 +139,10 @@ public class RobotContainer {
         new RunHopper(hopper, shooter, shooterHood, driveTrain),
         new SequentialCommandGroup(
           new WaitCommand(2),
-          new PivotHalf(intake)
+          new ParallelCommandGroup(
+            new PivotHalf(intake),
+            new RunIntakeAtVelocity(intake)
+          )
         )
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
@@ -190,7 +206,10 @@ public class RobotContainer {
         new RunHopper(hopper, shooter, shooterHood, driveTrain),
         new SequentialCommandGroup(
           new WaitCommand(2),
-          new PivotHalf(intake)
+          new ParallelCommandGroup(
+            new PivotHalf(intake),
+            new RunIntakeAtVelocity(intake)
+          )
         )
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
@@ -233,7 +252,7 @@ public class RobotContainer {
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().whileTrue(new PivotOut(intake));
-    driverController.L2().whileTrue(new RunIntake(intake));
+    driverController.L2().whileTrue(new RunIntakeRange(intake, driverController));
     driverController.circle().whileTrue(new RunHopper(hopper, shooter, shooterHood, driveTrain));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(

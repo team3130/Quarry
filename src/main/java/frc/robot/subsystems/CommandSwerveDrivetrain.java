@@ -474,14 +474,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       Translation2d targetVector = hubVector.minus(robotVector);
       double targetAngle = targetVector.getAngle().getDegrees();
       double robotAngle = getState().Pose.getRotation().getDegrees();
-      // If shooting correct for movement, otherwise just target hub regardless of where you are
-      if (shooter.getIsShooting()) {
-        targetAngle = getAngleSetpoint(); 
-        driveLimiter.setMaxAccel(3);
-        driveLimiter.setNegativeRateLimit(-3);
-      } else {
-        targetAngle = hubVector.minus(robotVector).getAngle().getDegrees();
-      }
+      //correct for movement and face hub
+    	targetAngle = getAngleSetpoint();
+    	driveLimiter.setMaxAccel(3);
+    	driveLimiter.setNegativeRateLimit(-3);
       // Keep angles in the range (-180, 180)
       if(targetAngle - robotAngle > 180) {
         targetAngle -= 360;
