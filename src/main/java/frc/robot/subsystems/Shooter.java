@@ -77,11 +77,10 @@ public class Shooter extends SubsystemBase {
     private final double frictionCoef = 0.65;
 
   //New Measurment Arrays
-  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.8, 4.4};                      //meters
-  private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9};    //meters per seconds
+  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.75, 4.15, 5, 6};             //meters
+  private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9, 17.96, 19.51};    //meters per seconds
 
-  private final double[] linearizeVel = {velocityLinearizer(velocities[0]), velocityLinearizer(velocities[1]),
-      velocityLinearizer(velocities[2]), velocityLinearizer(velocities[3])};
+  private final double[] linearizeVel = {};
 
   //Interpolation Objects
   InterpolatingDoubleTreeMap tableVel = new InterpolatingDoubleTreeMap();
@@ -131,20 +130,19 @@ public class Shooter extends SubsystemBase {
          this
       )
     );
+    for(int i = 0; i < velocities.length; i++) {
+      linearizeVel[i] = velocityLinearizer(velocities[i]);
+    }
+
     //Interpolation Double tree for Velocities
-    tableVel.put(distances[0], velocities[0]);
-    tableVel.put(distances[1], velocities[1]);
-    tableVel.put(distances[2], velocities[2]);
-    tableVel.put(distances[3], velocities[3]);
-    tableVel.put(distances[4], velocities[4]);
-    tableVel.put(distances[5], velocities[5]);
-    tableVel.put(distances[6], velocities[6]);
+    for(int i = 0; i < velocities.length; i++) {
+      tableVel.put(distances[i], velocities[i]);
+    }
 
     //Linearized Velocity Table
-    tableVelLin.put(distances[0], linearizeVel[0]);
-    tableVelLin.put(distances[1], linearizeVel[1]);
-    tableVelLin.put(distances[2], linearizeVel[2]);
-    tableVelLin.put(distances[3], linearizeVel[3]);
+    for(int i = 0; i < velocities.length; i++) {
+      tableVelLin.put(distances[i], linearizeVel[i]);
+    }
   }
 
   //SysID
@@ -307,7 +305,7 @@ public class Shooter extends SubsystemBase {
   public double getGearRatio() {return sensorToMechGearRatio;}
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
 
-  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.3;}
+  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 1;}
 
   public boolean getIsShooting() {return isShooting;}
   public void setIsShooting(boolean value) {isShooting = value;}

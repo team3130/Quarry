@@ -10,7 +10,7 @@ import frc.robot.subsystems.Intake;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RunIntakeAtVelocity extends Command {
   private final Intake intake;
-  private final double velocity = 20;
+  private final double velocity = 5;
   /** Creates a new RunIntake. */
   public RunIntakeAtVelocity(Intake intake) {
     this.intake = intake;
