@@ -21,7 +21,7 @@ public class HoodToSetpoint extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterHood.updatePID();
+    //shooterHood.updatePID();
     shooterHood.goToAngle(angle);
   }
 

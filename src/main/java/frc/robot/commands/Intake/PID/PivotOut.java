@@ -19,7 +19,7 @@ public class PivotOut extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intake.updatePID();
+    //intake.updatePID();
     intake.intakeOut();
   }
 
@@ -36,6 +36,6 @@ public class PivotOut extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

@@ -13,7 +13,7 @@ public class RunIntakeRange extends Command {
   private final Intake intake;
   private final CommandPS5Controller controller;
   private final double maxVelocity = 35;
-  private final double minVelocity = 10;
+  private final double minVelocity = 20;
   /** Creates a new RunIntake. */
   public RunIntakeRange(Intake intake, CommandPS5Controller controller) {
     this.intake = intake;
@@ -31,9 +31,8 @@ public class RunIntakeRange extends Command {
   @Override
   public void execute() {
     double range = maxVelocity - minVelocity;
-    double axis = controller.getL2Axis() * Math.abs(controller.getL2Axis());
-    double percent = (axis + 1) / 2;
-    double speed = (range * percent) + minVelocity;
+    double axis = controller.getL2Axis();
+    double speed = (range * axis) + minVelocity;
     intake.runIntakeAtVelocity(speed);
   }
 

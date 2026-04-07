@@ -46,10 +46,10 @@ public class Limelight extends SubsystemBase {
     if(robotHeadingReset) {
       LimelightHelpers.PoseEstimate leftPose = getRobotPose(limelightLeftName, driveTrain);
       LimelightHelpers.PoseEstimate rightPose = getRobotPose(limelightRightName, driveTrain);
-      if(leftPose != null && leftPose.tagCount > 1) {
+      if(leftPose != null && leftPose.tagCount > 0) {
         driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
       }
-      if(rightPose != null && rightPose.tagCount > 1) {
+      if(rightPose != null && rightPose.tagCount > 0) {
         driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
       }
     }
@@ -75,6 +75,10 @@ public class Limelight extends SubsystemBase {
 
   public void disabledDeviations(CommandSwerveDrivetrain driveTrain) {
     driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 0.3));
+  }
+
+  public void autonDeviations(CommandSwerveDrivetrain drivetrain) {
+    drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(2, 2, 9999999));
   }
 
   public void enabledDeviations(CommandSwerveDrivetrain driveTrain) {

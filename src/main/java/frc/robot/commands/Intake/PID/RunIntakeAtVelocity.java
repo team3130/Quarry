@@ -20,7 +20,7 @@ public class RunIntakeAtVelocity extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intake.updatePIDBars();
+    //intake.updatePIDBars();
     intake.runIntakeAtVelocity(velocity);
   }
 
