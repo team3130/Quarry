@@ -166,6 +166,10 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
+  public void intakePivotIn() {
+    new BasicPivotIn(intake);
+  }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(BooleanSupplier)} constructor with an arbitrary
@@ -263,7 +267,6 @@ public class RobotContainer {
   }
 
   public void intakeReset() {intake.setZeroed(false);}
-  public void intakeResetPos() {intake.intakeResetPos();}
   public void hoodReset() {shooterHood.setZeroed(false);}
   public void hoodDown() {CommandScheduler.getInstance().schedule(new ShooterHoodDown(shooterHood));}
 

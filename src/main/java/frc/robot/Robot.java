@@ -63,8 +63,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_robotContainer.setAutonDeviations();
-    m_robotContainer.intakeResetPos();
     m_autonomousCommand = m_robotContainer.pick();
+    m_robotContainer.intakePivotIn();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
