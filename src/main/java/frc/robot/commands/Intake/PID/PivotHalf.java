@@ -12,8 +12,8 @@ import frc.robot.subsystems.Intake;
 public class PivotHalf extends Command {
   private final Intake intake;
   private final Timer timer;
-  private final double increment = 0.0333;
-  private double currentPos = 0.15;
+  private final double increment = 0.0166;
+  private double currentPos = 0.10;
   private final double maxPos = 0.05;
   private boolean incremented = false;
   /** Creates a new PivotHalf. */
@@ -35,10 +35,10 @@ public class PivotHalf extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.get() > 2) {
+    if(timer.get() > 1.4) {
       timer.restart();
       incremented = false;
-    } else if(timer.get() > 1) {
+    } else if(timer.get() > 0.7) {
       intake.intakeOut();
       if((currentPos - increment) >= maxPos && !incremented) {
         currentPos -= increment;
