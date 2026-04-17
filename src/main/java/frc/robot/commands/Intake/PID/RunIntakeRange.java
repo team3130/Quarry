@@ -12,8 +12,8 @@ import frc.robot.subsystems.Intake;
 public class RunIntakeRange extends Command {
   private final Intake intake;
   private final CommandPS5Controller controller;
-  private final double maxVelocity = 35;
-  private final double minVelocity = 20;
+  private final double maxVelocity = 40;
+  private final double minVelocity = 25;
   /** Creates a new RunIntake. */
   public RunIntakeRange(Intake intake, CommandPS5Controller controller) {
     this.intake = intake;

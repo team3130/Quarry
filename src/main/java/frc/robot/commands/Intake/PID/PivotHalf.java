@@ -14,7 +14,8 @@ public class PivotHalf extends Command {
   private final Timer timer;
   private final double increment = 0.0333;
   private double currentPos = 0.15;
-  private final double maxPos = 0.05;
+  private double startPos = 0.13055;
+  private final double maxPos = 0.03;
   private boolean incremented = false;
   /** Creates a new PivotHalf. */
   public PivotHalf(Intake intake) {
@@ -35,19 +36,19 @@ public class PivotHalf extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.get() > 2) {
+    if(timer.get() > 1.3) {
       timer.restart();
       incremented = false;
     } else if(timer.get() > 1) {
-      intake.intakeOut();
-      if((currentPos - increment) >= maxPos && !incremented) {
-        currentPos -= increment;
+      intake.intakePivotToSetpoint(0.13055);
+      if((startPos - increment) >= maxPos && !incremented) {
+        startPos -= increment;3
         incremented = true;
       } else if(!incremented) {
-        currentPos = maxPos;
+        startPos = maxPos;
       }
     } else {
-      intake.intakePivotToSetpoint(currentPos);
+      intake.intakePivotToSetpoint(startPos);
     }
   }
 
