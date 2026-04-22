@@ -40,9 +40,9 @@ public class PivotHalf extends Command {
       timer.restart();
       incremented = false;
     } else if(timer.get() > 1) {
-      intake.intakePivotToSetpoint(0.13055);
+      intake.intakePivotToSetpoint(0.12);
       if((startPos - increment) >= maxPos && !incremented) {
-        startPos -= increment;3
+        startPos -= increment;
         incremented = true;
       } else if(!incremented) {
         startPos = maxPos;
