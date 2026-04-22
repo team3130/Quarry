@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     m_robotContainer.setDisabledDeviations();
     m_robotContainer.hoodReset();
-    m_robotContainer.intakeReset();
+    // m_robotContainer.intakeReset();
   }
 
   @Override

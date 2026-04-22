@@ -54,8 +54,8 @@ public class Intake extends SubsystemBase {
 
   private final Slot0Configs configBars;
   private double kVBars = 0.2;
-  private double kABars = 0;
-  private double kPBars = 1;
+  private double kABars = 0.002;
+  private double kPBars = 0.75;
   private double kIBars = 0;
   private double kDBars = 0;
 
