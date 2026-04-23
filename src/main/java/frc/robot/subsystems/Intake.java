@@ -138,7 +138,11 @@ public class Intake extends SubsystemBase {
   }
 
   public void intakeOut() {
-    pivot.setControl(voltRequest.withPosition(outPos));
+    if(isZeroed()) {
+      pivot.setControl(voltRequest.withPosition(outPos));
+    } else {
+      basicPivotUp();
+    }
   }
   public void intakeIn() {
     pivot.setControl(voltRequest.withPosition(inPos));
@@ -316,7 +320,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(atLimit() && !isZeroed && DriverStation.isEnabled()) {
+    if(atLimit() && !isZeroed) {
       pivot.setPosition(0);
       setZeroed(true);
     }

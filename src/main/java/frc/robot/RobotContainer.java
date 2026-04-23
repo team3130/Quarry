@@ -41,6 +41,7 @@ import frc.robot.commands.Intake.Basic.RunIntakeBasic;
 import frc.robot.commands.Intake.PID.PivotHalf;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
+import frc.robot.commands.Intake.PID.RampIntake;
 import frc.robot.commands.Intake.PID.RunIntake;
 import frc.robot.commands.Intake.PID.RunIntakeAtVelocity;
 import frc.robot.commands.Intake.PID.RunIntakeRange;
@@ -209,10 +210,10 @@ public class RobotContainer {
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
         new RunHopper(hopper, shooter, shooterHood, driveTrain),
         new SequentialCommandGroup(
-          new WaitCommand(1),
+          new WaitCommand(1.5),
           new ParallelCommandGroup(
             new PivotHalf(intake),
-            new RunIntakeAtVelocity(intake)
+            new RampIntake(intake)
           )
         )
       ),

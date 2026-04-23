@@ -30,7 +30,7 @@ public class PivotHalf extends Command {
   public void initialize() {
     timer.reset();
     timer.start();
-    currentPos = 0.15;
+    startPos = 0.15;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
