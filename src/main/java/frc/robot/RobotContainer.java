@@ -138,7 +138,7 @@ public class RobotContainer {
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
         new RunHopper(hopper, shooter, shooterHood, driveTrain),
         new SequentialCommandGroup(
-          new WaitCommand(2),
+          new WaitCommand(1),
           new ParallelCommandGroup(
             new PivotHalf(intake),
             new RunIntakeAtVelocity(intake)
@@ -204,7 +204,7 @@ public class RobotContainer {
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
         new RunHopper(hopper, shooter, shooterHood, driveTrain),
         new SequentialCommandGroup(
-          new WaitCommand(2),
+          new WaitCommand(1),
           new ParallelCommandGroup(
             new PivotHalf(intake),
             new RunIntakeAtVelocity(intake)
@@ -213,45 +213,10 @@ public class RobotContainer {
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
-    //driverController.povLeft().whileTrue(new Rev(shooter));
-
-    //driverController.R1().whileTrue(new ShooterHoodDown(shooterHood));
-    //driverController.L2().whileTrue(new ReverseShooter(shooter));
-
-    //driverController.options().whileTrue(new HoodToSetpoint(shooterHood));
-    //driverController.povLeft().whileTrue(new ShooterHoodUp(shooterHood));
-    //driverController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
-
-    //driverController.L1().whileTrue(new RunFeederBasic(feeder));
-    //driverController.L2().whileTrue(new ReverseFeederBasic(feeder));
-
-    //driverController.square().whileTrue(new RunHopperHorizontal(hopper));
-    //driverController.circle().whileTrue(new ReverseHopperHorizontal(hopper));
-
-    //Binded Buttons Currently: R2:Shooting, L1:Outtaking, L2:Intaking, Commented Out: Cross:Shake_Hopper, Circle:Shake_Intake
-
-    // driverController.circle().whileTrue(new SequentialCommandGroup(
-    //   new ParallelDeadlineGroup(
-    //     new WaitCommand(0.1)
-    //     , new intakeReverseShake(intake)),
-    //     new ParallelDeadlineGroup(
-    //     new WaitCommand(0.1)
-    //     , new RunIntake(intake))
-    // ));
-
-    // driverController.cross().whileTrue(new SequentialCommandGroup(
-    //   new ParallelDeadlineGroup(
-    //     new WaitCommand(0.1)
-    //     , new ReverseHopperHorizontal(hopper)),
-    //     new ParallelDeadlineGroup(
-    //     new WaitCommand(0.1)
-    //     , new RunHopperHorizontal(hopper))
-    // ));
-
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().onTrue(new PivotOut(intake));
-    driverController.L2().whileTrue(new RunIntake(intake));
+    driverController.L2().whileTrue(new RunIntakeRange(intake, driverController));
     driverController.circle().whileTrue(new RunHopper(hopper, shooter, shooterHood, driveTrain));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(
@@ -312,8 +277,11 @@ public class RobotContainer {
     limelight.setRobotHeadingReset(false);
     limelight.disabledDeviations(driveTrain);
   }
-  public void setEnabledDeviations() {
+  public void setAutonDeviations() {
     limelight.setRobotHeadingReset(true);
+    limelight.autonDeviations(driveTrain);
+  }
+  public void setTeleopDeviations() {
     limelight.enabledDeviations(driveTrain);
   }
 

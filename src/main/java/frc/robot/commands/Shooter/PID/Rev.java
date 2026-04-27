@@ -20,7 +20,7 @@ public class Rev extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.updatePID();
+    //shooter.updatePID();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

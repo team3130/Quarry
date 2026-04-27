@@ -66,10 +66,10 @@ public class Intake extends SubsystemBase {
   private double sensorToMechGearRatio = 200;
   private double offset = 0;
 
-  private double targetAcceleration = 1;
-  private double targetVelocity = 0.5;
+  private double targetAcceleration = 32;
+  private double targetVelocity = 2;
 
-  private double outPos = 0.23;
+  private double outPos = 0.22;
   private double inPos = 0;
   private double halfPos = 0.05;
   public Intake() {
@@ -143,6 +143,9 @@ public class Intake extends SubsystemBase {
   }
   public void intakeHalf() {
     pivot.setControl(voltRequest.withPosition(halfPos));
+  }
+  public void intakePivotToSetpoint(double pos) {
+    pivot.setControl(voltRequest.withPosition(pos));
   }
 
   public void basicPivotUp() {pivot.set(-0.2);}

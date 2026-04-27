@@ -33,7 +33,7 @@ public class Hopper extends SubsystemBase {
   private double kD = 0;
 
   private double sensorToMechGearRatio = 3;
-  private double targetVelocity = 25;
+  private double targetVelocity = 30;
   private double targetAcceleration = 100;
   /** Creates a new Hopper. */
   public Hopper() {

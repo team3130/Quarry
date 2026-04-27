@@ -4,6 +4,7 @@
 
 package frc.robot.commands.Hopper.PID;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hopper;
@@ -16,6 +17,7 @@ public class RunHopper extends Command {
   private final Shooter shooter;
   private final ShooterHood shooterHood;
   private final CommandSwerveDrivetrain drivetrain;
+  private final Timer timer = new Timer();
   /** Creates a new RunFeeder. */
   public RunHopper(Hopper hopper, Shooter shooter, ShooterHood shooterHood, CommandSwerveDrivetrain drivetrain) {
     this.hopper = hopper;
@@ -29,16 +31,15 @@ public class RunHopper extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    hopper.updatePID();
+    timer.restart();
+    //hopper.updatePID();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(shooter.isAtVelocity()) {
+    if(timer.get() > 0.1) {
       hopper.runHopper();
-    } else {
-      hopper.stopHopperHorizontal();
     }
   }
 
