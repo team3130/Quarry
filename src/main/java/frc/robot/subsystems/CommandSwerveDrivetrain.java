@@ -55,7 +55,12 @@ import org.json.simple.parser.ParseException;
  * Subsystem so it can easily be used in command-based projects.
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
-    private PIDController angularPIDController = new PIDController(0.05, 0.02, 0);
+    private double angularkP = 0.1;
+    private double angularkI = 0;
+    private double angularkD = 0;
+
+
+    private PIDController angularPIDController = new PIDController(angularkP, angularkI, angularkD);
     private boolean isFacingHub = false;
     private double angleSetpoint = 0;
 
@@ -504,6 +509,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       return angleInput + angleOutput;
     }
 
+    public double getkPAngular() {return angularkP;}
+    public double getkIAngular() {return angularkI;}
+    public double getkDAngular() {return angularkD;}
+    public void setkPAngular(double value) {angularkP = value;}
+    public void setkIAngular(double value) {angularkI = value;}
+    public void setkDAngular(double value) {angularkD = value;}
+
+    public void updatePIDAngular() {
+        PIDController angularPIDController = new PIDController(angularkP, angularkI, angularkD);
+    }
+
     public boolean getFacingHub() {return isFacingHub;}
     public void setFacingHub(boolean value) {isFacingHub = value;}
+
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("Drivetrain");
+
+        builder.addDoubleProperty("kP", this::getkPAngular, this::setkPAngular);
+        builder.addDoubleProperty("kI", this::getkIAngular, this::setkIAngular);
+        builder.addDoubleProperty("kD", this::getkDAngular, this::setkDAngular);
+    }
 }
