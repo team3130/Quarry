@@ -251,6 +251,21 @@ public class RobotContainer {
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
+    driverController.R1().whileTrue(
+    new ParallelDeadlineGroup(
+      new ParallelCommandGroup(
+        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
+        new RunHopper(hopper, shooter, shooterHood, driveTrain),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new ParallelCommandGroup(
+            new PivotHalfLowMode(intake),
+            new RunIntakeAtVelocity(intake)
+          )
+        )
+      ),
+      new AutoRev(shooter, driveTrain, shooterHood)));
+
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().onTrue(new PivotOut(intake));
