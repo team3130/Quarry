@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
   private double sensorToMechGearRatioBars = 2;
 
   private double targetAccelerationBars = 200;
-  private double targetVelocityBars = 40;
+  private double targetVelocityBars = 35;
 
   private double sensorToMechGearRatio = 200;
   private double offset = 0;
@@ -320,9 +320,9 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(atLimit() && !isZeroed) {
-      pivot.setPosition(0);
-      setZeroed(true);
-    }
+    // if(atLimit() && !isZeroed) {
+    //   pivot.setPosition(0);
+    //   setZeroed(true);
+    // }
   }
 }

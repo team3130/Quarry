@@ -20,7 +20,7 @@ public class RunIntake extends Command {
   @Override
   public void initialize() {
     intake.setIsIntaking(true);
-    //intake.updatePIDBars();
+    intake.updatePIDBars();
     intake.runIntake();
   }
 

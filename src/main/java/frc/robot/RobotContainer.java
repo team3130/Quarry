@@ -222,7 +222,7 @@ public class RobotContainer {
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().onTrue(new PivotOut(intake));
-    driverController.L2().whileTrue(new RunIntakeRange(intake, driverController));
+    driverController.L2().whileTrue(new RunIntake(intake));
     driverController.circle().whileTrue(new RunHopper(hopper, shooter, shooterHood, driveTrain));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(
