@@ -35,13 +35,13 @@ public class ShooterHood extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kP = 250;
-  private double kI = 0;
+  private double kP = 300;
+  private double kI = 200;
   private double kD = 0;
 
   private double sensorToMechGearRatio = 13.07;
-  private double targetAcceleration = 500;
-  private double targetVelocity = 200;
+  private double targetAcceleration = 1000;
+  private double targetVelocity = 400;
 
   private double autoAimValue = 0;
 

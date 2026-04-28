@@ -41,6 +41,7 @@ import frc.robot.commands.Intake.Basic.RunIntakeBasic;
 import frc.robot.commands.Intake.PID.PivotHalf;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
+import frc.robot.commands.Intake.PID.RampIntake;
 import frc.robot.commands.Intake.PID.RunIntake;
 import frc.robot.commands.Intake.PID.RunIntakeAtVelocity;
 import frc.robot.commands.Intake.PID.RunIntakeRange;
@@ -166,6 +167,10 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
+  public void intakePivotIn() {
+    new BasicPivotIn(intake);
+  }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(BooleanSupplier)} constructor with an arbitrary
@@ -204,10 +209,10 @@ public class RobotContainer {
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
         new RunHopper(hopper, shooter, shooterHood, driveTrain),
         new SequentialCommandGroup(
-          new WaitCommand(1),
+          new WaitCommand(1.5),
           new ParallelCommandGroup(
             new PivotHalf(intake),
-            new RunIntakeAtVelocity(intake)
+            new RampIntake(intake)
           )
         )
       ),
@@ -262,7 +267,6 @@ public class RobotContainer {
   }
 
   public void intakeReset() {intake.setZeroed(false);}
-  public void intakeResetPos() {intake.intakeResetPos();}
   public void hoodReset() {shooterHood.setZeroed(false);}
   public void hoodDown() {CommandScheduler.getInstance().schedule(new ShooterHoodDown(shooterHood));}
 
