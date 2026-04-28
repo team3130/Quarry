@@ -55,12 +55,7 @@ import org.json.simple.parser.ParseException;
  * Subsystem so it can easily be used in command-based projects.
  */
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
-    private double angularkP = 0.1;
-    private double angularkI = 0;
-    private double angularkD = 0;
-
-
-    private PIDController angularPIDController = new PIDController(angularkP, angularkI, angularkD);
+    private PIDController angularPIDController = new PIDController(0.1, 0.005, 0);
     private boolean isFacingHub = false;
     private double angleSetpoint = 0;
 

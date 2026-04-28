@@ -9,16 +9,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PivotHalf extends Command {
+public class PivotHalfLowMode extends Command {
   private final Intake intake;
   private final Timer timer;
-  private final double increment = 0.0333;
-  private double currentPos = 0.15;
-  private double startPos = 0.13055;
-  private final double maxPos = 0.03;
+  private final double increment = 0.02;
+  private double currentPos = 0.075;
+  private final double maxPos = 0.035;
   private boolean incremented = false;
   /** Creates a new PivotHalf. */
-  public PivotHalf(Intake intake) {
+  public PivotHalfLowMode(Intake intake) {
     this.intake = intake;
     this.timer = new Timer();
     // Use addRequirements() here to declare subsystem dependencies
@@ -30,7 +29,7 @@ public class PivotHalf extends Command {
   public void initialize() {
     timer.reset();
     timer.start();
-    startPos = 0.15;
+    currentPos = 0.075;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -40,15 +39,15 @@ public class PivotHalf extends Command {
       timer.restart();
       incremented = false;
     } else if(timer.get() > 1) {
-      intake.intakePivotToSetpoint(0.12);
-      if((startPos - increment) >= maxPos && !incremented) {
-        startPos -= increment;
+      intake.intakeOut();
+      if((currentPos - increment) >= maxPos && !incremented) {
+        currentPos -= increment;
         incremented = true;
       } else if(!incremented) {
-        startPos = maxPos;
+        currentPos = maxPos;
       }
     } else {
-      intake.intakePivotToSetpoint(startPos);
+      intake.intakePivotToSetpoint(currentPos);
     }
   }
 

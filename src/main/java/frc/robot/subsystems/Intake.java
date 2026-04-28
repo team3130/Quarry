@@ -154,6 +154,10 @@ public class Intake extends SubsystemBase {
     pivot.setControl(voltRequest.withPosition(pos));
   }
 
+  public void intakeReset() {
+    pivot.setPosition(0);
+  }
+
   public void basicPivotUp() {pivot.set(-0.2);}
   public void basicPivotDown() {pivot.set(0.2);}
   public void stopPivot() {pivot.set(0);}

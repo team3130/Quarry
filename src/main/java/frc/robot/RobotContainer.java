@@ -39,12 +39,14 @@ import frc.robot.commands.Intake.Basic.BasicPivotOut;
 import frc.robot.commands.Intake.Basic.ReverseIntakeBasic;
 import frc.robot.commands.Intake.Basic.RunIntakeBasic;
 import frc.robot.commands.Intake.PID.PivotHalf;
+import frc.robot.commands.Intake.PID.PivotHalfLowMode;
 import frc.robot.commands.Intake.PID.PivotIn;
 import frc.robot.commands.Intake.PID.PivotOut;
 import frc.robot.commands.Intake.PID.RampIntake;
 import frc.robot.commands.Intake.PID.RunIntake;
 import frc.robot.commands.Intake.PID.RunIntakeAtVelocity;
 import frc.robot.commands.Intake.PID.RunIntakeRange;
+import frc.robot.commands.Intake.PID.resetIntake;
 import frc.robot.commands.Shooter.Basic.ReverseShooter;
 import frc.robot.commands.Shooter.Basic.RunShooter;
 import frc.robot.commands.Shooter.PID.AutoRev;
@@ -148,6 +150,21 @@ public class RobotContainer {
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
+    NamedCommands.registerCommand("Shooting Sequence Low",
+    new ParallelDeadlineGroup(
+      new ParallelCommandGroup(
+        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
+        new RunHopper(hopper, shooter, shooterHood, driveTrain),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new ParallelCommandGroup(
+            new PivotHalfLowMode(intake),
+            new RunIntakeAtVelocity(intake)
+          )
+        )
+      ),
+      new AutoRev(shooter, driveTrain, shooterHood)));
+
     NamedCommands.registerCommand("Run Intake", new RunIntake(intake));
 
     NamedCommands.registerCommand("Pivot Out", new PivotOut(intake));
@@ -219,6 +236,21 @@ public class RobotContainer {
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
+    driverController.R1().whileTrue(
+    new ParallelDeadlineGroup(
+      new ParallelCommandGroup(
+        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
+        new RunHopper(hopper, shooter, shooterHood, driveTrain),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new ParallelCommandGroup(
+            new PivotHalfLowMode(intake),
+            new RunIntakeAtVelocity(intake)
+          )
+        )
+      ),
+      new AutoRev(shooter, driveTrain, shooterHood)));
+
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().onTrue(new PivotOut(intake));
@@ -247,6 +279,8 @@ public class RobotContainer {
     operatorController.b().whileTrue(new BasicClimberUp(climber));
     operatorController.povUp().whileTrue(new ShooterHoodUp(shooterHood));
     operatorController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
+
+    operatorController.a().whileTrue(new resetIntake(intake));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
