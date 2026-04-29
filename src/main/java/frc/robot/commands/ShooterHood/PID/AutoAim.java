@@ -23,7 +23,7 @@ public class AutoAim extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //shooterHood.updatePID();
+    shooterHood.updatePID();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
