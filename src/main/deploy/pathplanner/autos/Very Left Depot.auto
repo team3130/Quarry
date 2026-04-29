@@ -15,7 +15,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.0
+                        "waitTime": 0.25
                       }
                     },
                     {
@@ -30,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "RightNeutralPath"
+                  "pathName": "VeryLeftDepot"
                 }
               }
             ]
