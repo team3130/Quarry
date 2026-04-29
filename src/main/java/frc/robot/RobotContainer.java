@@ -281,11 +281,12 @@ public class RobotContainer {
     driverController.create().whileTrue(new BasicClimberDown(climber));
 
     operatorController.rightTrigger().whileTrue(new Rev(shooter));
-    operatorController.rightBumper().whileTrue(
-      new ParallelCommandGroup(
-        new RunHopper(hopper, shooter, shooterHood, driveTrain),
-        new RunFeeder(feeder, shooter, shooterHood, driveTrain)
-      ));
+    //operatorController.rightBumper().whileTrue(
+    //  new ParallelCommandGroup(
+    //    new RunHopper(hopper, shooter, shooterHood, driveTrain),
+    //    new RunFeeder(feeder, shooter, shooterHood, driveTrain)
+    //  ));
+    operatorController.rightBumper().whileTrue(new RunHopper(hopper, shooter, shooterHood, driveTrain));
     operatorController.leftTrigger().whileTrue(new RunIntake(intake));
     operatorController.leftBumper().whileTrue(new ReverseIntakeBasic(intake));
     operatorController.povLeft().whileTrue(new BasicPivotIn(intake));

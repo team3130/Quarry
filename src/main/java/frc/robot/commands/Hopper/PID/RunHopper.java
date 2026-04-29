@@ -32,7 +32,7 @@ public class RunHopper extends Command {
   @Override
   public void initialize() {
     timer.restart();
-    //hopper.updatePID();
+    hopper.updatePID();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
