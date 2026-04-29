@@ -4,58 +4,43 @@
 
 package frc.robot.commands.Intake.PID;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PivotHalf extends Command {
+public class RampIntake extends Command {
   private final Intake intake;
-  private final Timer timer;
-  private final double increment = 0.0333;
-  private double currentPos = 0.15;
-  private double startPos = 0.13055;
-  private final double maxPos = 0.03;
-  private boolean incremented = false;
-  /** Creates a new PivotHalf. */
-  public PivotHalf(Intake intake) {
+  private boolean incremented;
+  private double velocity;
+  /** Creates a new RunIntake. */
+  public RampIntake(Intake intake) {
     this.intake = intake;
-    this.timer = new Timer();
-    // Use addRequirements() here to declare subsystem dependencies
-    addRequirements(intake);
+    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    timer.reset();
-    timer.start();
-    startPos = 0.15;
+    velocity = 15;
+    incremented = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.get() > 1.3) {
-      timer.restart();
-      incremented = false;
-    } else if(timer.get() > 1) {
-      intake.intakePivotToSetpoint(0.12);
-      if((startPos - increment) >= maxPos && !incremented) {
-        startPos -= increment;
+    if(!incremented) {
+      if(velocity + 5 < 40) {
+        velocity += 5;
         incremented = true;
-      } else if(!incremented) {
-        startPos = maxPos;
       }
-    } else {
-      intake.intakePivotToSetpoint(startPos);
     }
+    intake.runIntakeAtVelocity(velocity);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.intakeOut();
+    intake.stopIntake();
   }
 
   // Returns true when the command should end.

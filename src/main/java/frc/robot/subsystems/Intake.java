@@ -23,6 +23,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -53,15 +54,15 @@ public class Intake extends SubsystemBase {
 
   private final Slot0Configs configBars;
   private double kVBars = 0.2;
-  private double kABars = 0;
-  private double kPBars = 1;
+  private double kABars = 0.002;
+  private double kPBars = 0.75;
   private double kIBars = 0;
   private double kDBars = 0;
 
   private double sensorToMechGearRatioBars = 2;
 
   private double targetAccelerationBars = 200;
-  private double targetVelocityBars = 30;
+  private double targetVelocityBars = 40;
 
   private double sensorToMechGearRatio = 200;
   private double offset = 0;
@@ -135,8 +136,13 @@ public class Intake extends SubsystemBase {
   public void extendIntakeToSetpoint(double setpoint) {
     pivot.setControl(voltRequest.withPosition(setpoint));
   }
+
   public void intakeOut() {
-    pivot.setControl(voltRequest.withPosition(outPos));
+    if(isZeroed()) {
+      pivot.setControl(voltRequest.withPosition(outPos));
+    } else {
+      basicPivotUp();
+    }
   }
   public void intakeIn() {
     pivot.setControl(voltRequest.withPosition(inPos));
@@ -261,8 +267,6 @@ public class Intake extends SubsystemBase {
   public boolean isZeroed() {return isZeroed;}
   public void setZeroed(boolean value) {isZeroed = value;}
 
-  public void intakeResetPos() {pivot.setPosition(0);}
-
   public boolean getIsIntaking() {return isIntaking;}
   public void setIsIntaking(boolean value) {isIntaking = value;}
 
@@ -316,9 +320,9 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    //if(atLimit()) {
-      //pivot.setPosition(0);
-      //setZeroed(true);
-    //}
+    if(atLimit() && !isZeroed) {
+      pivot.setPosition(0);
+      setZeroed(true);
+    }
   }
 }
