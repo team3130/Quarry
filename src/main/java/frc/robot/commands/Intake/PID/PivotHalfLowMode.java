@@ -4,42 +4,57 @@
 
 package frc.robot.commands.Intake.PID;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class RunIntakeRange extends Command {
+public class PivotHalfLowMode extends Command {
   private final Intake intake;
-  private final CommandPS5Controller controller;
-  private final double maxVelocity = 44;
-  private final double minVelocity = 34;
-  /** Creates a new RunIntake. */
-  public RunIntakeRange(Intake intake, CommandPS5Controller controller) {
+  private final Timer timer;
+  private final double increment = 0.02;
+  private double currentPos = 0.075;
+  private final double maxPos = 0.035;
+  private boolean incremented = false;
+  /** Creates a new PivotHalf. */
+  public PivotHalfLowMode(Intake intake) {
     this.intake = intake;
-    this.controller = controller;
-    // Use addRequirements() here to declare subsystem dependencies.
+    this.timer = new Timer();
+    // Use addRequirements() here to declare subsystem dependencies
+    addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //intake.updatePIDBars();
+    timer.reset();
+    timer.start();
+    currentPos = 0.075;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double range = maxVelocity - minVelocity;
-    double axis = controller.getL2Axis();
-    double speed = (range * axis) + minVelocity;
-    intake.runIntakeAtVelocity(speed);
+    if(timer.get() > 1) {
+      timer.restart();
+      incremented = false;
+    } else if(timer.get() > 1) {
+      intake.intakeOut();
+      if((currentPos - increment) >= maxPos && !incremented) {
+        currentPos -= increment;
+        incremented = true;
+      } else if(!incremented) {
+        currentPos = maxPos;
+      }
+    } else {
+      intake.intakePivotToSetpoint(currentPos);
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.stopIntake();
+    intake.intakeOut();
   }
 
   // Returns true when the command should end.
