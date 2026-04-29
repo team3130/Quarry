@@ -53,9 +53,9 @@ public class Intake extends SubsystemBase {
   private final TalonFXConfiguration motorConfigBars;
 
   private final Slot0Configs configBars;
-  private double kVBars = 0.2;
-  private double kABars = 0.002;
-  private double kPBars = 0.75;
+  private double kVBars = 0.2375;
+  private double kABars = 0.00;
+  private double kPBars = 0.25;
   private double kIBars = 0;
   private double kDBars = 0;
 

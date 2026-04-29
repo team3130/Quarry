@@ -504,25 +504,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       return angleInput + angleOutput;
     }
 
-    public double getkPAngular() {return angularkP;}
-    public double getkIAngular() {return angularkI;}
-    public double getkDAngular() {return angularkD;}
-    public void setkPAngular(double value) {angularkP = value;}
-    public void setkIAngular(double value) {angularkI = value;}
-    public void setkDAngular(double value) {angularkD = value;}
+    // public double getkPAngular() {return angularkP;}
+    // public double getkIAngular() {return angularkI;}
+    // public double getkDAngular() {return angularkD;}
+    // public void setkPAngular(double value) {angularkP = value;}
+    // public void setkIAngular(double value) {angularkI = value;}
+    // public void setkDAngular(double value) {angularkD = value;}
 
-    public void updatePIDAngular() {
-        PIDController angularPIDController = new PIDController(angularkP, angularkI, angularkD);
-    }
+    // public void updatePIDAngular() {
+    //     PIDController angularPIDController = new PIDController(angularkP, angularkI, angularkD);
+    // }
 
     public boolean getFacingHub() {return isFacingHub;}
     public void setFacingHub(boolean value) {isFacingHub = value;}
 
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("Drivetrain");
+    // public void initSendable(SendableBuilder builder) {
+    //     builder.setSmartDashboardType("Drivetrain");
 
-        builder.addDoubleProperty("kP", this::getkPAngular, this::setkPAngular);
-        builder.addDoubleProperty("kI", this::getkIAngular, this::setkIAngular);
-        builder.addDoubleProperty("kD", this::getkDAngular, this::setkDAngular);
-    }
+    //     builder.addDoubleProperty("kP", this::getkPAngular, this::setkPAngular);
+    //     builder.addDoubleProperty("kI", this::getkIAngular, this::setkIAngular);
+    //     builder.addDoubleProperty("kD", this::getkDAngular, this::setkDAngular);
+    // }
 }
