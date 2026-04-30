@@ -73,7 +73,7 @@ public class TeleopDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    driveTrain.updatePIDAngular();
+    //driveTrain.updatePIDAngular();
     ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
     if(Math.abs(controller.getRightY()) > 0.7) {
       shooter.interpolTargetSpeed(driveTrain, shooterHood);       //bandaid fix
