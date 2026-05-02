@@ -62,7 +62,9 @@ public class AutoHubToggle extends Command {
   @Override
   public void execute() {
     ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
+    shooter.interpolTargetSpeed(driveTrain, shooterHood);       //bandaid fix
     targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
+  
     driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)

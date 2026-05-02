@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
   private double sensorToMechGearRatioBars = 2;
 
   private double targetAccelerationBars = 200;
-  private double targetVelocityBars = 40;
+  private double targetVelocityBars = 44;
 
   private double sensorToMechGearRatio = 200;
   private double offset = 0;

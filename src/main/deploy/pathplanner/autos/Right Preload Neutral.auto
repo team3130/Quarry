@@ -56,9 +56,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Shooting Sequence"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shooting Sequence"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hub Toggle"
+                }
+              }
+            ]
           }
         }
       ]
