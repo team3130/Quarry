@@ -22,7 +22,7 @@ public class ShooterHoodDown extends Command {
   @Override
   public void initialize() {
     
-    shooterHood.hoodDown(0.075);
+    shooterHood.hoodDown(0.05);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

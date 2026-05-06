@@ -8,7 +8,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -16,32 +15,29 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import frc.robot.AccelLimiter;
-import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TeleopDrive extends Command {
   private final CommandSwerveDrivetrain driveTrain;
-  private final Shooter shooter;
-  private final ShooterHood shooterHood;
   private final CommandPS5Controller controller;
-  private final AccelLimiter accelLimiter;
+  private final double maxSpeed;
+  private final double maxAngularRate;
   private final SwerveRequest.FieldCentric drive;
 
   private Translation2d hubVector = new Translation2d(0, 0);
-
+  private final PIDController pidController;
   /** Creates a new TeleopDrive. */
-  public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, SwerveRequest.FieldCentric drive,
-  Shooter shooter, ShooterHood shooterHood) {
+  public TeleopDrive(CommandSwerveDrivetrain driveTrain, CommandPS5Controller controller, 
+                    double maxSpeed, double maxAngularRate, 
+                    SwerveRequest.FieldCentric drive) {
     this.driveTrain = driveTrain;
-    this.shooter = shooter;
-    this.shooterHood = shooterHood;
     this.controller = controller;
+    this.maxSpeed = maxSpeed;
+    this.maxAngularRate = maxAngularRate;
     this.drive = drive;
-    accelLimiter = new AccelLimiter(15, -15, 0, 1000);
+    pidController = new PIDController(0.05, 0, 0);
+    SmartDashboard.putData(pidController);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveTrain);
   }
@@ -61,19 +57,29 @@ public class TeleopDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
-    if(Math.abs(controller.getRightY()) > 0.7) {
-      shooter.interpolTargetSpeed(driveTrain, shooterHood);       //bandaid fix
-      targetSpeeds.omegaRadiansPerSecond = driveTrain.getRotationalVelocity(shooter, hubVector, controller);
-    } else {
-      driveTrain.driveLimiter.setMaxAccel(Constants.Swerve.maxAccelerationFromRest);
-      driveTrain.driveLimiter.setNegativeRateLimit(-5);
-      driveTrain.setFacingHub(false);
-    }
-    driveTrain.setControl(drive
+    if(driveTrain.getHubToggle()) {
+      Translation2d robotVector = driveTrain.getState().Pose.getTranslation();
+      Translation2d targetVector = hubVector.minus(robotVector);
+      double targetAngle = targetVector.getAngle().getDegrees();
+      double robotAngle = driveTrain.getState().Pose.getRotation().getDegrees();
+      if(targetAngle - robotAngle > 180) {
+        targetAngle -= 360;
+      } else if(targetAngle - robotAngle < -180) {
+        targetAngle += 360;
+      }
+      double angleInput = pidController.calculate(robotAngle, targetAngle);
+      driveTrain.setControl(drive
+                .withVelocityX(driveTrain.applySingleDeadband(-controller.getLeftY(), maxSpeed))
+                .withVelocityY(driveTrain.applySingleDeadband(-controller.getLeftX(), maxSpeed))
+                .withRotationalRate(angleInput));
+      } else {
+      pidController.reset();
+      ChassisSpeeds targetSpeeds = driveTrain.accelLimitVectorDrive(driveTrain.getHIDspeedsMPS(controller));
+      driveTrain.setControl(drive
       .withVelocityX(targetSpeeds.vxMetersPerSecond)
       .withVelocityY(targetSpeeds.vyMetersPerSecond)
       .withRotationalRate(targetSpeeds.omegaRadiansPerSecond));
+    }
   }
 
   // Called once the command ends or is interrupted.

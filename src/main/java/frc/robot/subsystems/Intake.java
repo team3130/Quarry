@@ -4,21 +4,15 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CommutationConfigs;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXSConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -33,9 +27,8 @@ public class Intake extends SubsystemBase {
 
   private final DigitalInput limitSwitch;
   private boolean isZeroed = false;
-  private boolean isIntaking = false;
   
-  private double intakeSpeed = 0.9;
+  private double intakeSpeed = 0.75;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
@@ -48,59 +41,21 @@ public class Intake extends SubsystemBase {
   private double kI = 0;
   private double kD = 0;
 
-  private final MotionMagicVelocityVoltage voltRequestBars;
-  private final TalonFXConfiguration motorConfigBars;
-
-  private final Slot0Configs configBars;
-  private double kVBars = 0.2;
-  private double kABars = 0;
-  private double kPBars = 1;
-  private double kIBars = 0;
-  private double kDBars = 0;
-
-  private double sensorToMechGearRatioBars = 2;
-
-  private double targetAccelerationBars = 200;
-  private double targetVelocityBars = 25;
-
   private double sensorToMechGearRatio = 200;
   private double offset = 0;
 
   private double targetAcceleration = 1;
   private double targetVelocity = 0.5;
 
-  private double outPos = 0.23;
+  private double outPos = 0.234;
   private double inPos = 0;
-  private double halfPos = 0.05;
   public Intake() {
     limitSwitch = new DigitalInput(Constants.IDs.intakeLimit);
 
     intake = new TalonFX(Constants.CAN.intake);
-    intake.getConfigurator().apply(new TalonFXConfiguration()
-    .withMotorOutput(new MotorOutputConfigs()
+    intake.getConfigurator().apply(new TalonFXConfiguration().withMotorOutput(new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast)
         .withInverted(InvertedValue.Clockwise_Positive)));
-
-    configBars = new Slot0Configs();
-    configBars.kV = kVBars;
-    configBars.kA = kABars;
-    configBars.kP = kPBars;
-    configBars.kI = kIBars;
-    configBars.kD = kDBars;
-
-    motorConfigBars = new TalonFXConfiguration();
-    motorConfigBars.MotorOutput = new MotorOutputConfigs()
-        .withNeutralMode(NeutralModeValue.Brake)
-        .withInverted(InvertedValue.Clockwise_Positive);
-    motorConfigBars.MotionMagic = new MotionMagicConfigs()
-        .withMotionMagicAcceleration(targetAccelerationBars)
-        .withMotionMagicCruiseVelocity(targetVelocityBars);
-    motorConfigBars.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(sensorToMechGearRatioBars);
-    motorConfigBars.Slot0 = configBars;
-
-    intake.getConfigurator().apply(motorConfigBars);
-
-    voltRequestBars = new MotionMagicVelocityVoltage(0);
 
     pivot = new TalonFX(Constants.CAN.intakePivot);
 
@@ -141,17 +96,26 @@ public class Intake extends SubsystemBase {
   public void intakeIn() {
     pivot.setControl(voltRequest.withPosition(inPos));
   }
-  public void intakeHalf() {
-    pivot.setControl(voltRequest.withPosition(halfPos));
+
+  public void basicPivotUp() {
+    pivot.set(-0.2);
+  }
+  public void basicPivotDown() {
+    pivot.set(0.2);
+  }
+  public void stopPivot() {
+    pivot.set(0);
   }
 
-  public void basicPivotUp() {pivot.set(-0.2);}
-  public void basicPivotDown() {pivot.set(0.2);}
-  public void stopPivot() {pivot.set(0);}
-
-  public void runIntakeBasic() {intake.set(intakeSpeed);}
-  public void reverseIntakeBasic() {intake.set(-intakeSpeed);}
-  public void stopIntake() {intake.set(0);}
+  public void runIntake() {
+    intake.set(intakeSpeed);
+  }
+  public void reverseIntake() {
+    intake.set(-intakeSpeed);
+  }
+  public void stopIntake() {
+    intake.set(0);
+  }
 
   public double getkG() {return kG;}
   public double getkV() {return kV;}
@@ -204,55 +168,6 @@ public class Intake extends SubsystemBase {
   public void setOutPos(double value) {outPos = value;}
   public void setInPos(double value) {inPos = value;}
 
-  public void runIntakeAtVelocity(double newVelocity) {
-    intake.setControl(voltRequestBars.withVelocity(newVelocity));
-  }
-  public void runIntake() {
-    intake.setControl(voltRequestBars.withVelocity(targetVelocityBars));
-  }
-
-  public double getkVBars() {return kVBars;}
-  public double getkABars() {return kABars;}
-  public double getkPBars() {return kPBars;}
-  public double getkIBars() {return kIBars;}
-  public double getkDBars() {return kDBars;}
-  public void setkVBars(double value) {kVBars = value;}
-  public void setkABars(double value) {kABars = value;}
-  public void setkPBars(double value) {kPBars = value;}
-  public void setkIBars(double value) {kIBars = value;}
-  public void setkDBars(double value) {kDBars = value;}
-
-  public void updatePIDBars() {
-    configBars.kV = kVBars;
-    configBars.kA = kABars;
-    configBars.kP = kPBars;
-    configBars.kI = kIBars;
-    configBars.kD = kDBars;
-    motorConfigBars.Slot0 = configBars;
-    intake.getConfigurator().apply(motorConfigBars);
-  }
-
-  public double getVelocityBars() {return intake.getVelocity().getValueAsDouble();}
-  public double getAccelerationBars() {return intake.getAcceleration().getValueAsDouble();}
-
-  public double getTargetAccelerationBars() {return targetAccelerationBars;}
-  public void setTargetAccelerationBars(double value) {targetAccelerationBars = value;}
-
-  public double getTargetVelocityBars() {return targetVelocityBars;}
-  public void setTargetVelocityBars(double value) {targetVelocityBars = value;}
-
-  public double getProfileVelocityBars() {
-    return intake.getClosedLoopReference().getValueAsDouble();
-  }
-  public double getProfileAccelerationBars() {
-    return intake.getClosedLoopReferenceSlope().getValueAsDouble();
-  }
-
-  public double getGearRatioBars() {return sensorToMechGearRatioBars;}
-  public void setGearRatioBars(double value) {sensorToMechGearRatioBars = value;}
-
-  public double getStatorCurrentBars() {return intake.getStatorCurrent().getValueAsDouble();}
-
   public boolean atLimit() {return limitSwitch.get();}
 
   public boolean isZeroed() {return isZeroed;}
@@ -260,15 +175,11 @@ public class Intake extends SubsystemBase {
 
   public void intakeResetPos() {pivot.setPosition(0);}
 
-  public boolean getIsIntaking() {return isIntaking;}
-  public void setIsIntaking(boolean value) {isIntaking = value;}
-
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Intake");
 
     builder.addBooleanProperty("is Zeroed", this::isZeroed, this::setZeroed);
     builder.addBooleanProperty("Limit Reached", this::atLimit, null);
-    builder.addBooleanProperty("Is Intaking", this::getIsIntaking, this::setIsIntaking);
 
     builder.addDoubleProperty("Position (rot)", this::getPosition, null);
     builder.addDoubleProperty("Velocity (rot/s)", this::getVelocity, null);
@@ -277,7 +188,7 @@ public class Intake extends SubsystemBase {
     builder.addDoubleProperty("Target Acceleration (rot/s^2)", this::getTargetAcceleration, this::setTargetAcceleration);
     builder.addDoubleProperty("Target Velocity (rot/s)", this::getTargetVelocity, this::setTargetVelocity);
 
-    builder.addDoubleProperty("Profile Velocity (rps)", this::getProfileVelocity, null);
+    builder.addDoubleProperty("Profile Velocity (rot/s)", this::getProfileVelocity, null);
     builder.addDoubleProperty("Profile Position (rot)", this::getProfilePosition, null);
 
     builder.addDoubleProperty("Stator Current (A)", this::getStatorCurrent, null);
@@ -290,24 +201,6 @@ public class Intake extends SubsystemBase {
     builder.addDoubleProperty("kI", this::getkI, this::setkI);
     builder.addDoubleProperty("kD", this::getkD, this::setkD);
 
-    builder.addDoubleProperty("Intake Velocity (rps)", this::getVelocityBars, null);
-    builder.addDoubleProperty("Intake Acceleration (rps^2)", this::getAccelerationBars, null);
-
-    builder.addDoubleProperty("Intake Target Acceleration (rps^2)", this::getTargetAccelerationBars, this::setTargetAccelerationBars);
-    builder.addDoubleProperty("Intake Target Velocity (rps)", this::getTargetVelocityBars, this::setTargetVelocityBars);
-
-    builder.addDoubleProperty("Intake Profile Velocity (rps)", this::getProfileVelocityBars, null);
-    builder.addDoubleProperty("Intake Profile Acceleration (rps^2)", this::getProfileAccelerationBars, null);
-
-    builder.addDoubleProperty("Intake Stator Current (A)", this::getStatorCurrentBars, null);
-
-    builder.addDoubleProperty("Intake Sensor to Mech Gear Ratio", this::getGearRatioBars, this::setGearRatioBars);
-
-    builder.addDoubleProperty("Intake kV", this::getkVBars, this::setkVBars);
-    builder.addDoubleProperty("Intake kA", this::getkABars, this::setkABars);
-    builder.addDoubleProperty("Intake kP", this::getkPBars, this::setkPBars);
-    builder.addDoubleProperty("Intake kI", this::getkIBars, this::setkIBars);
-    builder.addDoubleProperty("Intake kD", this::getkDBars, this::setkDBars);
   }
 
   @Override

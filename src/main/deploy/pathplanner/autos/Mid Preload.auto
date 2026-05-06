@@ -5,9 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "MidPreload"
+            "name": "Pivot Out"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shooter Hood Down"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MidPreload"
+                }
+              }
+            ]
           }
         },
         {

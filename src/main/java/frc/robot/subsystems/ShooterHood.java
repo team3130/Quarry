@@ -25,34 +25,33 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterHood extends SubsystemBase {
+  private final CommandSwerveDrivetrain drivetrain;
   private final TalonFX hood;
 
   private final DigitalInput limit;
   private boolean isZeroed = false;
-  private boolean atPosition = false;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kP = 250;
+  private double kP = 100;
   private double kI = 0;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 13.07;
-  private double targetAcceleration = 500;
-  private double targetVelocity = 200;
+  private double sensorToMechGearRatio = 117.63;
 
-  private double autoAimValue = 0;
+  private double targetAcceleration = 500;
+  private double targetVelocity = 100;
 
   //Shooter Curves
-  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.75, 4.15};                              //meters
-  private static final double[] angles = 
-  {0.0058333333, 0.00702777778, 0.02363888889, 0.03336111111, 0.034, 0.0355, 0.036}; //rots from position zero
+  private static final double[] distances = {1,2,3.5,3.6576};//,0,0,0};           //meters
+  private static final double[] angles = {0.002,0.009033,0.05,0.050781};//,0,0,0};     //rots from position zero
 
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
-  public ShooterHood() {
+  public ShooterHood(CommandSwerveDrivetrain drivetrain) {
+    this.drivetrain = drivetrain;
     hood = new TalonFX(Constants.CAN.shooterHood);
     limit = new DigitalInput(Constants.IDs.shooterHoodLimit);
 
@@ -80,13 +79,10 @@ public class ShooterHood extends SubsystemBase {
     tableAngle.put(distances[1], angles[1]);
     tableAngle.put(distances[2], angles[2]);
     tableAngle.put(distances[3], angles[3]);
-    tableAngle.put(distances[4], angles[4]);
-    tableAngle.put(distances[5], angles[5]);
-    tableAngle.put(distances[6], angles[6]);
   }
 
-  public void autoAim(double distance) {
-    hood.setControl(voltRequest.withPosition(getTableAutoAimValue(distance)));
+  public void autoAim() {
+    hood.setControl(voltRequest.withPosition(autoAimValue()));
   }
 
   public void goToAngle(double setpoint) {
@@ -124,9 +120,6 @@ public class ShooterHood extends SubsystemBase {
   public double getVelocity() {return hood.getVelocity().getValueAsDouble();}
   public double getAcceleration() {return hood.getAcceleration().getValueAsDouble();}
 
-  public boolean getAtPosition() {return atPosition;}
-  public void setAtPosition(boolean value) {atPosition = value;}
-
   public double getTargetAcceleration() {return targetAcceleration;}
   public void setTargetAcceleration(double value) {targetAcceleration = value;}
 
@@ -151,14 +144,8 @@ public class ShooterHood extends SubsystemBase {
   public void setZeroed(boolean value) {isZeroed = value;}
 
     //Interpolation Request for Angle
-  public double getTableAutoAimValue(double distanceToHub) {
-    return tableAngle.get(distanceToHub);
-  }
-  public double getAutoAimValue() {
-    return autoAimValue;
-  }
-  public void setAutoAimValue(double value) {
-    autoAimValue = value;
+  public double autoAimValue() {
+    return tableAngle.get(drivetrain.getDistanceFromHub());
   }
 
   public void initSendable(SendableBuilder builder) {
@@ -168,7 +155,6 @@ public class ShooterHood extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Reached", this::limitReached, null);
     builder.addBooleanProperty("Is Zeroed", this::isZeroed, this::setZeroed);
-    builder.addBooleanProperty("Is At Position", this::getAtPosition, this::setAtPosition);
 
     builder.addDoubleProperty("Velocity (rot/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (rot/s^2)", this::getAcceleration, null);
@@ -193,12 +179,6 @@ public class ShooterHood extends SubsystemBase {
     if(limitReached() && !isZeroed && DriverStation.isEnabled()) {
       hood.setPosition(0);
       setZeroed(true);
-    }
-    // Checking if within 0.002 rotations of target
-    if(Math.abs(getPosition() - getAutoAimValue()) < 0.002) {
-      atPosition = true;
-    } else {
-      atPosition = false;
     }
     // This method will be called once per scheduler run
   }

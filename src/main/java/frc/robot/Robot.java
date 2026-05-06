@@ -45,7 +45,6 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     m_robotContainer.updateDisabledOdoFromVision();
     m_robotContainer.updateOdoFromVision();
-    PowerBank.getInstance().calculate();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -54,6 +53,7 @@ public class Robot extends TimedRobot {
     m_robotContainer.setDisabledDeviations();
     m_robotContainer.hoodReset();
     m_robotContainer.intakeReset();
+    m_robotContainer.hubToggleReset();
   }
 
   @Override
