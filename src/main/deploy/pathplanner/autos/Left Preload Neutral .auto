@@ -5,25 +5,19 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "Shooter Hood Down"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 2.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Shooting Sequence"
+                  "name": "Preload Shooting Sequence"
                 }
               }
             ]
@@ -40,7 +34,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.0
+                        "waitTime": 5.0
                       }
                     },
                     {
@@ -55,7 +49,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LeftNeutralIntakePath"
+                  "pathName": "LeftPreloadNeutralPath"
                 }
               }
             ]

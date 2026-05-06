@@ -8,10 +8,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PivotOut extends Command {
+public class RunIntakeAtVelocity extends Command {
   private final Intake intake;
-  /** Creates a new PivotIn. */
-  public PivotOut(Intake intake) {
+  private final double velocity = 5;
+  /** Creates a new RunIntake. */
+  public RunIntakeAtVelocity(Intake intake) {
     this.intake = intake;
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -19,8 +20,8 @@ public class PivotOut extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intake.updatePID();
-    intake.intakeOut();
+    intake.updatePIDBars();
+    intake.runIntakeAtVelocity(velocity);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -30,7 +31,7 @@ public class PivotOut extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //intake.stopPivot();
+    intake.stopIntake();
   }
 
   // Returns true when the command should end.
