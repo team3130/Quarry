@@ -186,7 +186,6 @@ public class RobotContainer {
         new ShooterHoodDown(shooterHood),
         new AutoAim(shooterHood, driveTrain)));
 
-
         // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
     //operatorController.back().and(operatorController.y()).whileTrue(shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));

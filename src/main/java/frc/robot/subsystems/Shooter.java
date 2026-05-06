@@ -157,7 +157,7 @@ public class Shooter extends SubsystemBase {
   public void revAtVelocity(double velocityMetersPerSec, CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
     Translation2d ballVelocityVector = driveTrain.getTranslationToHub();
     ballVelocityVector = ballVelocityVector.times(0.45 * velocityMetersPerSec/ballVelocityVector.getNorm());
-    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.getTableAutoAimValue(driveTrain.getDistanceFromHub()) + 9)));
+    ballVelocityVector = ballVelocityVector.times(Math.cos(Math.toRadians(360 * shooterHood.getTableAutoAimValue(driveTrain.getDistanceForAutoAim()) + 9)));
     Translation2d robotVelocityVector = new Translation2d(driveTrain.getRobotRelativeSpeeds().vxMetersPerSecond, driveTrain.getRobotRelativeSpeeds().vyMetersPerSecond);
     Translation2d velocityVector = ballVelocityVector.minus(robotVelocityVector);
     double newVelocityMetersPerSec = velocityVector.getNorm();
@@ -259,13 +259,15 @@ public class Shooter extends SubsystemBase {
     return Math.sqrt(velmps);
   }
 
+
   // Interpolation Request for Velocity
   public double interpolTargetSpeed(CommandSwerveDrivetrain driveTrain, ShooterHood shooterHood) {
-    double distance = driveTrain.getDistanceFromHub();
+    
+    double distance = driveTrain.getDistanceForAutoAim();
     double velmps = tableVel.get(distance); 
       
     // 1. Get the direction to the hub (Must point AT the hub)
-    Translation2d toHubDir = driveTrain.getTranslationToHub();
+    Translation2d toHubDir = driveTrain.getTranslationForAutoAim();
       
     // 2. Calculate the "Static" components (what the ball does if robot is still)
     double hoodAngleRads = Math.toRadians(81 - (360 * shooterHood.getTableAutoAimValue(distance)));

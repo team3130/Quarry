@@ -286,7 +286,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         yAxis = MathUtil.applyDeadband(yAxis, Constants.Swerve.kDeadband);
         rotation = MathUtil.applyDeadband(rotation, Constants.Swerve.kDeadband);
         double maxSpeed = 0;
-        if(Math.abs(driverController.getRightY()) > 0.7) {
+        if(Math.abs(driverController.getRightY()) > 0.7 && getStatePose().getX() > Units.inchesToMeters(182.11) && getStatePose().getX() < Units.inchesToMeters(469.11)) {
             maxSpeed = 1;
         } else {
             maxSpeed = Constants.Swerve.maxSpeed;
@@ -319,9 +319,47 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       }
     }
 
-    public double getDistanceFromHub() {
+    public Translation2d getTranslationToShuttle() {
+        if(DriverStation.getAlliance().isEmpty()) {return new Translation2d(0, 0);}
+        if(getStatePose().getY() >= Units.inchesToMeters(158.84)) {//if the robot is above the hub then this is the translation
+            if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+                Translation2d originToShuttleUpBlue = new Translation2d(Units.inchesToMeters(181.56-39.37),Units.inchesToMeters(158.84+90.95));
+                Translation2d blue = getStatePose().getTranslation().minus(originToShuttleUpBlue).unaryMinus();
+                return blue;
+            } else {
+                Translation2d originToShuttleUpRed = new Translation2d(Units.inchesToMeters(181.56+287+39.37),Units.inchesToMeters(158.84+90.95));
+                Translation2d red = getStatePose().getTranslation().minus(originToShuttleUpRed).unaryMinus();
+                return red;
+            }
+        } else {//If not above, then below so get below translation
+            if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+                Translation2d originToShuttleDownBlue = new Translation2d(Units.inchesToMeters(181.56-39.37),Units.inchesToMeters(158.84-90.95));
+                Translation2d blue = getStatePose().getTranslation().minus(originToShuttleDownBlue).unaryMinus();
+                return blue;
+            } else {
+                Translation2d originToShuttleDownRed = new Translation2d(Units.inchesToMeters(181.56+287+39.37),Units.inchesToMeters(158.84-90.95));
+                Translation2d red = getStatePose().getTranslation().minus(originToShuttleDownRed).unaryMinus();
+                return red;
+            }
+        }
+        
+    }
+
+    public Translation2d getTranslationForAutoAim() {
+        if(getStatePose().getX() > Units.inchesToMeters(182.11) && getStatePose().getX() < Units.inchesToMeters(469.11)) {
+        return getTranslationToShuttle();
+        } else {
+        return getTranslationToHub();
+        }
+    }
+
+    public double getDistanceForAutoAim() {
+    if(getStatePose().getX() > Units.inchesToMeters(182.11) && getStatePose().getX() < Units.inchesToMeters(469.11)) {
+      return getTranslationToShuttle().getNorm();
+    } else {
       return getTranslationToHub().getNorm();
     }
+}
 
 
     /**
@@ -469,39 +507,58 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.getState().Speeds;
     }
 
-    public double getRotationalVelocity(Shooter shooter, Translation2d hubVector, CommandPS5Controller controller) {
-      Translation2d robotVector = getState().Pose.getTranslation();
-      Translation2d targetVector = hubVector.minus(robotVector);
-      double targetAngle = targetVector.getAngle().getDegrees();
-      double robotAngle = getState().Pose.getRotation().getDegrees();
-      //correct for movement and face hub
-    	targetAngle = getAngleSetpoint();
-    	driveLimiter.setMaxAccel(3);
-    	driveLimiter.setNegativeRateLimit(-3);
-      // Keep angles in the range (-180, 180)
-      if(targetAngle - robotAngle > 180) {
-        targetAngle -= 360;
-      } else if(targetAngle - robotAngle < -180) {
-        targetAngle += 360;
-      }
-      // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
-      if(Math.abs(robotAngle - targetAngle) < 5 && getState().Speeds.omegaRadiansPerSecond < 1) {
-        setFacingHub(true);
-      } else {
-        setFacingHub(false);
-      }
-      double angleInput = angularPIDController.calculate(robotAngle, targetAngle);
+    public double getRotationalVelocity(Shooter shooter, Translation2d targetSpotVector, CommandPS5Controller controller) {
+        Translation2d robotVector = getState().Pose.getTranslation();
+        Translation2d targetVector = targetSpotVector.minus(robotVector);
+        double targetAngle = targetVector.getAngle().getDegrees();
+        double robotAngle = getState().Pose.getRotation().getDegrees();
+        // If shooting correct for movement, otherwise just target hub regardless of where you are
+        if (shooter.getIsShooting()) {
+            targetAngle = getAngleSetpoint(); 
+            driveLimiter.setMaxAccel(3);
+            driveLimiter.setNegativeRateLimit(-3);
+        } else {
+            targetAngle = targetSpotVector.minus(robotVector).getAngle().getDegrees();
+        }
+        // Keep angles in the range (-180, 180)
+        if(targetAngle - robotAngle > 180) {
+            targetAngle -= 360;
+        } else if(targetAngle - robotAngle < -180) {
+            targetAngle += 360;
+        }
+        // Robot angle is within 3 degrees of target angle and rotational velocityy is less than 0.2 rad/s
+        if(Math.abs(robotAngle - targetAngle) < 3 && getState().Speeds.omegaRadiansPerSecond < 1) {
+            setFacingHub(true);
+        } else {
+            setFacingHub(false);
+        }
+        double angleInput = angularPIDController.calculate(robotAngle, targetAngle);
 
-      Translation2d robotFieldVel = new Translation2d(
-          getState().Speeds.vxMetersPerSecond, 
-          getState().Speeds.vyMetersPerSecond
-      ).rotateBy(getState().Pose.getRotation()); // Field Relative Robot Velocity
-      // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
-      Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
-      // Angle correct the opposite direction of movement using w = -v/R
-      double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
+        Translation2d robotFieldVel = new Translation2d(
+            getState().Speeds.vxMetersPerSecond, 
+            getState().Speeds.vyMetersPerSecond
+        ).rotateBy(getState().Pose.getRotation()); // Field Relative Robot Velocity
+        // Calculation of unit tangent vector. Take vector to hub, rotate by 90 degrees to get tangential vector, normalize tangential vector
+        Translation2d unitTangent = targetVector.rotateBy(new Rotation2d(Math.PI/2)).div(targetVector.getNorm());
+        // Angle correct the opposite direction of movement using w = -v/R
+        double angleOutput = -unitTangent.dot(robotFieldVel)/targetVector.getNorm();
 
-      return angleInput + angleOutput;
+        return angleInput + angleOutput;
+    }
+
+    public double getRotationalVelocityHub(Shooter shooter, Translation2d hubVector, CommandPS5Controller controller) {
+      return getRotationalVelocity(shooter, hubVector, controller);
+    }
+
+    public double getRotationalVelocityWhileShuttlingNotHub(Shooter shooter, Translation2d upShuttleVector, Translation2d downShuttleVector, CommandPS5Controller controller) {
+        if(getStatePose().getY() >= Units.inchesToMeters(158.84)){
+            return getRotationalVelocity(shooter, upShuttleVector, controller);
+
+        } if (getStatePose().getY() < Units.inchesToMeters(158.84)) {//If robot is below the hub on the map
+            return getRotationalVelocity(shooter, downShuttleVector, controller);
+        } else { //If robot is out of field
+            return 0;
+        }
     }
 
     public boolean getFacingHub() {return isFacingHub;}
