@@ -294,13 +294,14 @@ public class RobotContainer {
     operatorController.b().whileTrue(new BasicClimberUp(climber));
     operatorController.povUp().whileTrue(new ShooterHoodUp(shooterHood));
     operatorController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
-
+    operatorController.y().whileTrue(new HoodToSetpoint(shooterHood));
     operatorController.a().whileTrue(new resetIntake(intake));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
 
     driveTrain.registerTelemetry(logger::telemeterize);
+
   }
 
   public void exportSmartDashboardData() {
