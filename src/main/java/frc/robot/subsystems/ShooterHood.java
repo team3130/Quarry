@@ -35,13 +35,14 @@ public class ShooterHood extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kP = 300;
-  private double kI = 200;
+  private double kV = 0;
+  private double kP = 1000;
+  private double kI = 1500;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 13.07;
-  private double targetAcceleration = 1000;
-  private double targetVelocity = 400;
+  private double sensorToMechGearRatio = 13.05;
+  private double targetAcceleration = 5;
+  private double targetVelocity = 3;
 
   private double autoAimValue = 0;
 
@@ -57,6 +58,7 @@ public class ShooterHood extends SubsystemBase {
     limit = new DigitalInput(Constants.IDs.shooterHoodLimit);
 
     config = new Slot0Configs();
+    config.kV = kV;
     config.kP = kP;
     config.kI = kI;
     config.kD = kD;
@@ -90,7 +92,7 @@ public class ShooterHood extends SubsystemBase {
   }
 
   public void goToAngle(double setpoint) {
-    hood.setControl(voltRequest.withPosition(setpoint));  
+    hood.setControl(voltRequest.withPosition(setpoint));
   }
 
   public void hoodUp(double speed) {
@@ -105,14 +107,17 @@ public class ShooterHood extends SubsystemBase {
     hood.set(0);
   }
 
+  public double getkV() {return kV;}
   public double getkP() {return kP;}
   public double getkI() {return kI;}
   public double getkD() {return kD;}
+  public void setkV(double value) {kV = value;}
   public void setkP(double value) {kP = value;}
   public void setkI(double value) {kI = value;}
   public void setkD(double value) {kD = value;}
 
   public void updatePID() {
+    config.kV = kV;
     config.kP = kP;
     config.kI = kI;
     config.kD = kD;
@@ -183,6 +188,7 @@ public class ShooterHood extends SubsystemBase {
 
     builder.addDoubleProperty("Sensor to Mech Gear Ratio", this::getGearRatio, this::setGearRatio);
 
+    builder.addDoubleProperty("kV", this::getkV, this::setkV);
     builder.addDoubleProperty("kP", this::getkP, this::setkP);
     builder.addDoubleProperty("kI", this::getkI, this::setkI);
     builder.addDoubleProperty("kD", this::getkD, this::setkD);

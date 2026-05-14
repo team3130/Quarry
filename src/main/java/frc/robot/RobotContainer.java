@@ -251,21 +251,6 @@ public class RobotContainer {
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
-    driverController.R1().whileTrue(
-    new ParallelDeadlineGroup(
-      new ParallelCommandGroup(
-        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
-        new RunHopper(hopper, shooter, shooterHood, driveTrain),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new ParallelCommandGroup(
-            new PivotHalfLowMode(intake),
-            new RunIntakeAtVelocity(intake)
-          )
-        )
-      ),
-      new AutoRev(shooter, driveTrain, shooterHood)));
-
     driverController.povLeft().whileTrue(new PivotIn(intake));
     driverController.povDown().whileTrue(new BasicPivotIn(intake));
     driverController.povRight().onTrue(new PivotOut(intake));
@@ -294,13 +279,14 @@ public class RobotContainer {
     operatorController.b().whileTrue(new BasicClimberUp(climber));
     operatorController.povUp().whileTrue(new ShooterHoodUp(shooterHood));
     operatorController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
-
+    operatorController.y().whileTrue(new HoodToSetpoint(shooterHood));
     operatorController.a().whileTrue(new resetIntake(intake));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
 
     driveTrain.registerTelemetry(logger::telemeterize);
+
   }
 
   public void exportSmartDashboardData() {

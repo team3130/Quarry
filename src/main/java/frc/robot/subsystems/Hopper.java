@@ -26,15 +26,15 @@ public class Hopper extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kV = 1;
+  private double kV = 0.385;
   private double kA = 0;
-  private double kP = 0;
+  private double kP = 1.5;
   private double kI = 0;
   private double kD = 0;
 
   private double sensorToMechGearRatio = 3;
-  private double targetVelocity = 30;
-  private double targetAcceleration = 100;
+  private double targetVelocity = 26.7;
+  private double targetAcceleration = 30;
   /** Creates a new Hopper. */
   public Hopper() {
     hopper = new TalonFX(Constants.CAN.hopper);
@@ -67,7 +67,7 @@ public class Hopper extends SubsystemBase {
     hopper.setControl(voltRequest.withVelocity(velocity));
   }
   public void runHopper() {
-    hopper.setControl(voltRequest.withVelocity(targetVelocity));
+    hopper.setControl(voltRequest.withVelocity(targetVelocity).withAcceleration(targetAcceleration));
   }
 
   public double getkV() {return kV;}
