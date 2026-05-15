@@ -258,7 +258,7 @@ public class RobotContainer {
     driverController.circle().whileTrue(new RunHopper(hopper, shooter, shooterHood, driveTrain));
     driverController.L1().whileTrue(
       new ParallelCommandGroup(
-        new ReverseHopperHorizontal(hopper),
+        //new ReverseHopperHorizontal(hopper),
         new ReverseIntakeBasic(intake)
       ));
 
