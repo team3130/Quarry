@@ -36,7 +36,7 @@ public class PivotHalf extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.get() > 1.25) {
+    if(timer.get() > 1.4) {
       timer.restart();
       incremented = false;
     } else if(timer.get() > 1) {
