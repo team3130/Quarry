@@ -45,7 +45,7 @@ public class Intake extends SubsystemBase {
   private double kG = 0;
   private double kV = 0;
   private double kA = 0;
-  private double kP = 48;
+  private double kP = 120;
   private double kI = 0;
   private double kD = 0;
 
@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
   private double sensorToMechGearRatioBars = 2;
 
   private double targetAccelerationBars = 200;
-  private double targetVelocityBars = 40;
+  private double targetVelocityBars = 44;
 
   private double sensorToMechGearRatio = 200;
   private double offset = 0;

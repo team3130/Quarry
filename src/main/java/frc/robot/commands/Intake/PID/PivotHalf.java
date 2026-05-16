@@ -31,7 +31,7 @@ public class PivotHalf extends Command {
     timer.reset();
     timer.start();
     startPos = 0.11;
-    }
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
