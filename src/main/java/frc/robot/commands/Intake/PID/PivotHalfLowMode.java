@@ -13,7 +13,7 @@ public class PivotHalfLowMode extends Command {
   private final Intake intake;
   private final Timer timer;
   private final double increment = 0.02;
-  private double currentPos = 0.075;
+  private double currentPos = 0.095;
   private final double maxPos = 0.035;
   private boolean incremented = false;
   /** Creates a new PivotHalf. */
@@ -35,7 +35,7 @@ public class PivotHalfLowMode extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.get() > 1) {
+    if(timer.get() > 1.4) {
       timer.restart();
       incremented = false;
     } else if(timer.get() > 1) {

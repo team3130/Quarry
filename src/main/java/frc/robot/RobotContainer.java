@@ -256,11 +256,7 @@ public class RobotContainer {
     driverController.povRight().onTrue(new PivotOut(intake));
     driverController.L2().whileTrue(new RunIntakeRange(intake, driverController));
     driverController.circle().whileTrue(new RunHopper(hopper, shooter, shooterHood, driveTrain));
-    driverController.L1().whileTrue(
-      new ParallelCommandGroup(
-        new ReverseHopperHorizontal(hopper),
-        new ReverseIntakeBasic(intake)
-      ));
+    driverController.L1().whileTrue(new ReverseIntakeBasic(intake));
 
     driverController.options().whileTrue(new BasicClimberUp(climber));
     driverController.create().whileTrue(new BasicClimberDown(climber));
