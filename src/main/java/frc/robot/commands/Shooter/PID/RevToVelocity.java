@@ -5,15 +5,21 @@
 package frc.robot.commands.Shooter.PID;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RevToVelocity extends Command {
   private final Shooter shooter;
+  private final CommandSwerveDrivetrain drivetrain;
+  private final ShooterHood shooterHood;
   private final double velocity = 14;
   /** Creates a new ShootAtVelocity. */
-  public RevToVelocity(Shooter shooter) {
+  public RevToVelocity(Shooter shooter, CommandSwerveDrivetrain drivetrain, ShooterHood shooterHood) {
     this.shooter = shooter;
+    this.drivetrain = drivetrain;
+    this.shooterHood = shooterHood;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter);
   }
@@ -21,7 +27,7 @@ public class RevToVelocity extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.revAtVelocity(velocity);
+    shooter.revAtVelocity(velocity, drivetrain, shooterHood);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -31,7 +37,7 @@ public class RevToVelocity extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.revAtVelocity(0);
+    shooter.stopShooter();
   }
 
   // Returns true when the command should end.

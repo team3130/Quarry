@@ -11,22 +11,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shooter Hood Down"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "RightPreload"
-                }
-              }
-            ]
+            "pathName": "RightPreload"
           }
         },
         {

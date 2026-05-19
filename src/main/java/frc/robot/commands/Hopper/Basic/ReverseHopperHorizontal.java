@@ -2,27 +2,25 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.ShooterHood.PID;
+package frc.robot.commands.Hopper.Basic;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ShooterHood;
+import frc.robot.subsystems.Hopper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class HoodToSetpoint extends Command {
-  private final double rotations = 0.06;
-  private final ShooterHood shooterHood;
-  /** Creates a new HoodToSetpoint. */
-  public HoodToSetpoint(ShooterHood shooterHood) {
-    this.shooterHood = shooterHood;
+public class ReverseHopperHorizontal extends Command {
+  /** Creates a new RunHopperHorizontal. */
+  private final Hopper hopper;
+  public ReverseHopperHorizontal(Hopper hopper) {
+    this.hopper = hopper;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooterHood);
+    addRequirements();
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterHood.updatePID();
-    shooterHood.goToAngle(rotations);
+    hopper.reverseHopperHorizontal();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -32,7 +30,7 @@ public class HoodToSetpoint extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooterHood.goToAngle(0.02);
+    hopper.stopHopperHorizontal();
   }
 
   // Returns true when the command should end.

@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     m_robotContainer.updateDisabledOdoFromVision();
     m_robotContainer.updateOdoFromVision();
+    PowerBank.getInstance().calculate();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -52,8 +53,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     m_robotContainer.setDisabledDeviations();
     m_robotContainer.hoodReset();
-    m_robotContainer.intakeReset();
-    m_robotContainer.hubToggleReset();
+    // m_robotContainer.intakeReset();
   }
 
   @Override
@@ -62,9 +62,9 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_robotContainer.setEnabledDeviations();
-    m_robotContainer.intakeResetPos();
+    m_robotContainer.setAutonDeviations();
     m_autonomousCommand = m_robotContainer.pick();
+    m_robotContainer.intakePivotIn();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.setEnabledDeviations();
+    m_robotContainer.setTeleopDeviations();
   }
 
   /** This function is called periodically during operator control. */

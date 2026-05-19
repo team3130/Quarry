@@ -5,6 +5,25 @@
     "data": {
       "commands": [
         {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Preload Shooting Sequence"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -30,16 +49,29 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "RightNeutralPath"
+                  "pathName": "RightPreloadNeutralPath"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Shooting Sequence"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shooting Sequence"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hub Toggle"
+                }
+              }
+            ]
           }
         }
       ]

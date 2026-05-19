@@ -5,14 +5,17 @@
 package frc.robot.commands.ShooterHood.PID;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ShooterHood;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoAim extends Command {
   private final ShooterHood shooterHood;
+  private final CommandSwerveDrivetrain drivetrain;
   /** Creates a new HoodToSetpoint. */
-  public AutoAim(ShooterHood shooterHood) {
+  public AutoAim(ShooterHood shooterHood, CommandSwerveDrivetrain drivetrain) {
     this.shooterHood = shooterHood;
+    this.drivetrain = drivetrain;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooterHood);
   }
@@ -20,13 +23,13 @@ public class AutoAim extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterHood.updatePID();
+    //shooterHood.updatePID();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooterHood.autoAim();
+    shooterHood.autoAim(drivetrain.getDistanceFromHub());
   }
 
   // Called once the command ends or is interrupted.

@@ -25,37 +25,40 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterHood extends SubsystemBase {
-  private final CommandSwerveDrivetrain drivetrain;
   private final TalonFX hood;
 
   private final DigitalInput limit;
   private boolean isZeroed = false;
+  private boolean atPosition = false;
 
   private final MotionMagicVoltage voltRequest;
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kP = 100;
-  private double kI = 0;
+  private double kV = 0;
+  private double kP = 1000;
+  private double kI = 1500;
   private double kD = 0;
 
-  private double sensorToMechGearRatio = 117.63;
+  private double sensorToMechGearRatio = 13.05;
+  private double targetAcceleration = 5;
+  private double targetVelocity = 3;
 
-  private double targetAcceleration = 500;
-  private double targetVelocity = 100;
+  private double autoAimValue = 0;
 
   //Shooter Curves
-  private static final double[] distances = {1,1.5,2,2.5,3,3.5,4};//,0,0,0};           //meters
-  private static final double[] angles = {0.0001,0.00486111111,0.01002777778,0.01733333333,0.02444444444,0.03136111111,0.03805555556};//,0,0,0};     //rots from position zero
+  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.75, 4.15};                              //meters
+  private static final double[] angles = 
+  {0.0058333333, 0.00702777778, 0.02363888889, 0.03336111111, 0.034, 0.0355, 0.036}; //rots from position zero
 
   InterpolatingDoubleTreeMap tableAngle = new InterpolatingDoubleTreeMap();
   /** Creates a new ShooterHood. */
-  public ShooterHood(CommandSwerveDrivetrain drivetrain) {
-    this.drivetrain = drivetrain;
+  public ShooterHood() {
     hood = new TalonFX(Constants.CAN.shooterHood);
     limit = new DigitalInput(Constants.IDs.shooterHoodLimit);
 
     config = new Slot0Configs();
+    config.kV = kV;
     config.kP = kP;
     config.kI = kI;
     config.kD = kD;
@@ -84,12 +87,12 @@ public class ShooterHood extends SubsystemBase {
     tableAngle.put(distances[6], angles[6]);
   }
 
-  public void autoAim() {
-    hood.setControl(voltRequest.withPosition(autoAimValue()));
+  public void autoAim(double distance) {
+    hood.setControl(voltRequest.withPosition(getTableAutoAimValue(distance)));
   }
 
   public void goToAngle(double setpoint) {
-    hood.setControl(voltRequest.withPosition(setpoint));  
+    hood.setControl(voltRequest.withPosition(setpoint));
   }
 
   public void hoodUp(double speed) {
@@ -104,14 +107,17 @@ public class ShooterHood extends SubsystemBase {
     hood.set(0);
   }
 
+  public double getkV() {return kV;}
   public double getkP() {return kP;}
   public double getkI() {return kI;}
   public double getkD() {return kD;}
+  public void setkV(double value) {kV = value;}
   public void setkP(double value) {kP = value;}
   public void setkI(double value) {kI = value;}
   public void setkD(double value) {kD = value;}
 
   public void updatePID() {
+    config.kV = kV;
     config.kP = kP;
     config.kI = kI;
     config.kD = kD;
@@ -122,6 +128,9 @@ public class ShooterHood extends SubsystemBase {
   public double getPosition() {return hood.getPosition().getValueAsDouble();}
   public double getVelocity() {return hood.getVelocity().getValueAsDouble();}
   public double getAcceleration() {return hood.getAcceleration().getValueAsDouble();}
+
+  public boolean getAtPosition() {return atPosition;}
+  public void setAtPosition(boolean value) {atPosition = value;}
 
   public double getTargetAcceleration() {return targetAcceleration;}
   public void setTargetAcceleration(double value) {targetAcceleration = value;}
@@ -147,8 +156,14 @@ public class ShooterHood extends SubsystemBase {
   public void setZeroed(boolean value) {isZeroed = value;}
 
     //Interpolation Request for Angle
-  public double autoAimValue() {
-    return tableAngle.get(drivetrain.getDistanceFromHub());
+  public double getTableAutoAimValue(double distanceToHub) {
+    return tableAngle.get(distanceToHub);
+  }
+  public double getAutoAimValue() {
+    return autoAimValue;
+  }
+  public void setAutoAimValue(double value) {
+    autoAimValue = value;
   }
 
   public void initSendable(SendableBuilder builder) {
@@ -158,6 +173,7 @@ public class ShooterHood extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Reached", this::limitReached, null);
     builder.addBooleanProperty("Is Zeroed", this::isZeroed, this::setZeroed);
+    builder.addBooleanProperty("Is At Position", this::getAtPosition, this::setAtPosition);
 
     builder.addDoubleProperty("Velocity (rot/s)", this::getVelocity, null);
     builder.addDoubleProperty("Acceleration (rot/s^2)", this::getAcceleration, null);
@@ -172,6 +188,7 @@ public class ShooterHood extends SubsystemBase {
 
     builder.addDoubleProperty("Sensor to Mech Gear Ratio", this::getGearRatio, this::setGearRatio);
 
+    builder.addDoubleProperty("kV", this::getkV, this::setkV);
     builder.addDoubleProperty("kP", this::getkP, this::setkP);
     builder.addDoubleProperty("kI", this::getkI, this::setkI);
     builder.addDoubleProperty("kD", this::getkD, this::setkD);
@@ -182,6 +199,12 @@ public class ShooterHood extends SubsystemBase {
     if(limitReached() && !isZeroed && DriverStation.isEnabled()) {
       hood.setPosition(0);
       setZeroed(true);
+    }
+    // Checking if within 0.002 rotations of target
+    if(Math.abs(getPosition() - getAutoAimValue()) < 0.002) {
+      atPosition = true;
+    } else {
+      atPosition = false;
     }
     // This method will be called once per scheduler run
   }

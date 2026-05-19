@@ -26,9 +26,9 @@ public class Feeder extends SubsystemBase {
   private final TalonFXConfiguration motorConfig;
 
   private final Slot0Configs config;
-  private double kV = 0.12;
+  private double kV = 0.1225;
   private double kA = 0;
-  private double kP = 0;
+  private double kP = 0.3;
   private double kI = 0;
   private double kD = 0;
 
@@ -37,7 +37,7 @@ public class Feeder extends SubsystemBase {
   private double accelerationMetersPerSecSquared = 5;
   private final double accelerationRotations = Units.radiansToRotations(accelerationMetersPerSecSquared/Units.inchesToMeters(0.5));
 
-  private double targetVelocityMetersPerSec = 15;
+  private double targetVelocityMetersPerSec = 5;
   private final double targetVelocityRotations = Units.radiansToRotations(targetVelocityMetersPerSec/Units.inchesToMeters(0.5));
 
   private final double speed = 0.7;
@@ -137,6 +137,8 @@ public class Feeder extends SubsystemBase {
   public double getGearRatio() {return sensorToMechGearRatio;}
   public void setGearRatio(double value) {sensorToMechGearRatio = value;}
 
+  public boolean isAtVelocity() {return Math.abs(getVelocity() - getTargetVelocity()) < 0.1;}
+
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Feeder");
 
@@ -146,10 +148,10 @@ public class Feeder extends SubsystemBase {
     builder.addDoubleProperty("Target Acceleration (m/s^2)", this::getTargetAcceleration, this::setTargetAcceleration);
     builder.addDoubleProperty("Target Velocity (m/s)", this::getTargetVelocity, this::setTargetVelocity);
 
-    builder.addDoubleProperty("Profile Velocity", this::getProfileVelocity, null);
-    builder.addDoubleProperty("Profile Acceleration", this::getProfileAcceleration, null);
+    builder.addDoubleProperty("Profile Velocity (m/s)", this::getProfileVelocity, null);
+    builder.addDoubleProperty("Profile Acceleration (m/s^2)", this::getProfileAcceleration, null);
 
-    builder.addDoubleProperty("Stator Current", this::getStatorCurrent, null);
+    builder.addDoubleProperty("Stator Current (A)", this::getStatorCurrent, null);
 
     builder.addDoubleProperty("Sensor to Mech Gear Ratio", this::getGearRatio, this::setGearRatio);
 

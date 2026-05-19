@@ -2,24 +2,24 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.Chassis;
+package frc.robot.commands.Intake.PID;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class HubToggle extends Command {
-  private final CommandSwerveDrivetrain drivetrain;
-  /** Creates a new HubToggle. */
-  public HubToggle(CommandSwerveDrivetrain drivetrain) {
-    this.drivetrain = drivetrain;
+public class resetIntake extends Command {
+  /** Creates a new resetIntake. */
+  private final Intake intake;
+  public resetIntake(Intake intake) {
+    this.intake = intake;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivetrain.setHubToggle(true);
+    intake.intakeReset();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -28,9 +28,7 @@ public class HubToggle extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    drivetrain.setHubToggle(false);
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
