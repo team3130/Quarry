@@ -71,7 +71,7 @@ public final class Constants {
     // 4.8 max speed, 5 acceleration, drops to 9.6
     public final static double kPhysicalMaxSpeedMetersPerSecond = 1;
     public final static double kDeadband = 0.055;
-    public final static double kMaxAccelerationDrive = 1.25;
+    public final static double kMaxAccelerationDrive = 1;
     public final static double kMaxAccelerationAngularDrive = 1.0 * Math.PI;
 
   }

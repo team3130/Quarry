@@ -251,10 +251,10 @@ public class RobotContainer {
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
 
-    //driverController.povLeft().whileTrue(new PivotIn(intake));
+    operatorController.povLeft().whileTrue(new PivotIn(intake));
     // driverController.povDown().whileTrue(new BasicPivotIn(intake));
-    // driverController.povRight().whileTrue(new PivotOut(intake));
-    // driverController.L2().whileTrue(new RunIntake(intake));
+    operatorController.povRight().whileTrue(new PivotOut(intake));
+    driverController.L2().whileTrue(new RunIntake(intake));
     // driverController.L1().whileTrue(
     //   new ParallelCommandGroup(
     //     new ReverseHopperHorizontal(hopper),
@@ -264,22 +264,22 @@ public class RobotContainer {
     // driverController.options().whileTrue(new BasicClimberUp(climber));
     // driverController.create().whileTrue(new BasicClimberDown(climber));
 
-    operatorController.rightTrigger().whileTrue(new Rev(shooter));
-    operatorController.rightBumper().whileTrue(
-      new ParallelCommandGroup(
-        new RunHopper(hopper, shooter, shooterHood, driveTrain),
-        new RunFeeder(feeder, shooter, shooterHood, driveTrain)
-      ));
-    operatorController.leftTrigger().whileTrue(new RunIntake(intake));
-    operatorController.leftBumper().whileTrue(new ReverseIntakeBasic(intake));
-    operatorController.povLeft().whileTrue(new BasicPivotIn(intake));
-    operatorController.povRight().whileTrue(new BasicPivotOut(intake));
-    operatorController.x().whileTrue(new BasicClimberDown(climber));
-    operatorController.b().whileTrue(new BasicClimberUp(climber));
-    operatorController.povUp().whileTrue(new ShooterHoodUp(shooterHood));
-    operatorController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
-    operatorController.y().whileTrue(new HoodToSetpoint(shooterHood));
-    operatorController.a().whileTrue(new resetIntake(intake));
+    // operatorController.rightTrigger().whileTrue(new Rev(shooter));
+    // operatorController.rightBumper().whileTrue(
+    //   new ParallelCommandGroup(
+    //     new RunHopper(hopper, shooter, shooterHood, driveTrain),
+    //     new RunFeeder(feeder, shooter, shooterHood, driveTrain)
+    //   ));
+    // operatorController.leftTrigger().whileTrue(new RunIntake(intake));
+    // operatorController.leftBumper().whileTrue(new ReverseIntakeBasic(intake));
+    // operatorController.povLeft().whileTrue(new BasicPivotIn(intake));
+    // operatorController.povRight().whileTrue(new BasicPivotOut(intake));
+    // operatorController.x().whileTrue(new BasicClimberDown(climber));
+    // operatorController.b().whileTrue(new BasicClimberUp(climber));
+    // operatorController.povUp().whileTrue(new ShooterHoodUp(shooterHood));
+    // operatorController.povDown().whileTrue(new ShooterHoodDown(shooterHood));
+    // operatorController.y().whileTrue(new HoodToSetpoint(shooterHood));
+    // operatorController.a().whileTrue(new resetIntake(intake));
 
     // reset the field-centric heading on left bumper press
     driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
