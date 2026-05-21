@@ -236,7 +236,7 @@ public class RobotContainer {
     //   ),
     //   new AutoRev(shooter, driveTrain, shooterHood)));
 
-    driverController.R1().whileTrue(
+    driverController.R2().whileTrue(
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(
         new RunFeeder(feeder, shooter, shooterHood, driveTrain),
@@ -253,7 +253,7 @@ public class RobotContainer {
 
     operatorController.povLeft().whileTrue(new PivotIn(intake));
     // driverController.povDown().whileTrue(new BasicPivotIn(intake));
-    operatorController.povRight().whileTrue(new PivotOut(intake));
+    driverController.options().and(driverController.L3()).whileTrue(new PivotOut(intake));
     driverController.L2().whileTrue(new RunIntake(intake));
     // driverController.L1().whileTrue(
     //   new ParallelCommandGroup(

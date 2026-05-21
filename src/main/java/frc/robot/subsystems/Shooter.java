@@ -77,8 +77,8 @@ public class Shooter extends SubsystemBase {
     private final double frictionCoef = 0.65;
 
   //New Measurment Arrays
-  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.75, 4.15, 5, 6};             //meters
-  private static final double[] velocities = {13, 13.48, 13.93, 14.23, 15.8, 16.5, 16.9, 17.96, 19.51};    //meters per seconds
+  private static final double[] distances = {1.2, 1.5, 2, 2.5, 3.4, 3.75, 4.15, 5, 6, 20};             //meters
+  private static final double[] velocities = {13.2, 13.68, 14.13, 14.43, 16.0, 16.7, 17.1, 18.16, 19.71, 48};    //meters per seconds
 
   private final double[] linearizeVel = new double[9];
 
