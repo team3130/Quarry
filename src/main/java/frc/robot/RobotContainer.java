@@ -135,6 +135,7 @@ public class RobotContainer {
         )
       ),
       new AutoRev(shooter, driveTrain, shooterHood)));
+      
     NamedCommands.registerCommand("Shooting Sequence",
     new ParallelDeadlineGroup(
       new ParallelCommandGroup(

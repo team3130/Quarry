@@ -59,13 +59,13 @@ public class Limelight extends SubsystemBase {
     if(!robotHeadingReset) {
       LimelightHelpers.PoseEstimate leftPose = getMT1RobotPose(limelightLeftName);
       LimelightHelpers.PoseEstimate rightPose = getMT1RobotPose(limelightRightName);
-      if(leftPose != null && leftPose.tagCount > 1) {
-        driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
+      if(leftPose != null && leftPose.tagCount > 0) {
         driveTrain.resetRotation(leftPose.pose.getRotation());
+        driveTrain.addVisionMeasurement(leftPose.pose, leftPose.timestampSeconds);
       }
-      if(rightPose != null && rightPose.tagCount > 1) {
-        driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
+      if(rightPose != null && rightPose.tagCount > 0) {
         driveTrain.resetRotation(rightPose.pose.getRotation());
+        driveTrain.addVisionMeasurement(rightPose.pose, rightPose.timestampSeconds);
       }
     }
   }
@@ -74,15 +74,15 @@ public class Limelight extends SubsystemBase {
   public void setRobotHeadingReset(boolean value) {robotHeadingReset = value;}
 
   public void disabledDeviations(CommandSwerveDrivetrain driveTrain) {
-    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 0.3));
+    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.05, 0.05, 0.3));
   }
 
   public void autonDeviations(CommandSwerveDrivetrain drivetrain) {
-    drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(2, 2, 9999999));
+    drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 9999999));
   }
 
   public void enabledDeviations(CommandSwerveDrivetrain driveTrain) {
-    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 9999999));
+    driveTrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.05, 0.05, 9999999));
   }
 
   @Override
