@@ -88,8 +88,8 @@ public class ShooterHood extends SubsystemBase {
     tableAngle.put(distances[7], angles[7]);
   }
 
-  public void autoAim(double distance) {
-    hood.setControl(voltRequest.withPosition(getTableAutoAimValue(distance)));
+  public void autoAim() {
+    hood.setControl(voltRequest.withPosition(getAutoAimValue()));
   }
 
   public void goToAngle(double setpoint) {
@@ -165,6 +165,24 @@ public class ShooterHood extends SubsystemBase {
   }
   public void setAutoAimValue(double value) {
     autoAimValue = value;
+  }
+
+  public void increaseAngle() {
+    if(getAutoAimValue() >= 0.055) {
+
+    }else{
+    double increment = 0.0091666666666;
+    setAutoAimValue(getAutoAimValue() + increment);
+    }
+  }
+
+  public void decreaseAngle() {
+    if(getAutoAimValue() <= 0) {
+
+    }else{
+    double increment = 0.0091666666666;
+    setAutoAimValue(getAutoAimValue() - increment);
+    }
   }
 
   public void initSendable(SendableBuilder builder) {

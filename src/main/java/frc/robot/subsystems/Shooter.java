@@ -130,19 +130,19 @@ public class Shooter extends SubsystemBase {
          this
       )
     );
-    for(int i = 0; i < velocities.length; i++) {
-      linearizeVel[i] = velocityLinearizer(velocities[i]);
-    }
+    // for(int i = 0; i < velocities.length; i++) {
+    //   linearizeVel[i] = velocityLinearizer(velocities[i]);
+    // }
 
-    //Interpolation Double tree for Velocities
-    for(int i = 0; i < velocities.length; i++) {
-      tableVel.put(distances[i], velocities[i]);
-    }
+    // //Interpolation Double tree for Velocities
+    // for(int i = 0; i < velocities.length; i++) {
+    //   tableVel.put(distances[i], velocities[i]);
+    // }
 
-    //Linearized Velocity Table
-    for(int i = 0; i < linearizeVel.length; i++) {
-      tableVelLin.put(distances[i], linearizeVel[i]);
-    }
+    // //Linearized Velocity Table
+    // for(int i = 0; i < linearizeVel.length; i++) {
+    //   tableVelLin.put(distances[i], linearizeVel[i]);
+    // }
   }
 
   //SysID

@@ -56,7 +56,9 @@ import frc.robot.commands.Shooter.PID.RevWithPower;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodDown;
 import frc.robot.commands.ShooterHood.Basic.ShooterHoodUp;
 import frc.robot.commands.ShooterHood.PID.AutoAim;
+import frc.robot.commands.ShooterHood.PID.DecreaseAngle;
 import frc.robot.commands.ShooterHood.PID.HoodToSetpoint;
+import frc.robot.commands.ShooterHood.PID.IncreaseAngle;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -206,7 +208,8 @@ public class RobotContainer {
     shooterHood.setDefaultCommand(
       new SequentialCommandGroup(
         new ShooterHoodDown(shooterHood),
-        new AutoAim(shooterHood, driveTrain)));
+        new AutoAim(shooterHood, driveTrain)
+    ));
 
 
         // Run SysId routines when holding back/start and X/Y.
@@ -236,25 +239,30 @@ public class RobotContainer {
     //   ),
     //   new AutoRev(shooter, driveTrain, shooterHood)));
 
-    driverController.R2().whileTrue(
-    new ParallelDeadlineGroup(
-      new ParallelCommandGroup(
-        new RunFeeder(feeder, shooter, shooterHood, driveTrain),
-        new RunHopper(hopper, shooter, shooterHood, driveTrain),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new ParallelCommandGroup(
-            new PivotHalfLowMode(intake),
-            new RunIntakeAtVelocity(intake)
-          )
-        )
-      ),
-      new AutoRev(shooter, driveTrain, shooterHood)));
+    // driverController.R2().whileTrue(
+    // new ParallelDeadlineGroup(
+    //   new ParallelCommandGroup(
+    //     new RunFeeder(feeder, shooter, shooterHood, driveTrain),
+    //     new RunHopper(hopper, shooter, shooterHood, driveTrain),
+    //     new SequentialCommandGroup(
+    //       new WaitCommand(1),
+    //       new ParallelCommandGroup(
+    //         new PivotHalfLowMode(intake),
+    //         new RunIntakeAtVelocity(intake)
+    //       )
+    //     )
+    //   ),
+    //   new AutoRev(shooter, driveTrain, shooterHood)));
 
-    operatorController.povLeft().whileTrue(new PivotIn(intake));
+    //driverController.R2().whileTrue(getAutonomousCommand())
+
+    //operatorController.povLeft().whileTrue(new PivotIn(intake));
     // driverController.povDown().whileTrue(new BasicPivotIn(intake));
-    driverController.options().and(driverController.L3()).whileTrue(new PivotOut(intake));
+    //driverController.options().and(driverController.L3()).whileTrue(new PivotOut(intake));
     driverController.L2().whileTrue(new RunIntake(intake));
+    driverController.R2().whileTrue(new ParallelCommandGroup(new RunShooter(shooter), new RunFeeder(feeder, shooter, shooterHood, driveTrain), new RunHopper(hopper, shooter, shooterHood, driveTrain)));
+    driverController.povDown().whileTrue(new DecreaseAngle(shooterHood));
+    driverController.povUp().whileTrue(new IncreaseAngle(shooterHood));
     // driverController.L1().whileTrue(
     //   new ParallelCommandGroup(
     //     new ReverseHopperHorizontal(hopper),
@@ -282,7 +290,7 @@ public class RobotContainer {
     // operatorController.a().whileTrue(new resetIntake(intake));
 
     // reset the field-centric heading on left bumper press
-    driverController.povUp().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
+    driverController.povLeft().onTrue(driveTrain.runOnce(() -> driveTrain.seedFieldCentric()));
 
     driveTrain.registerTelemetry(logger::telemeterize);
 
